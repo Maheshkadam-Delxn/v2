@@ -1567,7 +1567,7 @@ export default function DashboardScreen() {
           </View>
         </View>
 
-        <ChartsSection />
+       
 
         <View style={{ height: 32 }} />
       </ScrollView>
