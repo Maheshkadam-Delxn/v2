@@ -1,0 +1,50 @@
+|-- .expo
+    |-- devices.json
+    |-- README.md
+|-- .gitignore
+|-- app.json
+|-- App.jsx
+|-- assets
+    |-- image.jpg
+|-- babel.config.js
+|-- cesconfig.jsonc
+|-- eas.json
+|-- eslint.config.js
+|-- global.css
+|-- metro.config.js
+|-- package-lock.json
+|-- package.json
+|-- prettier.config.js
+|-- src
+    |-- auth
+        |-- OTPScreen.jsx
+        |-- SignInScreen.jsx
+        |-- SignUpScreen.jsx
+    |-- navigation
+        |-- AppNavigator.jsx
+        |-- AuthNavigator.jsx
+        |-- TabNavigator.jsx
+    |-- screens
+        |-- AddNewProjectScreen.jsx
+        |-- components
+            |-- MainLayout.jsx
+            |-- Sidebar.jsx
+        |-- dashboard
+            |-- DashboardHeader.jsx
+            |-- DashboardScreen.jsx
+            |-- ProjectOverviewScreen.jsx
+            |-- settings
+                |-- SettingsEventsScreen.jsx
+                |-- SettingsPermissionScreen.jsx
+                |-- SettingsReminderScreen.jsx
+                |-- SettingsScheduleScreen.jsx
+                |-- SettingsScreen.jsx
+            |-- sidebar
+                |-- MyProjectsScreen.jsx
+                |-- OrganizationEmailScreen.jsx
+                |-- ProfileScreen.jsx
+            |-- user
+                |-- UsersMembersScreen.jsx
+                |-- UsersVendorsScreen.jsx
+        |-- HomeScreen.jsx
+|-- tailwind.config.js

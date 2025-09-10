@@ -20,7 +20,7 @@
   },
   "packageManager": {
     "type": "npm",
-    "version": "10.9.2"
+    "version": "10.9.0"
   },
   "os": {
     "type": "Windows_NT",
