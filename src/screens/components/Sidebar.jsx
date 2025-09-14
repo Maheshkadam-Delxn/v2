@@ -10,14 +10,13 @@ export default function Sidebar() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const handleLogout = () => {
-    // TODO: Implement logout logic (e.g., clear auth token)
     navigation.navigate('SignIn');
   };
 
   return (
     <View className="w-64 bg-blue-900 h-full p-4 ">
       <TouchableOpacity
-        onPress={() => navigation.navigate('Dashboard', { projectId: 1 })} // Default projectId
+        onPress={() => navigation.navigate('Dashboard', { projectId: 1 })} 
         className="mb-6"
       >
         <Text className="text-white text-xl font-bold">Project Dashboard</Text>

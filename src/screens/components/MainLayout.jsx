@@ -21,7 +21,7 @@ export default function MainLayout({ children, title }) {
   return (
     <>
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
-      <View className="flex-1 bg-gray-50 pt-8">
+      <View className="flex-1 bg-gray-50">
         {/* Sidebar with Animation */}
         <Animated.View
           style={{
@@ -34,7 +34,7 @@ export default function MainLayout({ children, title }) {
             zIndex: 10,
           }}
         >
-          <View className="flex-1 bg-blue-900 mt-8">
+          <View className="flex-1 bg-blue-900 ">
             {/* Cross Icon to Close Sidebar */}
             {isSidebarOpen && (
               <TouchableOpacity
