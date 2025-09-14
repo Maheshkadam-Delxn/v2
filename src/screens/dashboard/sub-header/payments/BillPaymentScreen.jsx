@@ -22,6 +22,23 @@ import Animated, {
 const screenWidth = Dimensions.get('window').width;
 const cardWidth = Math.min(screenWidth - 32, 600);
 
+// Color palette to match GRNListScreen
+const colors = {
+  primary: '#1D4ED8',
+  secondary: '#6366F1',
+  success: '#10B981',
+  warning: '#F59E0B',
+  danger: '#EF4444',
+  info: '#3B82F6',
+  background: '#FFFFFF',
+  surface: '#FFFFFF',
+  surfaceVariant: '#F8FAFC',
+  text: '#0F172A',
+  textSecondary: '#475569',
+  textMuted: '#6B7280',
+  border: '#E2E8F0',
+};
+
 // Sample Bill Payment data
 const billPaymentData = [
   {
@@ -216,20 +233,15 @@ const BillPaymentCard = ({ item, expanded, onToggle }) => {
   return (
     <Animated.View entering={FadeInDown.duration(500)}>
       <View style={{
-        borderRadius: 16,
+        borderRadius: 20,
         backgroundColor: '#ffffff',
         marginBottom: 16,
         overflow: 'hidden',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
-        elevation: 4,
       }}>
-        {/* Header */}
+        {/* Header - Matching GRNListScreen */}
         <TouchableOpacity onPress={onToggle}>
-          <LinearGradient 
-            colors={['#1e3a8a', '#1d4ed8']}
+          <LinearGradient
+            colors={['#dbeafe', '#bfdbfe']}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={{ padding: 20 }}
@@ -237,51 +249,42 @@ const BillPaymentCard = ({ item, expanded, onToggle }) => {
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
               <View style={{ flex: 1 }}>
                 <Text style={{ 
-                  fontSize: 16, 
+                  fontSize: 18, 
                   fontWeight: '700', 
-                  color: '#ffffff',
+                  color: '#1e40af',
                   marginBottom: 4
                 }}>
                   {item.poNo}
                 </Text>
                 <Text style={{ 
-                  fontSize: 12, 
-                  color: '#e0f2fe',
-                  marginBottom: 4
+                  fontSize: 13, 
+                  color: '#3b82f6',
+                  marginBottom: 8
                 }}>
-                  PO Date: {item.poDate}
+                  PO Date: {item.poDate} • {item.items} Item(s)
                 </Text>
               </View>
               <View style={{ alignItems: 'flex-end' }}>
                 <Text style={{ 
                   fontSize: 14, 
                   fontWeight: '600', 
-                  color: '#ffffff',
+                  color: '#1e40af',
                   marginBottom: 4
                 }}>
                   {item.supplier}
                 </Text>
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <Text style={{ 
-                    fontSize: 12, 
-                    color: '#e0f2fe',
-                    marginRight: 8
-                  }}>
-                    {item.items} Item(s)
-                  </Text>
-                  <Text style={{ 
-                    fontSize: 14, 
-                    fontWeight: '700', 
-                    color: '#ffffff'
-                  }}>
-                    {item.amount}
-                  </Text>
-                </View>
+                <Text style={{ 
+                  fontSize: 16, 
+                  fontWeight: '700', 
+                  color: '#1e40af'
+                }}>
+                  {item.amount}
+                </Text>
               </View>
               <Icon 
                 name={expanded ? 'chevron-up' : 'chevron-down'} 
                 size={24} 
-                color="#ffffff" 
+                color="#1e40af" 
                 style={{ marginLeft: 12 }} 
               />
             </View>
@@ -310,7 +313,7 @@ const BillPaymentCard = ({ item, expanded, onToggle }) => {
                   flexDirection: 'row', 
                   alignItems: 'center',
                   backgroundColor: '#f9fafb',
-                  borderRadius: 8,
+                  borderRadius: 12,
                   paddingHorizontal: 12,
                   paddingVertical: 8,
                   width: '50%'
@@ -460,7 +463,7 @@ const FilterModal = ({ visible, onClose, currentFilter, onApplyFilter }) => {
                   borderRadius: 16,
                   borderWidth: 2,
                   borderColor: (tempFilter === status || (status === 'All' && !tempFilter)) 
-                    ? '#1e3a8a' 
+                    ? '#3b82f6' 
                     : '#e5e7eb',
                   backgroundColor: (tempFilter === status || (status === 'All' && !tempFilter)) 
                     ? '#eff6ff' 
@@ -472,7 +475,7 @@ const FilterModal = ({ visible, onClose, currentFilter, onApplyFilter }) => {
                   fontSize: 14,
                   fontWeight: '600',
                   color: (tempFilter === status || (status === 'All' && !tempFilter))
-                    ? '#1e3a8a'
+                    ? '#3b82f6'
                     : '#374151'
                 }}>
                   {status}
@@ -507,7 +510,7 @@ const FilterModal = ({ visible, onClose, currentFilter, onApplyFilter }) => {
             <TouchableOpacity
               style={{
                 flex: 1,
-                backgroundColor: '#1e3a8a',
+                backgroundColor: '#3b82f6',
                 padding: 16,
                 borderRadius: 16,
                 alignItems: 'center'
@@ -588,7 +591,7 @@ const BillPaymentScreen = () => {
             shadowRadius: 8,
             elevation: 4
           }}>
-            <ActivityIndicator size="large" color="#1e3a8a" />
+            <ActivityIndicator size="large" color="#3b82f6" />
             <Text style={{ 
               marginTop: 16, 
               fontSize: 16, 
@@ -606,31 +609,31 @@ const BillPaymentScreen = () => {
   return (
     <MainLayout title="Bill Payment List">
       <View style={{ flex: 1, backgroundColor: '#f8fafc' }}>
-        {/* Header */}
+        {/* Header - Matching GRNListScreen */}
         <LinearGradient 
-          colors={['#1e3a8a', '#1d4ed8']} 
+          colors={['#f0f7ff', '#e6f0ff']} 
           start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={{ padding: 20 }}
+          end={{ x: 0, y: 1 }}
+          style={{ padding: 16 }}
         >
           <View style={{ 
             flexDirection: 'row', 
             justifyContent: 'space-between', 
             alignItems: 'center',
-            marginBottom: 20
+            marginBottom: 12
           }}>
             <View>
               <Text style={{ 
-                fontSize: 24, 
+                fontSize: 20, 
                 fontWeight: '700', 
-                color: '#ffffff' 
+                color: colors.text 
               }}>
                 Bill Payment List
               </Text>
               <Text style={{ 
-                fontSize: 14, 
-                color: 'rgba(255, 255, 255, 0.8)',
-                marginTop: 4
+                fontSize: 12, 
+                color: colors.textMuted,
+                marginTop: 2
               }}>
                 {filteredBillPaymentList.length} purchase orders • {filterStatus || 'All statuses'}
               </Text>
@@ -638,77 +641,85 @@ const BillPaymentScreen = () => {
             <View style={{ flexDirection: 'row', gap: 8 }}>
               <TouchableOpacity
                 style={{ 
-                  padding: 12, 
-                  backgroundColor: 'rgba(255, 255, 255, 0.2)', 
-                  borderRadius: 16 
+                  padding: 10, 
+                  backgroundColor: colors.surface, 
+                  borderRadius: 12,
+                  borderWidth: 1,
+                  borderColor: colors.border
                 }}
                 onPress={handleRefresh}
               >
-                <Icon name="refresh" size={20} color="#ffffff" />
+                <Icon name="refresh" size={18} color={colors.info} />
               </TouchableOpacity>
             </View>
           </View>
 
-          {/* Search Bar */}
+          {/* Search and Filter Row */}
           <View style={{ 
-            backgroundColor: 'rgba(255, 255, 255, 0.1)', 
-            borderRadius: 16, 
-            padding: 16,
-            marginBottom: 16
+            flexDirection: 'row', 
+            alignItems: 'center',
+            gap: 8
           }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Icon name="magnify" size={20} color="#ffffff" style={{ marginRight: 12 }} />
-              <TextInput
-                value={searchQuery}
-                onChangeText={setSearchQuery}
-                placeholder="Search PO, suppliers..."
-                placeholderTextColor="rgba(255, 255, 255, 0.6)"
-                style={{ 
-                  flex: 1, 
-                  color: '#ffffff', 
-                  fontSize: 16 
-                }}
-              />
-              {searchQuery.length > 0 && (
-                <TouchableOpacity onPress={() => setSearchQuery('')}>
-                  <Icon name="close-circle" size={20} color="rgba(255, 255, 255, 0.6)" />
-                </TouchableOpacity>
-              )}
+            {/* Search Bar */}
+            <View style={{ 
+              flex: 1,
+              backgroundColor: colors.surface, 
+              borderRadius: 12, 
+              paddingHorizontal: 12,
+              height: 40,
+              justifyContent: 'center',
+              borderWidth: 1,
+              borderColor: colors.border
+            }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Icon name="magnify" size={18} color={colors.textMuted} style={{ marginRight: 8 }} />
+                <TextInput
+                  value={searchQuery}
+                  onChangeText={setSearchQuery}
+                  placeholder="Search PO, suppliers..."
+                  placeholderTextColor={colors.textMuted}
+                  style={{ 
+                    flex: 1, 
+                    color: colors.text, 
+                    fontSize: 14,
+                    paddingVertical: 0
+                  }}
+                />
+                {searchQuery.length > 0 && (
+                  <TouchableOpacity onPress={() => setSearchQuery('')}>
+                    <Icon name="close-circle" size={18} color={colors.textMuted} />
+                  </TouchableOpacity>
+                )}
+              </View>
             </View>
-          </View>
 
-          {/* Filter Control */}
-          <View style={{ flexDirection: 'row', justifyContent: 'flex-start' }}>
+            {/* Filter Button */}
             <TouchableOpacity
               style={{ 
                 flexDirection: 'row', 
                 alignItems: 'center',
-                backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                paddingHorizontal: 16,
-                paddingVertical: 8,
-                borderRadius: 16
+                backgroundColor: colors.info,
+                paddingHorizontal: 12,
+                height: 40,
+                borderRadius: 12,
+                minWidth: 60,
+                justifyContent: 'center'
               }}
               onPress={() => setShowFilterModal(true)}
             >
               <Icon name="filter-outline" size={16} color="#ffffff" />
-              <Text style={{ 
-                color: '#ffffff', 
-                fontWeight: '600',
-                marginLeft: 8
-              }}>
-                Filter
-              </Text>
               {filterStatus && (
                 <View style={{ 
-                  marginLeft: 8, 
-                  backgroundColor: 'rgba(255, 255, 255, 0.3)', 
-                  paddingHorizontal: 8,
-                  paddingVertical: 4,
-                  borderRadius: 12
+                  marginLeft: 4, 
+                  backgroundColor: '#ffffff', 
+                  paddingHorizontal: 6,
+                  paddingVertical: 2,
+                  borderRadius: 8
                 }}>
                   <Text style={{ 
-                    fontSize: 12, 
-                    color: '#ffffff' 
+                    fontSize: 10, 
+                    color: colors.info,
+                    fontWeight: '600'
                   }}>
                     {filterStatus}
                   </Text>

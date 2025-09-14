@@ -22,6 +22,23 @@ import Animated, {
 const screenWidth = Dimensions.get('window').width;
 const cardWidth = Math.min(screenWidth - 32, 600);
 
+// Color palette to match ActivityScreen
+const colors = {
+  primary: '#1D4ED8',
+  secondary: '#6366F1',
+  success: '#10B981',
+  warning: '#F59E0B',
+  danger: '#EF4444',
+  info: '#3B82F6',
+  background: '#FFFFFF',
+  surface: '#FFFFFF',
+  surfaceVariant: '#F8FAFC',
+  text: '#0F172A',
+  textSecondary: '#475569',
+  textMuted: '#6B7280',
+  border: '#E2E8F0',
+};
+
 // Sample indent data
 const indentData = [
   {
@@ -539,7 +556,12 @@ const IndentScreen = () => {
     <MainLayout title="Indent List">
       <View style={{ flex: 1, backgroundColor: '#f8fafc' }}>
         {/* Header */}
-        <View style={{ backgroundColor: '#82b8ffff', padding: 16 }}>
+        <LinearGradient 
+          colors={['#f0f7ff', '#e6f0ff']} // Same gradient as ActivityScreen
+          start={{ x: 0, y: 0 }}
+          end={{ x: 0, y: 1 }}
+          style={{ padding: 16 }}
+        >
           <View style={{ 
             flexDirection: 'row', 
             justifyContent: 'space-between', 
@@ -550,13 +572,13 @@ const IndentScreen = () => {
               <Text style={{ 
                 fontSize: 20, 
                 fontWeight: '700', 
-                color: '#1e40af' 
+                color: colors.text 
               }}>
                 Indent List
               </Text>
               <Text style={{ 
                 fontSize: 12, 
-                color: '#3b82f6',
+                color: colors.textMuted,
                 marginTop: 2
               }}>
                 {filteredIndents.length} indents • {filterStatus || 'All statuses'}
@@ -566,22 +588,24 @@ const IndentScreen = () => {
               <TouchableOpacity
                 style={{ 
                   padding: 10, 
-                  backgroundColor: 'rgba(255, 255, 255, 0.8)', 
-                  borderRadius: 12 
+                  backgroundColor: colors.surface, 
+                  borderRadius: 12,
+                  borderWidth: 1,
+                  borderColor: colors.border
                 }}
                 onPress={handleRefresh}
               >
-                <Icon name="refresh" size={18} color="#1e40af" />
+                <Icon name="refresh" size={18} color={colors.info} />
               </TouchableOpacity>
               <TouchableOpacity
                 style={{ 
                   padding: 10, 
-                  backgroundColor: 'rgba(255, 255, 255, 0.8)', 
-                  borderRadius: 12 
+                  backgroundColor: colors.info,
+                  borderRadius: 12
                 }}
                 onPress={() => console.log('Add indent')}
               >
-                <Icon name="plus" size={18} color="#1e40af" />
+                <Icon name="plus" size={18} color="#ffffff" />
               </TouchableOpacity>
             </View>
           </View>
@@ -595,29 +619,31 @@ const IndentScreen = () => {
             {/* Search Bar */}
             <View style={{ 
               flex: 1,
-              backgroundColor: 'rgba(255, 255, 255, 0.8)', 
+              backgroundColor: colors.surface, 
               borderRadius: 12, 
               paddingHorizontal: 12,
               height: 40,
-              justifyContent: 'center'
+              justifyContent: 'center',
+              borderWidth: 1,
+              borderColor: colors.border
             }}>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Icon name="magnify" size={18} color="#3b82f6" style={{ marginRight: 8 }} />
+                <Icon name="magnify" size={18} color={colors.textMuted} style={{ marginRight: 8 }} />
                 <TextInput
                   value={searchQuery}
                   onChangeText={setSearchQuery}
                   placeholder="Search indents, requesters..."
-                  placeholderTextColor="#6b7280"
+                  placeholderTextColor={colors.textMuted}
                   style={{ 
                     flex: 1, 
-                    color: '#1e40af', 
+                    color: colors.text, 
                     fontSize: 14,
                     paddingVertical: 0
                   }}
                 />
                 {searchQuery.length > 0 && (
                   <TouchableOpacity onPress={() => setSearchQuery('')}>
-                    <Icon name="close-circle" size={18} color="#6b7280" />
+                    <Icon name="close-circle" size={18} color={colors.textMuted} />
                   </TouchableOpacity>
                 )}
               </View>
@@ -628,7 +654,7 @@ const IndentScreen = () => {
               style={{ 
                 flexDirection: 'row', 
                 alignItems: 'center',
-                backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                backgroundColor: colors.info,
                 paddingHorizontal: 12,
                 height: 40,
                 borderRadius: 12,
@@ -637,18 +663,18 @@ const IndentScreen = () => {
               }}
               onPress={() => setShowFilterModal(true)}
             >
-              <Icon name="filter-outline" size={16} color="#1e40af" />
+              <Icon name="filter-outline" size={16} color="#ffffff" />
               {filterStatus && (
                 <View style={{ 
                   marginLeft: 4, 
-                  backgroundColor: '#3b82f6', 
+                  backgroundColor: '#ffffff', 
                   paddingHorizontal: 6,
                   paddingVertical: 2,
                   borderRadius: 8
                 }}>
                   <Text style={{ 
                     fontSize: 10, 
-                    color: '#ffffff',
+                    color: colors.info,
                     fontWeight: '600'
                   }}>
                     {filterStatus}
@@ -657,7 +683,7 @@ const IndentScreen = () => {
               )}
             </TouchableOpacity>
           </View>
-        </View>
+        </LinearGradient>
 
         {/* Indents List */}
         <ScrollView 

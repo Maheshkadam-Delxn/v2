@@ -1,19 +1,34 @@
-// import React from 'react';
-//   import { View, Text } from 'react-native';
-
-//   export default function ExpenseScreen() {
-//     return (
-//       <View className="flex-1 justify-center items-center bg-white">
-//         <Text className="text-2xl font-bold text-gray-800">Bill of Quantity</Text>
-//         <Text className="text-gray-600 mt-2">Manage your bill of quantities here.</Text>
-//       </View>
-//     );
-//   }
-
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, TextInput, FlatList, ScrollView, Modal, Pressable } from 'react-native';
+import React, { useState, useMemo } from 'react';
+import { 
+  View, 
+  Text, 
+  TouchableOpacity, 
+  TextInput, 
+  FlatList, 
+  ScrollView, 
+  Modal, 
+  Pressable 
+} from 'react-native';
 import MainLayout from '../../../components/MainLayout';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { LinearGradient } from 'expo-linear-gradient';
+
+// Color palette to match InventoryScreen
+const colors = {
+  primary: '#1D4ED8',
+  secondary: '#6366F1',
+  success: '#10B981',
+  warning: '#F59E0B',
+  danger: '#EF4444',
+  info: '#3B82F6',
+  background: '#FFFFFF',
+  surface: '#FFFFFF',
+  surfaceVariant: '#F8FAFC',
+  text: '#0F172A',
+  textSecondary: '#475569',
+  textMuted: '#6B7280',
+  border: '#E2E8F0',
+};
 
 // Expense data
 const expenseData = [
@@ -22,11 +37,11 @@ const expenseData = [
   { id: 3, title: 'Equipment Rental', category: 'Equipment', amount: 3200, date: '2023-10-13', status: 'Rejected' },
 ];
 
-// Tabs
+// Tabs - Updated to match the three-tab structure
 const tabs = [
-  { key: 'all', label: 'All' },
-  { key: 'general', label: 'General' },
-  { key: 'structural', label: 'Structural' },
+  { key: 'all', label: 'All Expenses' },
+  { key: 'materials', label: 'Materials' },
+  { key: 'labor', label: 'Labor' },
 ];
 
 // Format currency with commas
@@ -96,6 +111,10 @@ export default function ExpenseScreen() {
     return filtered;
   };
 
+  const filteredExpenses = useMemo(getFilteredExpenses, [
+    activeTab, search, categoryFilter, statusFilter, dateFrom, dateTo
+  ]);
+
   // Handle apply filters
   const applyFilters = () => {
     setShowFilterModal(false);
@@ -112,7 +131,6 @@ export default function ExpenseScreen() {
 
   // Handle add expense
   const submitExpense = () => {
-    // Here you would typically add to your data array or make an API call
     console.log('Adding expense:', { 
       expenseTitle, 
       expenseCategory, 
@@ -131,49 +149,76 @@ export default function ExpenseScreen() {
 
   // Handle add phase
   const submitPhase = () => {
-    // Here you would typically add a new phase
     console.log('Adding new phase');
     setShowAddPhaseModal(false);
   };
 
   // Render expense card
   const renderExpenseCard = ({ item }) => {
-    const getStatusColor = () => {
+    const getStatusStyles = () => {
       switch(item.status) {
-        case 'Approved': return 'bg-green-100 text-green-800';
-        case 'Pending': return 'bg-yellow-100 text-yellow-800';
-        case 'Rejected': return 'bg-red-100 text-red-800';
-        default: return 'bg-gray-100 text-gray-800';
+        case 'Approved': return { backgroundColor: '#d1fae5', color: '#10b981' };
+        case 'Pending': return { backgroundColor: '#fef3c7', color: '#f59e0b' };
+        case 'Rejected': return { backgroundColor: '#fee2e2', color: '#ef4444' };
+        default: return { backgroundColor: '#f3f4f6', color: '#6b7280' };
       }
     };
 
     return (
-      <View className="bg-white rounded-lg mb-3 shadow-sm border border-gray-100 p-4">
-        <View className="flex-row justify-between items-start mb-2">
-          <View className="flex-1">
-            <Text className="text-base font-semibold text-gray-800">{item.title}</Text>
-            <Text className="text-sm text-gray-500">{item.category}</Text>
+      <View style={{
+        backgroundColor: '#ffffff',
+        borderRadius: 20,
+        marginBottom: 12,
+        borderWidth: 1,
+        borderColor: '#e5e7eb',
+        padding: 16,
+      }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: 16, fontWeight: '600', color: '#374151' }}>{item.title}</Text>
+            <Text style={{ fontSize: 12, color: '#6b7280' }}>{item.category}</Text>
           </View>
-          <View className={`px-2 py-1 rounded-full ${getStatusColor()}`}>
-            <Text className="text-xs font-medium">{item.status}</Text>
+          <View style={{
+            paddingHorizontal: 8,
+            paddingVertical: 4,
+            borderRadius: 16,
+            backgroundColor: getStatusStyles().backgroundColor,
+            alignSelf: 'flex-start',
+          }}>
+            <Text style={{
+              fontSize: 12,
+              fontWeight: '600',
+              color: getStatusStyles().color,
+            }}>
+              {item.status}
+            </Text>
           </View>
         </View>
         
-        <View className="flex-row justify-between items-center">
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
           <View>
-            <Text className="text-xs text-gray-500">Amount</Text>
-            <Text className="text-lg font-bold text-gray-800">₹{formatCurrency(item.amount)}</Text>
+            <Text style={{ fontSize: 12, color: '#6b7280' }}>Amount</Text>
+            <Text style={{ fontSize: 18, fontWeight: '700', color: '#374151' }}>₹{formatCurrency(item.amount)}</Text>
           </View>
           <View>
-            <Text className="text-xs text-gray-500">Date</Text>
-            <Text className="text-sm text-gray-600">{item.date}</Text>
+            <Text style={{ fontSize: 12, color: '#6b7280' }}>Date</Text>
+            <Text style={{ fontSize: 14, color: '#374151' }}>{item.date}</Text>
           </View>
-          <View className="flex-row">
-            <TouchableOpacity className="bg-blue-50 p-1.5 mr-2 rounded-md">
-              <Icon name="pencil-outline" size={16} color="#3B82F6" />
+          <View style={{ flexDirection: 'row' }}>
+            <TouchableOpacity style={{
+              backgroundColor: '#eff6ff',
+              padding: 6,
+              marginRight: 8,
+              borderRadius: 8,
+            }}>
+              <Icon name="pencil-outline" size={16} color="#3b82f6" />
             </TouchableOpacity>
-            <TouchableOpacity className="bg-red-50 p-1.5 rounded-md">
-              <Icon name="delete-outline" size={16} color="#EF4444" />
+            <TouchableOpacity style={{
+              backgroundColor: '#fee2e2',
+              padding: 6,
+              borderRadius: 8,
+            }}>
+              <Icon name="delete-outline" size={16} color="#ef4444" />
             </TouchableOpacity>
           </View>
         </View>
@@ -183,79 +228,219 @@ export default function ExpenseScreen() {
 
   return (
     <MainLayout title="Expenses">
-      <View className="flex-1 bg-gray-50">
-        {/* Tabs */}
-        <View className="flex-row justify-between border-b border-gray-200 bg-white px-4">
+      <View style={{ flex: 1, backgroundColor: colors.surfaceVariant }}>
+        {/* Header - Matching InventoryScreen structure */}
+        <LinearGradient 
+          colors={['#f0f7ff', '#e6f0ff']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 0, y: 1 }}
+          style={{ padding: 16 }}
+        >
+          <View style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: 12,
+          }}>
+            <View>
+              <Text style={{
+                fontSize: 20,
+                fontWeight: '700',
+                color: colors.text,
+              }}>
+                Expenses
+              </Text>
+              <Text style={{
+                fontSize: 12,
+                color: colors.textMuted,
+                marginTop: 4,
+              }}>
+                {filteredExpenses.length} expenses • {statusFilter || 'All statuses'}
+              </Text>
+            </View>
+            <View style={{ flexDirection: 'row', gap: 8 }}>
+              <TouchableOpacity
+                style={{
+                  padding: 10,
+                  backgroundColor: colors.surface,
+                  borderRadius: 12,
+                  borderWidth: 1,
+                  borderColor: colors.border,
+                }}
+                onPress={() => {/* Handle download */}}
+              >
+                <Icon name="download" size={20} color={colors.info} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{
+                  padding: 10,
+                  backgroundColor: colors.info,
+                  borderRadius: 12,
+                }}
+                onPress={() => setShowAddExpenseModal(true)}
+              >
+                <Icon name="plus" size={20} color="#ffffff" />
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Search and Filter Row - Matching InventoryScreen structure */}
+          <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
+            <View style={{ 
+              flex: 1,
+              height: 44,
+              backgroundColor: colors.surface, 
+              borderRadius: 12, 
+              paddingHorizontal: 12,
+              borderWidth: 1,
+              borderColor: colors.border,
+              justifyContent: 'center',
+            }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Icon name="magnify" size={18} color={colors.textMuted} style={{ marginRight: 8 }} />
+                <TextInput
+                  value={search}
+                  onChangeText={setSearch}
+                  placeholder="Search expenses..."
+                  placeholderTextColor={colors.textMuted}
+                  style={{ 
+                    flex: 1, 
+                    color: colors.text, 
+                    fontSize: 14,
+                    height: 40,
+                  }}
+                />
+                {search.length > 0 && (
+                  <TouchableOpacity onPress={() => setSearch('')}>
+                    <Icon name="close-circle" size={18} color={colors.textMuted} />
+                  </TouchableOpacity>
+                )}
+              </View>
+            </View>
+            <TouchableOpacity
+              style={{ 
+                height: 44,
+                minWidth: 44,
+                backgroundColor: colors.info,
+                paddingHorizontal: 12,
+                borderRadius: 12,
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+              onPress={() => setShowFilterModal(true)}
+            >
+              <Icon name="filter-outline" size={16} color="#ffffff" />
+              {statusFilter && (
+                <View style={{ 
+                  marginLeft: 8, 
+                  backgroundColor: '#ffffff', 
+                  paddingHorizontal: 8,
+                  paddingVertical: 4,
+                  borderRadius: 8,
+                }}>
+                  <Text style={{ 
+                    fontSize: 12, 
+                    color: colors.info,
+                    fontWeight: '600',
+                  }}>
+                    {statusFilter}
+                  </Text>
+                </View>
+              )}
+            </TouchableOpacity>
+          </View>
+        </LinearGradient>
+
+        {/* Tabs - Moved outside the header with increased gap */}
+        <View style={{ 
+          marginTop: 16, // Increased gap between header and tabs
+          marginHorizontal: 16,
+          flexDirection: 'row', 
+          justifyContent: 'space-between', 
+          borderBottomWidth: 1, 
+          borderBottomColor: '#e5e7eb', 
+          backgroundColor: '#ffffff',
+          borderRadius: 12,
+          overflow: 'hidden',
+        }}>
           {tabs.map(tab => (
             <TouchableOpacity
               key={tab.key}
-              className={`py-3 px-2 ${activeTab === tab.key ? 'border-b-2 border-blue-500' : ''}`}
+              style={{ 
+                flex: 1,
+                paddingVertical: 14,
+                paddingHorizontal: 8,
+                borderBottomWidth: activeTab === tab.key ? 2 : 0,
+                borderBottomColor: activeTab === tab.key ? '#3b82f6' : 'transparent',
+                alignItems: 'center',
+              }}
               onPress={() => setActiveTab(tab.key)}
             >
-              <Text className={`text-sm ${activeTab === tab.key ? 'text-blue-600 font-semibold' : 'text-gray-500'}`}>
+              <Text style={{ 
+                fontSize: 14, 
+                fontWeight: activeTab === tab.key ? '600' : '400',
+                color: activeTab === tab.key ? '#3b82f6' : '#6b7280'
+              }}>
                 {tab.label}
               </Text>
             </TouchableOpacity>
           ))}
         </View>
 
-        {/* Header with Search and Action Buttons */}
-        <View className="flex-row items-center p-3 bg-white border-b border-gray-100">
-          <View className="flex-1 flex-row items-center bg-gray-100 rounded-lg px-3 py-2">
-            <Icon name="magnify" size={18} color="#6B7280" style={{ marginRight: 6 }} />
-            <TextInput
-              className="flex-1 text-gray-800 text-sm"
-              placeholder="Search expenses..."
-              value={search}
-              onChangeText={setSearch}
-              placeholderTextColor="#9CA3AF"
-            />
-          </View>
-          
-          <View className="flex-row ml-2">
-            <TouchableOpacity 
-              className="p-2 mr-2 rounded-md bg-gray-100"
-              onPress={() => setShowFilterModal(true)}
-            >
-              <Icon name="filter-outline" size={18} color="#6B7280" />
-            </TouchableOpacity>
-            
-            <TouchableOpacity 
-              className="p-2 mr-2 rounded-md bg-gray-100"
-              onPress={() => {/* Handle download */}}
-            >
-              <Icon name="download" size={18} color="#6B7280" />
-            </TouchableOpacity>
-            
-            <TouchableOpacity 
-              className="p-2 mr-2 rounded-md bg-blue-600"
-              onPress={() => setShowAddExpenseModal(true)}
-            >
-              <Icon name="plus" size={18} color="#fff" />
-              <Text className="text-white text-xs">Add Expense</Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity 
-              className="p-2 rounded-md bg-green-600"
-              onPress={() => setShowAddPhaseModal(true)}
-            >
-              <Icon name="plus" size={18} color="#fff" />
-              <Text className="text-white text-xs">Add Phase</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
         {/* Expense List */}
-        <View className="flex-1 p-3">
+        <View style={{ flex: 1, padding: 16 }}>
           <FlatList
-            data={getFilteredExpenses()}
+            data={filteredExpenses}
             keyExtractor={item => item.id.toString()}
             renderItem={renderExpenseCard}
             ListEmptyComponent={
-              <View className="items-center justify-center py-10">
-                <Icon name="database-search" size={40} color="#D1D5DB" />
-                <Text className="text-gray-500 mt-2 text-base">No expenses found</Text>
-                <Text className="text-gray-400 text-sm mt-1">Try adjusting your search or filters</Text>
+              <View style={{ 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                padding: 40,
+                backgroundColor: '#ffffff',
+                borderRadius: 24,
+                marginTop: 16,
+              }}>
+                <Icon name="database-search" size={64} color="#d1d5db" />
+                <Text style={{ 
+                  fontSize: 18, 
+                  fontWeight: '600', 
+                  color: '#6b7280', 
+                  marginTop: 16 
+                }}>
+                  No expenses found
+                </Text>
+                <Text style={{ 
+                  fontSize: 14, 
+                  color: '#9ca3af', 
+                  marginTop: 8, 
+                  textAlign: 'center' 
+                }}>
+                  {search ? 
+                    'Try adjusting your search terms or filters' : 
+                    'Get started by adding your first expense'
+                  }
+                </Text>
+                <TouchableOpacity 
+                  style={{ 
+                    backgroundColor: colors.info, 
+                    paddingHorizontal: 24,
+                    paddingVertical: 12,
+                    borderRadius: 12,
+                    marginTop: 16,
+                  }}
+                  onPress={() => setShowAddExpenseModal(true)}
+                >
+                  <Text style={{ 
+                    color: '#ffffff', 
+                    fontWeight: '600',
+                    fontSize: 14,
+                  }}>
+                    Add Expense
+                  </Text>
+                </TouchableOpacity>
               </View>
             }
           />
@@ -268,68 +453,140 @@ export default function ExpenseScreen() {
           animationType="slide"
           onRequestClose={() => setShowFilterModal(false)}
         >
-          <View className="flex-1 justify-center items-center bg-black/70">
-            <View className="bg-white rounded-lg p-5 w-11/12 max-w-md">
-              <View className="flex-row justify-between items-center mb-4">
-                <Text className="text-xl font-bold">Filter Expenses</Text>
+          <View style={{ flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.5)', justifyContent: 'flex-end' }}>
+            <View style={{
+              backgroundColor: '#ffffff',
+              borderTopLeftRadius: 24,
+              borderTopRightRadius: 24,
+              padding: 24,
+            }}>
+              <View style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: 24,
+              }}>
+                <Text style={{
+                  fontSize: 20,
+                  fontWeight: '700',
+                  color: '#1f2937',
+                }}>
+                  Filter Expenses
+                </Text>
                 <Pressable onPress={() => setShowFilterModal(false)}>
-                  <Icon name="close" size={24} color="#6B7280" />
+                  <Icon name="close" size={24} color="#6b7280" />
                 </Pressable>
               </View>
               
-              <View className="mb-4">
-                <Text className="text-sm font-medium text-gray-700 mb-1">Category</Text>
+              <View style={{ marginBottom: 16 }}>
+                <Text style={{ fontSize: 14, fontWeight: '600', color: '#374151', marginBottom: 8 }}>Category</Text>
                 <TextInput
-                  className="border border-gray-300 rounded-lg p-3"
+                  style={{
+                    borderWidth: 1,
+                    borderColor: '#e5e7eb',
+                    borderRadius: 12,
+                    padding: 12,
+                    fontSize: 14,
+                    color: '#374151',
+                  }}
                   value={categoryFilter}
                   onChangeText={setCategoryFilter}
                   placeholder="Filter by category"
+                  placeholderTextColor="#9ca3af"
                 />
               </View>
               
-              <View className="mb-4">
-                <Text className="text-sm font-medium text-gray-700 mb-1">Status</Text>
+              <View style={{ marginBottom: 16 }}>
+                <Text style={{ fontSize: 14, fontWeight: '600', color: '#374151', marginBottom: 8 }}>Status</Text>
                 <TextInput
-                  className="border border-gray-300 rounded-lg p-3"
+                  style={{
+                    borderWidth: 1,
+                    borderColor: '#e5e7eb',
+                    borderRadius: 12,
+                    padding: 12,
+                    fontSize: 14,
+                    color: '#374151',
+                  }}
                   value={statusFilter}
                   onChangeText={setStatusFilter}
                   placeholder="Filter by status"
+                  placeholderTextColor="#9ca3af"
                 />
               </View>
               
-              <View className="mb-4">
-                <Text className="text-sm font-medium text-gray-700 mb-1">Date From</Text>
+              <View style={{ marginBottom: 16 }}>
+                <Text style={{ fontSize: 14, fontWeight: '600', color: '#374151', marginBottom: 8 }}>Date From</Text>
                 <TextInput
-                  className="border border-gray-300 rounded-lg p-3"
+                  style={{
+                    borderWidth: 1,
+                    borderColor: '#e5e7eb',
+                    borderRadius: 12,
+                    padding: 12,
+                    fontSize: 14,
+                    color: '#374151',
+                  }}
                   value={dateFrom}
                   onChangeText={setDateFrom}
                   placeholder="YYYY-MM-DD"
+                  placeholderTextColor="#9ca3af"
                 />
               </View>
               
-              <View className="mb-6">
-                <Text className="text-sm font-medium text-gray-700 mb-1">Date To</Text>
+              <View style={{ marginBottom: 24 }}>
+                <Text style={{ fontSize: 14, fontWeight: '600', color: '#374151', marginBottom: 8 }}>Date To</Text>
                 <TextInput
-                  className="border border-gray-300 rounded-lg p-3"
+                  style={{
+                    borderWidth: 1,
+                    borderColor: '#e5e7eb',
+                    borderRadius: 12,
+                    padding: 12,
+                    fontSize: 14,
+                    color: '#374151',
+                  }}
                   value={dateTo}
                   onChangeText={setDateTo}
                   placeholder="YYYY-MM-DD"
+                  placeholderTextColor="#9ca3af"
                 />
               </View>
               
-              <View className="flex-row justify-between">
+              <View style={{ flexDirection: 'row', gap: 12 }}>
                 <TouchableOpacity 
-                  className="bg-gray-200 py-3 rounded-lg flex-1 mr-2"
+                  style={{
+                    flex: 1,
+                    backgroundColor: '#f3f4f6',
+                    padding: 16,
+                    borderRadius: 16,
+                    alignItems: 'center',
+                  }}
                   onPress={resetFilters}
                 >
-                  <Text className="text-gray-800 text-center font-semibold">Reset</Text>
+                  <Text style={{
+                    fontSize: 14,
+                    fontWeight: '600',
+                    color: '#374151',
+                  }}>
+                    Reset
+                  </Text>
                 </TouchableOpacity>
                 
                 <TouchableOpacity 
-                  className="bg-blue-600 py-3 rounded-lg flex-1 ml-2"
+                  style={{
+                    flex: 1,
+                    backgroundColor: colors.info,
+                    padding: 16,
+                    borderRadius: 16,
+                    alignItems: 'center',
+                  }}
                   onPress={applyFilters}
                 >
-                  <Text className="text-white text-center font-semibold">Apply</Text>
+                  <Text style={{
+                    fontSize: 14,
+                    fontWeight: '600',
+                    color: '#ffffff',
+                  }}>
+                    Apply
+                  </Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -343,72 +600,140 @@ export default function ExpenseScreen() {
           animationType="slide"
           onRequestClose={() => setShowAddExpenseModal(false)}
         >
-          <View className="flex-1 justify-center items-center bg-black/70">
-            <View className="bg-white rounded-lg p-5 w-11/12 max-w-md">
-              <View className="flex-row justify-between items-center mb-4">
-                <Text className="text-xl font-bold">Add New Expense</Text>
+          <View style={{ flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.5)', justifyContent: 'flex-end' }}>
+            <View style={{
+              backgroundColor: '#ffffff',
+              borderTopLeftRadius: 24,
+              borderTopRightRadius: 24,
+              padding: 24,
+            }}>
+              <View style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: 24,
+              }}>
+                <Text style={{
+                  fontSize: 20,
+                  fontWeight: '700',
+                  color: '#1f2937',
+                }}>
+                  Add New Expense
+                </Text>
                 <Pressable onPress={() => setShowAddExpenseModal(false)}>
-                  <Icon name="close" size={24} color="#6B7280" />
+                  <Icon name="close" size={24} color="#6b7280" />
                 </Pressable>
               </View>
               
-              <View className="mb-4">
-                <Text className="text-sm font-medium text-gray-700 mb-1">Title</Text>
+              <View style={{ marginBottom: 16 }}>
+                <Text style={{ fontSize: 14, fontWeight: '600', color: '#374151', marginBottom: 8 }}>Title</Text>
                 <TextInput
-                  className="border border-gray-300 rounded-lg p-3"
+                  style={{
+                    borderWidth: 1,
+                    borderColor: '#e5e7eb',
+                    borderRadius: 12,
+                    padding: 12,
+                    fontSize: 14,
+                    color: '#374151',
+                  }}
                   value={expenseTitle}
                   onChangeText={setExpenseTitle}
                   placeholder="Enter expense title"
+                  placeholderTextColor="#9ca3af"
                 />
               </View>
               
-              <View className="mb-4">
-                <Text className="text-sm font-medium text-gray-700 mb-1">Category</Text>
+              <View style={{ marginBottom: 16 }}>
+                <Text style={{ fontSize: 14, fontWeight: '600', color: '#374151', marginBottom: 8 }}>Category</Text>
                 <TextInput
-                  className="border border-gray-300 rounded-lg p-3"
+                  style={{
+                    borderWidth: 1,
+                    borderColor: '#e5e7eb',
+                    borderRadius: 12,
+                    padding: 12,
+                    fontSize: 14,
+                    color: '#374151',
+                  }}
                   value={expenseCategory}
                   onChangeText={setExpenseCategory}
                   placeholder="Enter category"
+                  placeholderTextColor="#9ca3af"
                 />
               </View>
               
-              <View className="mb-4">
-                <Text className="text-sm font-medium text-gray-700 mb-1">Amount</Text>
+              <View style={{ marginBottom: 16 }}>
+                <Text style={{ fontSize: 14, fontWeight: '600', color: '#374151', marginBottom: 8 }}>Amount</Text>
                 <TextInput
-                  className="border border-gray-300 rounded-lg p-3"
+                  style={{
+                    borderWidth: 1,
+                    borderColor: '#e5e7eb',
+                    borderRadius: 12,
+                    padding: 12,
+                    fontSize: 14,
+                    color: '#374151',
+                  }}
                   value={expenseAmount}
                   onChangeText={setExpenseAmount}
                   placeholder="Enter amount"
                   keyboardType="numeric"
+                  placeholderTextColor="#9ca3af"
                 />
               </View>
               
-              <View className="mb-4">
-                <Text className="text-sm font-medium text-gray-700 mb-1">Date</Text>
+              <View style={{ marginBottom: 16 }}>
+                <Text style={{ fontSize: 14, fontWeight: '600', color: '#374151', marginBottom: 8 }}>Date</Text>
                 <TextInput
-                  className="border border-gray-300 rounded-lg p-3"
+                  style={{
+                    borderWidth: 1,
+                    borderColor: '#e5e7eb',
+                    borderRadius: 12,
+                    padding: 12,
+                    fontSize: 14,
+                    color: '#374151',
+                  }}
                   value={expenseDate}
                   onChangeText={setExpenseDate}
                   placeholder="YYYY-MM-DD"
+                  placeholderTextColor="#9ca3af"
                 />
               </View>
               
-              <View className="mb-6">
-                <Text className="text-sm font-medium text-gray-700 mb-1">Description</Text>
+              <View style={{ marginBottom: 24 }}>
+                <Text style={{ fontSize: 14, fontWeight: '600', color: '#374151', marginBottom: 8 }}>Description</Text>
                 <TextInput
-                  className="border border-gray-300 rounded-lg p-3 h-20"
+                  style={{
+                    borderWidth: 1,
+                    borderColor: '#e5e7eb',
+                    borderRadius: 12,
+                    padding: 12,
+                    fontSize: 14,
+                    color: '#374151',
+                    height: 80,
+                  }}
                   value={expenseDescription}
                   onChangeText={setExpenseDescription}
                   placeholder="Enter description"
+                  placeholderTextColor="#9ca3af"
                   multiline
                 />
               </View>
               
               <TouchableOpacity 
-                className="bg-blue-600 py-3 rounded-lg"
+                style={{
+                  backgroundColor: colors.info,
+                  padding: 16,
+                  borderRadius: 16,
+                  alignItems: 'center',
+                }}
                 onPress={submitExpense}
               >
-                <Text className="text-white text-center font-semibold">Add Expense</Text>
+                <Text style={{
+                  fontSize: 14,
+                  fontWeight: '600',
+                  color: '#ffffff',
+                }}>
+                  Add Expense
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -421,33 +746,68 @@ export default function ExpenseScreen() {
           animationType="slide"
           onRequestClose={() => setShowAddPhaseModal(false)}
         >
-          <View className="flex-1 justify-center items-center bg-black/70">
-            <View className="bg-white rounded-lg p-5 w-11/12 max-w-md">
-              <View className="flex-row justify-between items-center mb-4">
-                <Text className="text-xl font-bold">Add New Phase</Text>
+          <View style={{ flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.5)', justifyContent: 'flex-end' }}>
+            <View style={{
+              backgroundColor: '#ffffff',
+              borderTopLeftRadius: 24,
+              borderTopRightRadius: 24,
+              padding: 24,
+            }}>
+              <View style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: 24,
+              }}>
+                <Text style={{
+                  fontSize: 20,
+                  fontWeight: '700',
+                  color: '#1f2937',
+                }}>
+                  Add New Phase
+                </Text>
                 <Pressable onPress={() => setShowAddPhaseModal(false)}>
-                  <Icon name="close" size={24} color="#6B7280" />
+                  <Icon name="close" size={24} color="#6b7280" />
                 </Pressable>
               </View>
               
-              <View className="mb-6">
-                <Text className="text-sm font-medium text-gray-700 mb-1">Phase Name</Text>
+              <View style={{ marginBottom: 24 }}>
+                <Text style={{ fontSize: 14, fontWeight: '600', color: '#374151', marginBottom: 8 }}>Phase Name</Text>
                 <TextInput
-                  className="border border-gray-300 rounded-lg p-3"
+                  style={{
+                    borderWidth: 1,
+                    borderColor: '#e5e7eb',
+                    borderRadius: 12,
+                    padding: 12,
+                    fontSize: 14,
+                    color: '#374151',
+                    placeholderTextColor: '#9ca3af',
+                  }}
                   placeholder="Enter phase name"
                 />
               </View>
               
               <TouchableOpacity 
-                className="bg-green-600 py-3 rounded-lg"
+                style={{
+                  backgroundColor: colors.success,
+                  padding: 16,
+                  borderRadius: 16,
+                  alignItems: 'center',
+                }}
                 onPress={submitPhase}
-              >
-                <Text className="text-white text-center font-semibold">Add Phase</Text>
-              </TouchableOpacity>
+                >
+                  <Text style={{
+                    fontSize: 14,
+                    fontWeight: '600',
+                    color: '#ffffff',
+                  }}>
+                    Add Phase
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
-          </View>
-        </Modal>
-      </View>
-    </MainLayout>
-  );
-}
+          </Modal>
+        </View>
+      </MainLayout>
+    );
+  }
