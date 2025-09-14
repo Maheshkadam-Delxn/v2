@@ -810,7 +810,7 @@ export default function HomeScreen() {
                 onPress={() => navigation.navigate('AddNewProject')}
                 style={{
                   backgroundColor: '#3b82f6',
-                  shadowColor: '#3b82f6',
+                  // shadowColor: '#3b82f6',
                   shadowOffset: { width: 0, height: 6 },
                   shadowOpacity: 0.4,
                   shadowRadius: 12,

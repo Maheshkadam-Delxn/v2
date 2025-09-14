@@ -1,17 +1,16 @@
-
 // import React, { useState, useEffect } from 'react';
 // import { View, Text, ScrollView, TouchableOpacity, Dimensions, Animated } from 'react-native';
 // import { useRoute, useNavigation } from '@react-navigation/native';
 // import MainLayout from '../components/MainLayout';
-// import { PieChart, LineChart } from 'react-native-gifted-charts';
 // import { LinearGradient } from 'expo-linear-gradient';
 // import Icon from 'react-native-vector-icons/MaterialIcons';
+// import * as Progress from 'react-native-progress';
 
 // const screenWidth = Dimensions.get('window').width;
 // const screenHeight = Dimensions.get('window').height;
 
 // const colors = {
-//   primary: '#1E3A8A',
+//   primary: '#1D4ED8',
 //   secondary: '#6366F1',
 //   success: '#10B981',
 //   warning: '#F59E0B',
@@ -48,23 +47,6 @@
 //   Reports: ['Daily Progress', 'Activity Timelines', 'Material Consumption'],
 // };
 
-// const pieData = [
-//   { value: 45, color: colors.success, label: 'Approved', gradientCenterColor: '#34D399' },
-//   { value: 30, color: colors.warning, label: 'Under Revision', gradientCenterColor: '#FBBF24' },
-//   { value: 25, color: colors.info, label: 'Under Review', gradientCenterColor: '#60A5FA' },
-// ];
-
-// const lineData = [
-//   { value: 20, dataPointText: '20' },
-//   { value: 45, dataPointText: '45' },
-//   { value: 28, dataPointText: '28' },
-//   { value: 80, dataPointText: '80' },
-//   { value: 64, dataPointText: '64' },
-//   { value: 43, dataPointText: '43' },
-// ];
-
-// const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-
 // export default function DashboardScreen() {
 //   const route = useRoute();
 //   const navigation = useNavigation();
@@ -80,8 +62,7 @@
 //       name: 'Acura Heights Tower',
 //       progress: '64%',
 //       duration: '18 months',
-//       amount: '$2.5M',
-//       status: 'Under Construction',
+//       amount: '₹2.5M',
 //       completionDate: '2025-12-15',
 //     },
 //     {
@@ -89,8 +70,7 @@
 //       name: 'Commercial Residences',
 //       progress: '89%',
 //       duration: '14 months',
-//       amount: '$1.8M',
-//       status: 'Under Construction',
+//       amount: '₹1.8M',
 //       completionDate: '2025-10-30',
 //     },
 //     {
@@ -98,8 +78,7 @@
 //       name: 'Corporate Landmark Project',
 //       progress: '52%',
 //       duration: '24 months',
-//       amount: '$3.2M',
-//       status: 'In Design',
+//       amount: '₹3.2M',
 //       completionDate: '2026-06-20',
 //     },
 //   ];
@@ -275,155 +254,18 @@
 //     navigation.navigate(screenName);
 //   };
 
-//   const ProjectHeaderCard = () => (
-//     <Animated.View
-//       style={{
-//         opacity: fadeAnim,
-//         transform: [{ translateY: slideAnim }],
-//       }}
-//     >
-//       {/* Updated to match HomeScreen gradient theme */}
-//       <LinearGradient
-//         colors={['#ffffff', '#f8fafc', '#e2e8f0']}
-//         start={{ x: 0, y: 0 }}
-//         end={{ x: 0, y: 1 }}
-//         style={{
-//           marginHorizontal: 0, // Remove horizontal margin to extend full width
-//           paddingHorizontal: 24, // Add horizontal padding instead
-//           paddingVertical: 24,
-//         }}
-//       >
-//         <View 
-//           style={{ 
-//             backgroundColor: '#3b82f6', // Match HomeScreen blue theme
-//             borderRadius: 20,
-//             padding: 24,
-//             shadowColor: '#3b82f6',
-//             shadowOffset: { width: 0, height: 8 },
-//             shadowOpacity: 0.15,
-//             shadowRadius: 20,
-//             elevation: 10,
-//           }}
-//         >
-//           <View style={{ flexDirection: 'column', gap: 16 }}>
-//             {/* Top Row: Project Name and Completion Percentage - Fixed spacing */}
-//             <View style={{ 
-//               flexDirection: 'row', 
-//               justifyContent: 'space-between', 
-//               alignItems: 'flex-start', // Changed to flex-start to prevent overlap
-//               minHeight: 60, // Added minimum height for consistency
-//             }}>
-//               <View style={{ 
-//                 flex: 1, 
-//                 marginRight: 16, // Added margin to create space between title and percentage
-//                 justifyContent: 'center',
-//               }}>
-//                 <Text
-//                   style={{
-//                     color: '#FFFFFF',
-//                     fontSize: 20, // Reduced font size slightly
-//                     fontWeight: '700',
-//                     lineHeight: 26, // Added proper line height
-//                   }}
-//                   numberOfLines={2} // Allow text to wrap if needed
-//                 >
-//                   {project?.name}
-//                 </Text>
-//               </View>
-//               <View style={{ 
-//                 alignItems: 'flex-end',
-//                 justifyContent: 'center',
-//                 minWidth: 80, // Ensure minimum width for percentage display
-//               }}>
-//                 <Text
-//                   style={{
-//                     color: '#FFFFFF',
-//                     fontSize: 28, // Reduced font size slightly
-//                     fontWeight: '800',
-//                     lineHeight: 32,
-//                   }}
-//                 >
-//                   {project?.progress}
-//                 </Text>
-//                 <Text
-//                   style={{
-//                     color: 'rgba(255,255,255,0.85)',
-//                     fontSize: 12,
-//                     fontWeight: '600',
-//                     textTransform: 'uppercase',
-//                     marginTop: 2,
-//                   }}
-//                 >
-//                   Complete
-//                 </Text>
-//               </View>
-//             </View>
-
-//             {/* Status Row */}
-//             <View
-//               style={{
-//                 backgroundColor: 'rgba(255,255,255,0.25)',
-//                 paddingHorizontal: 16,
-//                 paddingVertical: 8,
-//                 borderRadius: 16,
-//                 alignSelf: 'flex-start',
-//               }}
-//             >
-//               <Text
-//                 style={{
-//                   color: '#FFFFFF',
-//                   fontSize: 12,
-//                   fontWeight: '600',
-//                   textTransform: 'uppercase',
-//                   letterSpacing: 0.5,
-//                 }}
-//               >
-//                 {project?.status}
-//               </Text>
-//             </View>
-
-//             {/* Bottom Row: Duration and Budget */}
-//             <View style={{ 
-//               flexDirection: 'row', 
-//               justifyContent: 'space-between', 
-//               alignItems: 'center',
-//               flexWrap: 'wrap', // Allow wrapping on smaller screens
-//               gap: 8,
-//             }}>
-//               <Text
-//                 style={{
-//                   color: '#FFFFFF',
-//                   fontSize: 18, // Reduced font size for better fit
-//                   fontWeight: '700',
-//                   opacity: 0.95,
-//                 }}
-//               >
-//                 {project?.duration}
-//               </Text>
-//               <Text
-//                 style={{
-//                   color: '#FFFFFF',
-//                   fontSize: 18, // Reduced font size for better fit
-//                   fontWeight: '700',
-//                   opacity: 0.95,
-//                 }}
-//               >
-//                 Budget: {project?.amount}
-//               </Text>
-//             </View>
-//           </View>
-//         </View>
-//       </LinearGradient>
-//     </Animated.View>
-//   );
-
 //   const FilterSection = () => (
-//     <View style={{ 
-//       backgroundColor: colors.surface, 
-//       paddingVertical: 20,
-//       // Add subtle background gradient to match theme
-//     }}>
-//       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 24 }}>
+//     <LinearGradient
+//       colors={['#ffffff', '#f8fafc', '#e2e8f0']}
+//        start={{ x: 0, y: 0 }}
+//           end={{ x: 0, y: 1 }}
+//       style={{ paddingVertical: 24 }}
+//     >
+//       <ScrollView 
+//         horizontal 
+//         showsHorizontalScrollIndicator={false} 
+//         contentContainerStyle={{ paddingHorizontal: 24 }}
+//       >
 //         {filterOptions && Array.isArray(filterOptions) ? (
 //           filterOptions.map((filter, index) => {
 //             const isSelected = selectedFilter === filter;
@@ -438,24 +280,16 @@
 //                   paddingHorizontal: 20,
 //                   paddingVertical: 12,
 //                   borderRadius: 25,
-//                   backgroundColor: isSelected ? '#3b82f6' : colors.surfaceVariant, // Match blue theme
-//                   borderWidth: isSelected ? 0 : 1,
-//                   borderColor: colors.border,
+//                   backgroundColor: isSelected ? 'rgba(255, 255, 255, 0.2)' : 'rgba(255, 255, 255, 0.1)',
+//                   borderWidth: isSelected ? 1 : 0,
+//                   borderColor: 'rgba(255, 255, 255, 0.3)',
 //                   flexDirection: 'row',
 //                   alignItems: 'center',
-//                   // Add shadow for selected items
-//                   ...(isSelected && {
-//                     shadowColor: '#3b82f6',
-//                     shadowOffset: { width: 0, height: 4 },
-//                     shadowOpacity: 0.3,
-//                     shadowRadius: 8,
-//                     elevation: 6,
-//                   }),
 //                 }}
 //               >
 //                 <Text
 //                   style={{
-//                     color: isSelected ? 'white' : colors.textSecondary,
+//                     color: '#FFFFFF',
 //                     fontWeight: isSelected ? '600' : '500',
 //                     fontSize: 14,
 //                     marginRight: hasItems ? 8 : 0,
@@ -466,9 +300,10 @@
 //                 {hasItems && (
 //                   <Text
 //                     style={{
-//                       color: isSelected ? 'white' : colors.textMuted,
+//                       color: '#FFFFFF',
 //                       fontSize: 12,
 //                       fontWeight: '600',
+//                       opacity: 0.8,
 //                     }}
 //                   >
 //                     {isSelected ? '▼' : '▶'}
@@ -478,7 +313,7 @@
 //             );
 //           })
 //         ) : (
-//           <Text style={{ color: colors.text, fontSize: 14 }}>Error: Filter options unavailable</Text>
+//           <Text style={{ color: '#FFFFFF', fontSize: 14 }}>Error: Filter options unavailable</Text>
 //         )}
 //       </ScrollView>
 
@@ -487,7 +322,7 @@
 //           style={{
 //             marginTop: 16,
 //             marginHorizontal: 24,
-//             backgroundColor: colors.surfaceVariant,
+//             backgroundColor: 'rgba(255, 255, 255, 0.1)',
 //             borderRadius: 16,
 //             padding: 16,
 //             opacity: fadeAnim,
@@ -503,18 +338,13 @@
 //                     paddingHorizontal: 16,
 //                     paddingVertical: 10,
 //                     borderRadius: 20,
-//                     backgroundColor: colors.surface,
-//                     shadowColor: '#000',
-//                     shadowOffset: { width: 0, height: 2 },
-//                     shadowOpacity: 0.1,
-//                     shadowRadius: 4,
-//                     elevation: 2,
+//                     backgroundColor: 'rgba(255, 255, 255, 0.15)',
 //                   }}
 //                   onPress={() => handleSubItemSelect(item)}
 //                 >
 //                   <Text
 //                     style={{
-//                       color: colors.text,
+//                       color: '#FFFFFF',
 //                       fontWeight: '500',
 //                       fontSize: 13,
 //                     }}
@@ -527,7 +357,7 @@
 //           </ScrollView>
 //         </Animated.View>
 //       )}
-//     </View>
+//     </LinearGradient>
 //   );
 
 //   const StatsCard = ({ item, index }) => (
@@ -539,12 +369,11 @@
 //         borderRadius: 20,
 //         backgroundColor: colors.surface,
 //         overflow: 'hidden',
-//         // Enhanced shadow to match theme
 //         shadowColor: '#000',
 //         shadowOffset: { width: 0, height: 4 },
-//         shadowOpacity: 0.08,
-//         shadowRadius: 12,
-//         elevation: 6,
+//         shadowOpacity: 0.1,
+//         shadowRadius: 8,
+//         elevation: 3,
 //       }}
 //     >
 //       <LinearGradient colors={item.gradient} style={{ padding: 20, paddingBottom: 16 }}>
@@ -563,21 +392,15 @@
 //           </View>
 //           <View
 //             style={{
-//               width: 44,
-//               height: 44,
+//               width: 40,
+//               height: 40,
 //               borderRadius: 14,
 //               backgroundColor: item.iconBg,
 //               alignItems: 'center',
 //               justifyContent: 'center',
-//               // Add shadow to icons
-//               shadowColor: item.iconBg,
-//               shadowOffset: { width: 0, height: 4 },
-//               shadowOpacity: 0.3,
-//               shadowRadius: 8,
-//               elevation: 4,
 //             }}
 //           >
-//             <Icon name={item.icon} size={24} color="#FFFFFF" />
+//             <Icon name={item.icon} size={20} color="#FFFFFF" />
 //           </View>
 //         </View>
 
@@ -609,13 +432,11 @@
 //   return (
 //     <MainLayout title={project ? project.name : 'Project Dashboard'}>
 //       <ScrollView style={{ flex: 1, backgroundColor: colors.background }} showsVerticalScrollIndicator={false}>
-//         <ProjectHeaderCard />
 //         <FilterSection />
 
 //         <View style={{ 
 //           paddingHorizontal: 24, 
 //           paddingTop: 32,
-//           // Add subtle background to match overall theme
 //           backgroundColor: colors.background,
 //         }}>
 //           <Text
@@ -640,18 +461,15 @@
 //           </View>
 //         </View>
         
-//         {/* <ChartsSection /> */}
 //         <View style={{ height: 32 }} />
 //       </ScrollView>
 //     </MainLayout>
 //   );
 // }
-
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Dimensions, Animated } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import MainLayout from '../components/MainLayout';
-import { PieChart, LineChart } from 'react-native-gifted-charts';
 import { LinearGradient } from 'expo-linear-gradient';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import * as Progress from 'react-native-progress';
@@ -696,23 +514,6 @@ const dropdownItems = {
   Approvals: ['RFI', 'Snagging Report', 'Inspection', 'Submittals'],
   Reports: ['Daily Progress', 'Activity Timelines', 'Material Consumption'],
 };
-
-const pieData = [
-  { value: 45, color: colors.success, label: 'Approved', gradientCenterColor: '#34D399' },
-  { value: 30, color: colors.warning, label: 'Under Revision', gradientCenterColor: '#FBBF24' },
-  { value: 25, color: colors.info, label: 'Under Review', gradientCenterColor: '#60A5FA' },
-];
-
-const lineData = [
-  { value: 20, dataPointText: '20' },
-  { value: 45, dataPointText: '45' },
-  { value: 28, dataPointText: '28' },
-  { value: 80, dataPointText: '80' },
-  { value: 64, dataPointText: '64' },
-  { value: 43, dataPointText: '43' },
-];
-
-const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
 
 export default function DashboardScreen() {
   const route = useRoute();
@@ -920,214 +721,114 @@ export default function DashboardScreen() {
     }
     navigation.navigate(screenName);
   };
-
-  const ProjectHeaderCard = () => (
-    <Animated.View
-      style={{
-        opacity: fadeAnim,
-        transform: [{ translateY: slideAnim }],
-      }}
+const FilterSection = () => (
+  <LinearGradient
+    colors={['#f0f7ff', '#e6f0ff']} // Light blue gradient for elegance
+    start={{ x: 0, y: 0 }}
+    end={{ x: 0, y: 1 }}
+    style={{ paddingVertical: 20 }}
+  >
+    <ScrollView 
+      horizontal 
+      showsHorizontalScrollIndicator={false} 
+      contentContainerStyle={{ paddingHorizontal: 24 }}
     >
-      <LinearGradient
-        colors={[ '#E0F2FE', '#F8FAFC']} // Blue-white gradient to match theme
-        start={{ x: 0, y: 0 }}
-        end={{ x: 0, y: 1 }}
+      {filterOptions && Array.isArray(filterOptions) ? (
+        filterOptions.map((filter, index) => {
+          const isSelected = selectedFilter === filter;
+          const hasItems = dropdownItems[filter] && Array.isArray(dropdownItems[filter]) && dropdownItems[filter].length > 0;
+
+          return (
+            <TouchableOpacity
+              key={filter}
+              onPress={() => handleFilterSelect(filter)}
+              style={{
+                marginRight: 12,
+                paddingHorizontal: 20,
+                paddingVertical: 12,
+                borderRadius: 20,
+                backgroundColor: isSelected ? '#3b82f6' : 'rgba(255, 255, 255, 0.8)',
+                borderWidth: 1,
+                borderColor: isSelected ? '#3b82f6' : 'rgba(59, 130, 246, 0.3)',
+                flexDirection: 'row',
+                alignItems: 'center',
+              }}
+            >
+              <Text
+                style={{
+                  color: isSelected ? '#ffffff' : '#3b82f6',
+                  fontWeight: isSelected ? '600' : '500',
+                  fontSize: 14,
+                  marginRight: hasItems ? 8 : 0,
+                }}
+              >
+                {filter}
+              </Text>
+              {hasItems && (
+                <Text
+                  style={{
+                    color: isSelected ? '#ffffff' : '#3b82f6',
+                    fontSize: 12,
+                    fontWeight: '600',
+                  }}
+                >
+                  {isSelected ? '▼' : '▶'}
+                </Text>
+              )}
+            </TouchableOpacity>
+          );
+        })
+      ) : (
+        <Text style={{ color: colors.text, fontSize: 14 }}>Error: Filter options unavailable</Text>
+      )}
+    </ScrollView>
+
+    {selectedFilter && dropdownItems[selectedFilter] && Array.isArray(dropdownItems[selectedFilter]) && dropdownItems[selectedFilter].length > 0 && (
+      <Animated.View
         style={{
-          marginHorizontal: 0,
-          paddingHorizontal: 24,
-          paddingVertical: 24,
+          marginTop: 16,
+          marginHorizontal: 24,
+          backgroundColor: '#ffffff',
+          borderRadius: 16,
+          padding: 16,
+          opacity: fadeAnim,
+          borderWidth: 1,
+          borderColor: '#e6f0ff',
         }}
       >
-        <View 
-          style={{ 
-            backgroundColor: colors.primary, // Deep blue for card background
-            borderRadius: 20,
-            padding: 24,
-          }}
-        >
-          <View style={{ flexDirection: 'column', gap: 16 }}>
-            {/* Top Row: Project Name and Circular Progress */}
-            <View style={{ 
-              flexDirection: 'row', 
-              justifyContent: 'space-between', 
-              alignItems: 'center', // Align items to center for better progress bar placement
-              minHeight: 60,
-            }}>
-              <View style={{ 
-                flex: 1, 
-                marginRight: 16,
-                justifyContent: 'center',
-              }}>
-                <Text
-                  style={{
-                    color: '#FFFFFF',
-                    fontSize: 20,
-                    fontWeight: '700',
-                    lineHeight: 26,
-                  }}
-                  numberOfLines={2}
-                >
-                  {project?.name}
-                </Text>
-              </View>
-              <View style={{ 
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: 80, // Fixed width for progress circle
-                height: 80, // Fixed height for progress circle
-              }}>
-                <Progress.Circle
-                  progress={parseFloat(project?.progress) / 100}
-                  size={60}
-                  thickness={6}
-                  color={colors.success}
-                  unfilledColor={'rgba(255,255,255,0.3)'}
-                  borderWidth={0}
-                  textStyle={{
-                    color: '#FFFFFF',
-                    fontSize: 16,
-                    fontWeight: '700',
-                  }}
-                  showsText={true}
-                  formatText={() => `${project?.progress}`}
-                />
-              </View>
-            </View>
-
-            {/* Bottom Row: Duration and Budget */}
-            <View style={{ 
-              flexDirection: 'row', 
-              justifyContent: 'space-between', 
-              alignItems: 'center',
-              flexWrap: 'wrap',
-              gap: 8,
-            }}>
-              <Text
-                style={{
-                  color: '#FFFFFF',
-                  fontSize: 18,
-                  fontWeight: '700',
-                  opacity: 0.95,
-                }}
-              >
-                {project?.duration}
-              </Text>
-              <Text
-                style={{
-                  color: '#FFFFFF',
-                  fontSize: 18,
-                  fontWeight: '700',
-                  opacity: 0.95,
-                }}
-              >
-                Budget: {project?.amount}
-              </Text>
-            </View>
-          </View>
-        </View>
-      </LinearGradient>
-    </Animated.View>
-  );
-
-  const FilterSection = () => (
-    <View style={{ 
-      backgroundColor: colors.surface, 
-      paddingVertical: 20,
-    }}>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 24 }}>
-        {filterOptions && Array.isArray(filterOptions) ? (
-          filterOptions.map((filter, index) => {
-            const isSelected = selectedFilter === filter;
-            const hasItems = dropdownItems[filter] && Array.isArray(dropdownItems[filter]) && dropdownItems[filter].length > 0;
-
-            return (
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            {dropdownItems[selectedFilter].map((item, index) => (
               <TouchableOpacity
-                key={filter}
-                onPress={() => handleFilterSelect(filter)}
+                key={index}
                 style={{
                   marginRight: 12,
-                  paddingHorizontal: 20,
-                  paddingVertical: 12,
-                  borderRadius: 25,
-                  backgroundColor: isSelected ? '#3b82f6' : colors.surfaceVariant,
-                  borderWidth: isSelected ? 0 : 1,
-                  borderColor: colors.border,
-                  flexDirection: 'row',
-                  alignItems: 'center',
+                  paddingHorizontal: 16,
+                  paddingVertical: 10,
+                  borderRadius: 16,
+                  backgroundColor: '#f0f7ff',
+                  borderWidth: 1,
+                  borderColor: '#dbeafe',
                 }}
+                onPress={() => handleSubItemSelect(item)}
               >
                 <Text
                   style={{
-                    color: isSelected ? 'white' : colors.textSecondary,
-                    fontWeight: isSelected ? '600' : '500',
-                    fontSize: 14,
-                    marginRight: hasItems ? 8 : 0,
+                    color: '#3b82f6',
+                    fontWeight: '500',
+                    fontSize: 13,
                   }}
                 >
-                  {filter}
+                  {item}
                 </Text>
-                {hasItems && (
-                  <Text
-                    style={{
-                      color: isSelected ? 'white' : colors.textMuted,
-                      fontSize: 12,
-                      fontWeight: '600',
-                    }}
-                  >
-                    {isSelected ? '▼' : '▶'}
-                  </Text>
-                )}
               </TouchableOpacity>
-            );
-          })
-        ) : (
-          <Text style={{ color: colors.text, fontSize: 14 }}>Error: Filter options unavailable</Text>
-        )}
-      </ScrollView>
-
-      {selectedFilter && dropdownItems[selectedFilter] && Array.isArray(dropdownItems[selectedFilter]) && dropdownItems[selectedFilter].length > 0 && (
-        <Animated.View
-          style={{
-            marginTop: 16,
-            marginHorizontal: 24,
-            backgroundColor: colors.surfaceVariant,
-            borderRadius: 16,
-            padding: 16,
-            opacity: fadeAnim,
-          }}
-        >
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              {dropdownItems[selectedFilter].map((item, index) => (
-                <TouchableOpacity
-                  key={index}
-                  style={{
-                    marginRight: 12,
-                    paddingHorizontal: 16,
-                    paddingVertical: 10,
-                    borderRadius: 20,
-                    backgroundColor: colors.surface,
-                  }}
-                  onPress={() => handleSubItemSelect(item)}
-                >
-                  <Text
-                    style={{
-                      color: colors.text,
-                      fontWeight: '500',
-                      fontSize: 13,
-                    }}
-                  >
-                    {item}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </ScrollView>
-        </Animated.View>
-      )}
-    </View>
-  );
-
+            ))}
+          </View>
+        </ScrollView>
+      </Animated.View>
+    )}
+  </LinearGradient>
+);
   const StatsCard = ({ item, index }) => (
     <Animated.View
       style={{
@@ -1155,15 +856,15 @@ export default function DashboardScreen() {
           </View>
           <View
             style={{
-              width: 44,
-              height: 44,
+              width: 40,
+              height: 40,
               borderRadius: 14,
               backgroundColor: item.iconBg,
               alignItems: 'center',
               justifyContent: 'center',
             }}
           >
-            <Icon name={item.icon} size={24} color="#FFFFFF" />
+            <Icon name={item.icon} size={20} color="#FFFFFF" />
           </View>
         </View>
 
@@ -1195,7 +896,6 @@ export default function DashboardScreen() {
   return (
     <MainLayout title={project ? project.name : 'Project Dashboard'}>
       <ScrollView style={{ flex: 1, backgroundColor: colors.background }} showsVerticalScrollIndicator={false}>
-        <ProjectHeaderCard />
         <FilterSection />
 
         <View style={{ 
