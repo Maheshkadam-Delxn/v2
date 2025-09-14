@@ -36,7 +36,7 @@ const colors = {
   textSecondary: '#475569',
   textMuted: '#6B7280',
   border: '#E2E8F0',
-  nestingColors: ['#DBEAFE', '#EFF6FF', '#E5E7EB'], // Level 0: light blue, Level 1: lighter blue, Level 2: gray
+  nestingColors: ['#DBEAFE', '#EFF6FF', '#E5E7EB'],
 };
 
 // Updated activities data with hierarchical structure
@@ -52,7 +52,6 @@ const activities = [
     status: 'Completed',
     priority: 'High',
     assignedTo: 'Project Manager',
-    // description: 'Main project planning and management',
     tags: ['Planning', 'Management'],
     budget: '$500,000',
     subActivities: [
@@ -67,7 +66,6 @@ const activities = [
         status: 'In Progress',
         priority: 'High',
         assignedTo: 'Construction Team',
-        // description: 'Main construction project for private villa',
         tags: ['Construction', 'Villa'],
         budget: '$450,000',
         subActivities: [
@@ -82,7 +80,6 @@ const activities = [
             status: 'In Progress',
             priority: 'Medium',
             assignedTo: 'General Contractor',
-            // description: 'General construction activities',
             budget: '$100,000',
             subActivities: []
           },
@@ -97,7 +94,6 @@ const activities = [
             status: 'In Progress',
             priority: 'High',
             assignedTo: 'Project Manager',
-            // description: 'Key project milestones',
             budget: '$50,000',
             subActivities: [
               {
@@ -111,7 +107,6 @@ const activities = [
                 status: 'Completed',
                 priority: 'High',
                 assignedTo: 'Legal Team',
-                // description: 'Contract-related milestones',
                 budget: '$10,000',
                 subActivities: []
               },
@@ -126,7 +121,6 @@ const activities = [
                 status: 'In Progress',
                 priority: 'Medium',
                 assignedTo: 'Quality Assurance',
-                // description: 'Progress monitoring milestones',
                 budget: '$15,000',
                 subActivities: []
               }
@@ -143,7 +137,6 @@ const activities = [
             status: 'In Progress',
             priority: 'Medium',
             assignedTo: 'Site Preparation Team',
-            // description: 'Preliminary site activities',
             budget: '$75,000',
             subActivities: [
               {
@@ -157,7 +150,6 @@ const activities = [
                 status: 'Completed',
                 priority: 'Medium',
                 assignedTo: 'Documentation Team',
-                // description: 'Initial project deliverables',
                 budget: '$25,000',
                 subActivities: []
               },
@@ -172,7 +164,6 @@ const activities = [
                 status: 'Completed',
                 priority: 'High',
                 assignedTo: 'Survey Team',
-                // description: 'Site access and surveying',
                 budget: '$30,000',
                 subActivities: []
               },
@@ -187,7 +178,6 @@ const activities = [
                 status: 'In Progress',
                 priority: 'Medium',
                 assignedTo: 'Admin Team',
-                // description: 'Site office setup and signage',
                 budget: '$20,000',
                 subActivities: []
               }
@@ -204,7 +194,6 @@ const activities = [
             status: 'In Progress',
             priority: 'High',
             assignedTo: 'Engineering Team',
-            // description: 'Engineering and design activities',
             budget: '$125,000',
             subActivities: []
           },
@@ -219,7 +208,6 @@ const activities = [
             status: 'In Progress',
             priority: 'High',
             assignedTo: 'Procurement Team',
-            // description: 'Materials and equipment procurement',
             budget: '$100,000',
             subActivities: []
           }
@@ -243,7 +231,7 @@ const CircularProgress = ({ progress, size = 44, strokeWidth = 4 }) => {
       <View style={{
         width: size,
         height: size,
-        borderRadius: size / 2, // Ensure circular shape
+        borderRadius: size / 2,
         backgroundColor: colors.surfaceVariant,
         alignItems: 'center',
         justifyContent: 'center',
@@ -253,7 +241,7 @@ const CircularProgress = ({ progress, size = 44, strokeWidth = 4 }) => {
         <View style={{
           width: size - strokeWidth * 2,
           height: size - strokeWidth * 2,
-          borderRadius: (size - strokeWidth * 2) / 2, // Ensure inner circle
+          borderRadius: (size - strokeWidth * 2) / 2,
           backgroundColor: `${getProgressColor(progress)}10`,
           alignItems: 'center',
           justifyContent: 'center',
@@ -317,7 +305,7 @@ const StatusIndicator = ({ status, priority }) => {
         <Text style={{ 
           fontSize: 11, 
           fontWeight: '600', 
-          color: priorityStyle.color 
+      color: priorityStyle.color 
         }}>
           {priority}
         </Text>
@@ -338,7 +326,7 @@ const getAllChildIds = (activity) => {
   return childIds;
 };
 
-// Activity Card Component with improved hierarchy display
+// Activity Card Component with improved hierarchy display and rounded corners
 const ActivityCard = ({ item, level = 0, toggleExpand, expandedItems }) => {
   const [showDetails, setShowDetails] = useState(false);
   const hasChildren = item.subActivities && item.subActivities.length > 0;
@@ -352,8 +340,15 @@ const ActivityCard = ({ item, level = 0, toggleExpand, expandedItems }) => {
         style={{
           backgroundColor: colors.surface,
           marginBottom: 16,
-          marginLeft: 0, // Align all cards at the same left edge
+          marginLeft: 0,
           width: cardWidth,
+          borderRadius: 16,
+          overflow: 'hidden',
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 4,
+          elevation: 3,
         }}
       >
         {/* Header */}
@@ -462,6 +457,7 @@ const ActivityCard = ({ item, level = 0, toggleExpand, expandedItems }) => {
           <View style={{ 
             backgroundColor: colors.surfaceVariant, 
             padding: 12,
+            borderRadius: 12,
             flexDirection: 'row',
             justifyContent: 'space-between'
           }}>
@@ -497,9 +493,6 @@ const ActivityCard = ({ item, level = 0, toggleExpand, expandedItems }) => {
               {item.assignedTo}
             </Text>
           </View>
-
-          {/* Description */}
-          
 
           {/* Action Buttons */}
           <View style={{ 
@@ -559,6 +552,7 @@ const ActivityCard = ({ item, level = 0, toggleExpand, expandedItems }) => {
             <Animated.View entering={FadeInUp} style={{ 
               backgroundColor: colors.surfaceVariant, 
               padding: 12,
+              borderRadius: 12,
               marginTop: 8
             }}>
               <Text style={{ 
@@ -738,7 +732,7 @@ const findActivityById = (id, activitiesList) => {
 
 // Main Activity Screen Component
 const ActivityScreen = () => {
-  const [expandedItems, setExpandedItems] = useState({ '1': true, '2': true });
+  const [expandedItems, setExpandedItems] = useState({}); // Empty object for collapsed by default
   const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'asc' });
   const [filterStatus, setFilterStatus] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -810,7 +804,13 @@ const ActivityScreen = () => {
           <View style={{ 
             backgroundColor: colors.surface, 
             padding: 32, 
-            alignItems: 'center'
+            borderRadius: 16,
+            alignItems: 'center',
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
+            elevation: 3,
           }}>
             <ActivityIndicator size="large" color={colors.info} />
             <Text style={{ 
@@ -1031,7 +1031,13 @@ const ActivityScreen = () => {
                 justifyContent: 'center', 
                 padding: 32,
                 backgroundColor: colors.surface,
-                margin: 16
+                borderRadius: 16,
+                margin: 16,
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.1,
+                shadowRadius: 4,
+                elevation: 3,
               }}
             >
               <Icon name="folder-search-outline" size={64} color={colors.textMuted} />

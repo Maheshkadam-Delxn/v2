@@ -502,23 +502,7 @@ const ActivityCard = ({ item, level = 0, toggleExpand, expandedItems }) => {
             </Text>
           </View>
 
-          {/* Description */}
-          {item.description && (
-            <View style={{ 
-              backgroundColor: colors.surfaceVariant, 
-              borderRadius: 12, 
-              padding: 12,
-            }}>
-              <Text style={{ 
-                fontSize: 14, 
-                color: colors.textSecondary,
-                lineHeight: 20,
-              }}>
-                {item.description}
-              </Text>
-            </View>
-          )}
-
+         
           {/* Action Buttons */}
           <View style={{ 
             flexDirection: 'row', 

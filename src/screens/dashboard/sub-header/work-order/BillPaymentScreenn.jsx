@@ -201,7 +201,7 @@ const BillPaymentCard = ({ item }) => {
             onPress={() => console.log('Download Receipt', item.billNo)}
           >
             <Icon name="download" size={20} color="#3b82f6" style={{ marginRight: 8 }} />
-            <Text style={{ color: '#3b82f6', fontWeight: '600' }}>Download</Text>
+            <Text style={{ color: '#3b82f6', fontWeight: '600' }}>Get</Text>
           </TouchableOpacity>
           
           <TouchableOpacity 

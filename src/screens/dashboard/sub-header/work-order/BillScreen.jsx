@@ -291,7 +291,7 @@ const WorkOrderCard = ({ item, expanded, onToggle }) => {
                       onPress={() => console.log('Download Bill', bill.billNo)}
                     >
                       <Icon name="download" size={20} color="#6b7280" style={{ marginRight: 8 }} />
-                      <Text style={{ color: '#6b7280', fontWeight: '600' }}>Download</Text>
+                      <Text style={{ color: '#6b7280', fontWeight: '600' }}>Get</Text>
                     </TouchableOpacity>
                     
                     <TouchableOpacity 
