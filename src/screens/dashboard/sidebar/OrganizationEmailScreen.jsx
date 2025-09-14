@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, TextInput, Modal, Dimensions } from 'react-native';
 import MainLayout from '../../components/MainLayout';
 import { Ionicons, MaterialIcons, Feather } from '@expo/vector-icons';
+import { BlurView } from 'expo-blur';
 
 const { width } = Dimensions.get('window');
 
@@ -9,7 +10,7 @@ export default function OrganizationEmailScreen() {
   const [selectedFolder, setSelectedFolder] = useState('All');
   const [showFolderDropdown, setShowFolderDropdown] = useState(true);
   const [composeModalVisible, setComposeModalVisible] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false); // Default to closed
 
   const emailFolders = [
     { id: 'all', name: 'All', count: 21, icon: 'mail' },
@@ -45,11 +46,16 @@ export default function OrganizationEmailScreen() {
     setSidebarOpen(!sidebarOpen);
   };
 
+  const handleSidebarItemPress = (folderName) => {
+    setSelectedFolder(folderName);
+    setSidebarOpen(false); // Close sidebar after selection
+  };
+
   return (
     <MainLayout title="My Email">
       <View className="flex-1 flex-row bg-gray-50">
         {/* Sidebar with Toggle */}
-        <View className={`${sidebarOpen ? 'w-72' : 'w-16'} bg-white border-r border-gray-200 ${sidebarOpen ? 'p-5' : 'p-2'} shadow-sm transition-all duration-300 relative`}>
+        <View className={`${sidebarOpen ? 'w-72' : 'w-16'} bg-white border-r border-gray-200 ${sidebarOpen ? 'p-5' : 'p-2'} shadow-sm transition-all duration-300 relative z-20`}>
           
           {/* Toggle Button */}
           <TouchableOpacity 
@@ -67,7 +73,10 @@ export default function OrganizationEmailScreen() {
             <>
               <TouchableOpacity 
                 className="bg-blue-600 rounded-lg p-4 mb-6 flex-row items-center justify-center shadow-md mt-4"
-                // onPress={() => setComposeModalVisible(true)}
+                onPress={() => {
+                  setComposeModalVisible(true);
+                  setSidebarOpen(false);
+                }}
               >
                 <Ionicons name="add" size={22} color="white" />
                 <Text className="text-white font-semibold ml-2 text-base">Compose Mail</Text>
@@ -105,7 +114,7 @@ export default function OrganizationEmailScreen() {
                       <TouchableOpacity
                         key={folder.id}
                         className={`flex-row items-center justify-between p-3 rounded-lg mb-1 ${selectedFolder === folder.name ? 'bg-gray-100 border-l-4 border-blue-500' : ''}`}
-                        onPress={() => setSelectedFolder(folder.name)}
+                        onPress={() => handleSidebarItemPress(folder.name)}
                       >
                         <View className="flex-row items-center">
                           <Ionicons 
@@ -133,7 +142,7 @@ export default function OrganizationEmailScreen() {
                   <TouchableOpacity
                     key={label.id}
                     className={`flex-row items-center p-3 rounded-lg mb-1 ${selectedFolder === label.name ? 'bg-gray-100 border-l-4 border-blue-500' : ''}`}
-                    onPress={() => setSelectedFolder(label.name)}
+                    onPress={() => handleSidebarItemPress(label.name)}
                   >
                     <View className="w-3 h-3 rounded-full mr-3" style={{ backgroundColor: label.color }} />
                     <Text className={selectedFolder === label.name ? 'text-blue-600 font-medium' : 'text-gray-700'}>
@@ -176,7 +185,7 @@ export default function OrganizationEmailScreen() {
                       <TouchableOpacity
                         key={folder.id}
                         className={`p-3 rounded-lg mb-1 ${selectedFolder === folder.name ? 'bg-gray-100' : ''}`}
-                        onPress={() => setSelectedFolder(folder.name)}
+                        onPress={() => handleSidebarItemPress(folder.name)}
                       >
                         <Ionicons 
                           name={folder.icon} 
@@ -194,7 +203,7 @@ export default function OrganizationEmailScreen() {
                   <TouchableOpacity
                     key={label.id}
                     className={`p-3 rounded-lg mb-1 ${selectedFolder === label.name ? 'bg-gray-100' : ''}`}
-                    onPress={() => setSelectedFolder(label.name)}
+                    onPress={() => handleSidebarItemPress(label.name)}
                   >
                     <View className="w-3 h-3 rounded-full" style={{ backgroundColor: label.color }} />
                   </TouchableOpacity>
@@ -208,61 +217,86 @@ export default function OrganizationEmailScreen() {
           )}
         </View>
 
-        {/* Email List */}
-        <ScrollView className="flex-1 p-5">
-          <View className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <View className="flex-row justify-between items-center p-4 border-b border-gray-200 bg-gray-50">
-              <Text className="font-semibold text-gray-800 text-lg">
-                {selectedFolder} ({filteredEmails.length})
-              </Text>
-              <View className="flex-row">
-                <TouchableOpacity className="p-2">
-                  <Ionicons name="refresh" size={20} color="#6B7280" />
-                </TouchableOpacity>
-                <TouchableOpacity className="p-2 ml-2">
-                  <Ionicons name="options" size={20} color="#6B7280" />
-                </TouchableOpacity>
-              </View>
-            </View>
+        {/* Overlay when sidebar is open - Using BlurView for proper blur effect */}
+        {sidebarOpen && (
+          <TouchableOpacity 
+            className="absolute inset-0 z-10"
+            onPress={() => setSidebarOpen(false)}
+            activeOpacity={1}
+          >
+            <BlurView 
+              intensity={1000} 
+              tint="light" 
+              className="flex-1"
+            />
+          </TouchableOpacity>
+        )}
 
-            {filteredEmails.length > 0 ? (
-              filteredEmails.map((email) => (
-                <TouchableOpacity
-                  key={email.id}
-                  className="p-4 border-b border-gray-100 last:border-b-0 active:bg-gray-50"
-                >
-                  <View className="flex-row justify-between items-start mb-1">
-                    <Text className="font-semibold text-gray-900 text-base">{email.subject}</Text>
-                    <Text className="text-xs text-gray-500">{email.date}</Text>
-                  </View>
-                  <Text className="text-sm text-gray-600 mb-2">{email.preview}</Text>
-                  <View className="flex-row flex-wrap">
-                    {email.labels.map((labelId) => {
-                      const label = emailLabels.find(l => l.id === labelId);
-                      return label ? (
-                        <View 
-                          key={labelId} 
-                          className="flex-row items-center mr-2 mb-1 px-2 py-1 rounded-full"
-                          style={{ backgroundColor: `${label.color}15` }}
-                        >
-                          <View className="w-2 h-2 rounded-full mr-1" style={{ backgroundColor: label.color }} />
-                          <Text className="text-xs" style={{ color: label.color }}>
-                            {label.name}
-                          </Text>
-                        </View>
-                      ) : null;
-                    })}
-                  </View>
-                </TouchableOpacity>
-              ))
-            ) : (
-              <View className="p-8 items-center justify-center">
-                <Ionicons name="mail-open" size={48} color="#D1D5DB" />
-                <Text className="text-gray-500 mt-3 text-center">No emails found in {selectedFolder}</Text>
+        {/* Email List */}
+        <View className={`flex-1 ${sidebarOpen ? 'opacity-70' : 'opacity-100'} transition-opacity duration-300`}>
+          <ScrollView className="p-5">
+            <View className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+              <View className="flex-row justify-between items-center p-4 border-b border-gray-200 bg-gray-50">
+                <View className="flex-row items-center">
+                  <TouchableOpacity 
+                    onPress={toggleSidebar}
+                    className="mr-3 p-1 rounded-md bg-gray-100"
+                  >
+                    <Ionicons name="menu" size={20} color="#6B7280" />
+                  </TouchableOpacity>
+                  <Text className="font-semibold text-gray-800 text-lg">
+                    {selectedFolder} ({filteredEmails.length})
+                  </Text>
+                </View>
+                <View className="flex-row">
+                  <TouchableOpacity className="p-2">
+                    <Ionicons name="refresh" size={20} color="#6B7280" />
+                  </TouchableOpacity>
+                  <TouchableOpacity className="p-2 ml-2">
+                    <Ionicons name="options" size={20} color="#6B7280" />
+                  </TouchableOpacity>
+                </View>
               </View>
-            )}
-          </View>
-        </ScrollView>
+
+              {filteredEmails.length > 0 ? (
+                filteredEmails.map((email) => (
+                  <TouchableOpacity
+                    key={email.id}
+                    className="p-4 border-b border-gray-100 last:border-b-0 active:bg-gray-50"
+                  >
+                    <View className="flex-row justify-between items-start mb-1">
+                      <Text className="font-semibold text-gray-900 text-base">{email.subject}</Text>
+                      <Text className="text-xs text-gray-500">{email.date}</Text>
+                    </View>
+                    <Text className="text-sm text-gray-600 mb-2">{email.preview}</Text>
+                    <View className="flex-row flex-wrap">
+                      {email.labels.map((labelId) => {
+                        const label = emailLabels.find(l => l.id === labelId);
+                        return label ? (
+                          <View 
+                            key={labelId} 
+                            className="flex-row items-center mr-2 mb-1 px-2 py-1 rounded-full"
+                            style={{ backgroundColor: `${label.color}15` }}
+                          >
+                            <View className="w-2 h-2 rounded-full mr-1" style={{ backgroundColor: label.color }} />
+                            <Text className="text-xs" style={{ color: label.color }}>
+                              {label.name}
+                            </Text>
+                          </View>
+                        ) : null;
+                      })}
+                    </View>
+                  </TouchableOpacity>
+                ))
+              ) : (
+                <View className="p-8 items-center justify-center">
+                  <Ionicons name="mail-open" size={48} color="#D1D5DB" />
+                  <Text className="text-gray-500 mt-3 text-center">No emails found in {selectedFolder}</Text>
+                </View>
+              )}
+            </View>
+          </ScrollView>
+        </View>
       </View>
 
       {/* Compose Modal */}
