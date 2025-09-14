@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, ScrollView, Image, Modal } fro
 import { useRoute } from '@react-navigation/native';
 import { MaterialIcons } from 'react-native-vector-icons';
 import MainLayout from '../../../components/MainLayout';
+import { LinearGradient } from 'expo-linear-gradient';
 
 // Image Placeholder Components
 const ImagePlaceholder1 = () => (
@@ -23,8 +24,12 @@ const ImagePlaceholder2 = () => (
 
 // Action Button Component
 const ActionButton = ({ iconName, onPress }) => (
-  <TouchableOpacity className="w-10 h-10 bg-gray-200 rounded-full justify-center items-center mx-1" onPress={onPress}>
-    <MaterialIcons name={iconName} size={24} color="#1E3A8A" />
+  <TouchableOpacity 
+    className="w-10 h-10 rounded-full justify-center items-center mx-1"
+    style={{ backgroundColor: '#3b82f6' }}
+    onPress={onPress}
+  >
+    <MaterialIcons name={iconName} size={24} color="#ffffff" />
   </TouchableOpacity>
 );
 
@@ -98,9 +103,14 @@ export default function DrawingScreen() {
 
   return (
     <MainLayout title="Drawing">
-      <View className="flex-1 bg-gray-100">
+      <View className="flex-1 bg-white">
         {/* Filter Tabs with Filter and Download Buttons */}
-        <View className="bg-white py-4 border-b border-gray-200 shadow-sm">
+        <LinearGradient
+          colors={['#f0f7ff', '#e6f0ff']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 0, y: 1 }}
+          className="py-4"
+        >
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -111,44 +121,74 @@ export default function DrawingScreen() {
               <TouchableOpacity
                 key={tab}
                 onPress={() => setActiveTab(tab)}
-                className={`px-5 py-2 rounded-full ${activeTab === tab ? 'bg-blue-600' : 'bg-gray-100'} shadow-sm`}
+                style={{
+                  paddingHorizontal: 20,
+                  paddingVertical: 8,
+                  borderRadius: 9999,
+                  backgroundColor: activeTab === tab ? '#3b82f6' : '#ffffff',
+                }}
               >
-                <Text className={`font-semibold text-base ${activeTab === tab ? 'text-white' : 'text-gray-600'}`}>
+                <Text
+                  style={{
+                    fontWeight: '600',
+                    fontSize: 14,
+                    color: activeTab === tab ? '#ffffff' : '#2563eb',
+                  }}
+                >
                   {tab}
                 </Text>
               </TouchableOpacity>
             ))}
             <TouchableOpacity
-              className="px-5 py-2 bg-gray-100 rounded-full shadow-sm"
+              style={{
+                paddingHorizontal: 20,
+                paddingVertical: 8,
+                backgroundColor: '#3b82f6',
+                borderRadius: 9999,
+              }}
               onPress={() => setFilterModalVisible(true)}
             >
-              <MaterialIcons name="filter-list" size={24} color="#374151" />
+              <MaterialIcons name="filter-list" size={24} color="#ffffff" />
             </TouchableOpacity>
             <TouchableOpacity
-              className="px-5 py-2 bg-gray-100 rounded-full shadow-sm"
+              style={{
+                paddingHorizontal: 20,
+                paddingVertical: 8,
+                backgroundColor: '#3b82f6',
+                borderRadius: 9999,
+              }}
               onPress={handleDownload}
             >
-              <MaterialIcons name="file-download" size={24} color="#374151" />
+              <MaterialIcons name="file-download" size={24} color="#ffffff" />
             </TouchableOpacity>
           </ScrollView>
-        </View>
+        </LinearGradient>
 
         {/* Search and Select Bar */}
         <View className="px-6 py-3 bg-white flex-row items-center">
-          <View className="flex-1 bg-gray-100 rounded-lg px-4 py-2 flex-row items-center mr-2">
-            <MaterialIcons name="search" size={20} color="#9CA3AF" className="mr-2" />
+          <View className="flex-1 bg-blue-50 rounded-lg px-4 py-2 flex-row items-center mr-2">
+            <MaterialIcons name="search" size={20} color="#3b82f6" className="mr-2" />
             <TextInput
-              placeholder="Search..."
+              // placeholder=""
               value={searchText}
               onChangeText={setSearchText}
-              className="flex-1 text-gray-800"
+              className="flex-1 text-blue-800"
+              placeholderTextColor="#93C5FD"
             />
           </View>
-          <TouchableOpacity className="bg-blue-600 px-4 py-2 rounded-lg mr-2" onPress={() => setAddModalVisible(true)}>
+          <TouchableOpacity 
+            className="px-4 py-2 rounded-lg mr-2"
+            style={{ backgroundColor: '#3b82f6' }}
+            onPress={() => setAddModalVisible(true)}
+          >
             <Text className="text-white font-semibold">+ Add Drawing</Text>
           </TouchableOpacity>
-          <TouchableOpacity className="bg-gray-100 px-4 py-2 rounded-lg" onPress={() => setDropdownVisible(true)}>
-            <Text className="text-gray-600 font-semibold">
+          <TouchableOpacity 
+            className="px-4 py-2 rounded-lg"
+            style={{ backgroundColor: '#3b82f6' }}
+            onPress={() => setDropdownVisible(true)}
+          >
+            <Text className="text-white font-semibold">
               {selectedDrawing ? selectedDrawing.title : 'Select a Drawing'}
             </Text>
           </TouchableOpacity>
@@ -160,13 +200,13 @@ export default function DrawingScreen() {
             {showImage1 && <ImagePlaceholder1 />}
             {showImage2 && <ImagePlaceholder2 />}
             {!showImage1 && !showImage2 && (
-              <Text className="text-gray-600 text-center w-full">No drawings available for this filter.</Text>
+              <Text className="text-blue-600 text-center w-full">No drawings available for this filter.</Text>
             )}
           </View>
         </ScrollView>
 
         {/* Action Buttons */}
-        <View className="flex-row justify-center px-6 py-4 bg-white border-t border-gray-200">
+        <View className="flex-row justify-center px-6 py-4 bg-white border-t border-blue-100">
           <View className="flex-row">
             <ActionButton iconName="edit" onPress={handleEdit} />
             <ActionButton iconName="people" onPress={() => {}} />
@@ -183,31 +223,31 @@ export default function DrawingScreen() {
           visible={editModalVisible}
           onRequestClose={() => setEditModalVisible(false)}
         >
-          <View className="flex-1 bg-gray-800 bg-opacity-50 justify-center items-center p-6">
+          <View className="flex-1 bg-blue-800/30 justify-center items-center p-6">
             <View className="bg-white rounded-lg w-full max-w-md p-6">
-              <Text className="text-xl font-bold text-gray-800 mb-6">Edit Drawing</Text>
+              <Text className="text-xl font-bold text-blue-800 mb-6">Edit Drawing</Text>
               <View className="mb-4">
-                <Text className="text-gray-700 mb-2">Title</Text>
+                <Text className="text-blue-700 mb-2">Title</Text>
                 <TextInput
                   value={editForm.title}
                   onChangeText={text => setEditForm({ ...editForm, title: text })}
-                  className="border border-gray-300 rounded-lg px-4 py-2 text-gray-800"
+                  className="border border-blue-200 rounded-lg px-4 py-2 text-blue-800"
                 />
               </View>
               <View className="mb-4">
-                <Text className="text-gray-700 mb-2">Description</Text>
+                <Text className="text-blue-700 mb-2">Description</Text>
                 <TextInput
                   value={editForm.description}
                   onChangeText={text => setEditForm({ ...editForm, description: text })}
-                  className="border border-gray-300 rounded-lg px-4 py-2 text-gray-800"
+                  className="border border-blue-200 rounded-lg px-4 py-2 text-blue-800"
                 />
               </View>
               <View className="mb-6">
-                <Text className="text-gray-700 mb-2">Category</Text>
+                <Text className="text-blue-700 mb-2">Category</Text>
                 <TextInput
                   value={editForm.category}
                   onChangeText={text => setEditForm({ ...editForm, category: text })}
-                  className="border border-gray-300 rounded-lg px-4 py-2 text-gray-800"
+                  className="border border-blue-200 rounded-lg px-4 py-2 text-blue-800"
                 />
               </View>
               <View className="flex-row justify-end">
@@ -215,10 +255,11 @@ export default function DrawingScreen() {
                   className="px-5 py-2 rounded-lg mr-3"
                   onPress={() => setEditModalVisible(false)}
                 >
-                  <Text className="text-gray-600">Cancel</Text>
+                  <Text className="text-blue-600">Cancel</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  className="bg-blue-600 px-5 py-2 rounded-lg"
+                  className="px-5 py-2 rounded-lg"
+                  style={{ backgroundColor: '#3b82f6' }}
                   onPress={handleSaveEdit}
                 >
                   <Text className="text-white">Save</Text>
@@ -235,31 +276,31 @@ export default function DrawingScreen() {
           visible={addModalVisible}
           onRequestClose={() => setAddModalVisible(false)}
         >
-          <View className="flex-1 bg-gray-800 bg-opacity-50 justify-center items-center p-6">
+          <View className="flex-1 bg-blue-800/30 justify-center items-center p-6">
             <View className="bg-white rounded-lg w-full max-w-md p-6">
-              <Text className="text-xl font-bold text-gray-800 mb-6">Add Drawing</Text>
+              <Text className="text-xl font-bold text-blue-800 mb-6">Add Drawing</Text>
               <View className="mb-4">
-                <Text className="text-gray-700 mb-2">Title</Text>
+                <Text className="text-blue-700 mb-2">Title</Text>
                 <TextInput
                   value={addForm.title}
                   onChangeText={text => setAddForm({ ...addForm, title: text })}
-                  className="border border-gray-300 rounded-lg px-4 py-2 text-gray-800"
+                  className="border border-blue-200 rounded-lg px-4 py-2 text-blue-800"
                 />
               </View>
               <View className="mb-4">
-                <Text className="text-gray-700 mb-2">Description</Text>
+                <Text className="text-blue-700 mb-2">Description</Text>
                 <TextInput
                   value={addForm.description}
                   onChangeText={text => setAddForm({ ...addForm, description: text })}
-                  className="border border-gray-300 rounded-lg px-4 py-2 text-gray-800"
+                  className="border border-blue-200 rounded-lg px-4 py-2 text-blue-800"
                 />
               </View>
               <View className="mb-6">
-                <Text className="text-gray-700 mb-2">Category</Text>
+                <Text className="text-blue-700 mb-2">Category</Text>
                 <TextInput
                   value={addForm.category}
                   onChangeText={text => setAddForm({ ...addForm, category: text })}
-                  className="border border-gray-300 rounded-lg px-4 py-2 text-gray-800"
+                  className="border border-blue-200 rounded-lg px-4 py-2 text-blue-800"
                 />
               </View>
               <View className="flex-row justify-end">
@@ -267,10 +308,11 @@ export default function DrawingScreen() {
                   className="px-5 py-2 rounded-lg mr-3"
                   onPress={() => setAddModalVisible(false)}
                 >
-                  <Text className="text-gray-600">Cancel</Text>
+                  <Text className="text-blue-600">Cancel</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  className="bg-blue-600 px-5 py-2 rounded-lg"
+                  className="px-5 py-2 rounded-lg"
+                  style={{ backgroundColor: '#3b82f6' }}
                   onPress={handleAddSave}
                 >
                   <Text className="text-white">Save</Text>
@@ -287,19 +329,19 @@ export default function DrawingScreen() {
           visible={dropdownVisible}
           onRequestClose={() => setDropdownVisible(false)}
         >
-          <View className="flex-1 bg-gray-800 bg-opacity-50 justify-center items-center p-6">
+          <View className="flex-1 bg-blue-800/30 justify-center items-center p-6">
             <View className="bg-white rounded-lg w-full max-w-md p-4">
               <ScrollView>
                 {drawings.map(drawing => (
                   <TouchableOpacity
                     key={drawing.id}
-                    className="py-2 border-b border-gray-200"
+                    className="py-2 border-b border-blue-100"
                     onPress={() => {
                       setSelectedDrawing(drawing);
                       setDropdownVisible(false);
                     }}
                   >
-                    <Text className="text-gray-800 font-medium">{drawing.title}</Text>
+                    <Text className="text-blue-800 font-medium">{drawing.title}</Text>
                   </TouchableOpacity>
                 ))}
               </ScrollView>
@@ -314,23 +356,25 @@ export default function DrawingScreen() {
           visible={filterModalVisible}
           onRequestClose={() => setFilterModalVisible(false)}
         >
-          <View className="flex-1 bg-gray-800 bg-opacity-50 justify-center items-center p-6">
+          <View className="flex-1 bg-blue-800/30 justify-center items-center p-6">
             <View className="bg-white rounded-lg w-full max-w-md p-6">
-              <Text className="text-xl font-bold text-gray-800 mb-6">Filter Drawings</Text>
+              <Text className="text-xl font-bold text-blue-800 mb-6">Filter Drawings</Text>
               <View className="mb-4">
-                <Text className="text-gray-700 mb-2">Category</Text>
+                <Text className="text-blue-700 mb-2">Category</Text>
                 <TextInput
                   value={filterForm.category}
                   onChangeText={text => setFilterForm({ ...filterForm, category: text })}
-                  className="border border-gray-300 rounded-lg px-4 py-2 text-gray-800"
+                  className="border border-blue-200 rounded-lg px-4 py-2 text-blue-800"
+                  placeholderTextColor="#93C5FD"
                 />
               </View>
               <View className="mb-4">
-                <Text className="text-gray-700 mb-2">Type</Text>
+                <Text className="text-blue-700 mb-2">Type</Text>
                 <TextInput
                   value={filterForm.type}
                   onChangeText={text => setFilterForm({ ...filterForm, type: text })}
-                  className="border border-gray-300 rounded-lg px-4 py-2 text-gray-800"
+                  className="border border-blue-200 rounded-lg px-4 py-2 text-blue-800"
+                  placeholderTextColor="#93C5FD"
                 />
               </View>
               <View className="flex-row justify-end">
@@ -338,10 +382,11 @@ export default function DrawingScreen() {
                   className="px-5 py-2 rounded-lg mr-3"
                   onPress={() => setFilterModalVisible(false)}
                 >
-                  <Text className="text-gray-600">Cancel</Text>
+                  <Text className="text-blue-600">Cancel</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  className="bg-blue-600 px-5 py-2 rounded-lg"
+                  className="px-5 py-2 rounded-lg"
+                  style={{ backgroundColor: '#3b82f6' }}
                   onPress={handleApplyFilter}
                 >
                   <Text className="text-white">Apply</Text>

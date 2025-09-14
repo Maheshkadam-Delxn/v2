@@ -75,7 +75,7 @@ export default function DocumentScreen() {
                       setShowDropdown(false);
                     }}
                   >
-                    <Ionicons name={folder.icon} size={18} color="#4B5563" className="mr-3" />
+                    <Ionicons name={folder.icon} size={18} color="#3b82f6 " className="mr-3" />
                     <Text className="text-gray-800">{folder.name}</Text>
                   </TouchableOpacity>
                 ))}
@@ -84,7 +84,7 @@ export default function DocumentScreen() {
           </View>
           
           <TouchableOpacity 
-            className="bg-blue-600 rounded-full p-3 shadow-sm"
+            className="bg-[#3b82f6] rounded-full p-3 shadow-sm"
             onPress={() => setShowAddFolderModal(true)}
           >
             <Ionicons name="add" size={24} color="white" />
@@ -105,7 +105,7 @@ export default function DocumentScreen() {
 
         {/* Action Buttons */}
         <View className="flex-row justify-between mb-6">
-          <TouchableOpacity className="bg-blue-600 rounded-lg py-3 px-5 flex-row items-center shadow-sm">
+          <TouchableOpacity className="bg-[#3b82f6] rounded-lg py-3 px-5 flex-row items-center shadow-sm">
             <Ionicons name="add" size={20} color="white" />
             <Text className="text-white font-medium ml-2">Create</Text>
           </TouchableOpacity>

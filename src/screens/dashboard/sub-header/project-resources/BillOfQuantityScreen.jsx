@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Modal, ScrollView, Switch } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { View, Text, TextInput, TouchableOpacity, Modal, ScrollView, Switch, Animated } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useRoute } from '@react-navigation/native';
 import MainLayout from '../../../components/MainLayout';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Feather } from '@expo/vector-icons';
 
 // BOQ Item Component
 const BoqItem = ({ title, category, type, total, paid, approved }) => {
   return (
-    <View className="bg-white p-4 mb-3 rounded-lg shadow-sm border border-gray-200">
+    <View className="bg-white p-4 mb-3 rounded-lg border border-gray-200">
       <View className="flex-row justify-between items-start mb-2">
         <Text className="text-lg font-semibold text-gray-800">{title}</Text>
         <View className={`px-2 py-1 rounded-full ${approved ? 'bg-green-100' : 'bg-yellow-100'}`}>
@@ -28,7 +30,7 @@ const BoqItem = ({ title, category, type, total, paid, approved }) => {
       
       <View className="flex-row justify-between">
         <Text className="text-gray-600">Total/Paid:</Text>
-        <Text className="font-medium">{total}/{paid}</Text>
+        <Text className="font-medium text-gray-800">{total}/{paid}</Text>
       </View>
     </View>
   );
@@ -36,6 +38,7 @@ const BoqItem = ({ title, category, type, total, paid, approved }) => {
 
 // Main BillOfQuantity Component
 export default function BillOfQuantity() {
+  const scaleAnim = useRef(new Animated.Value(0.95)).current;
   const route = useRoute();
   const { projectId } = route.params || { projectId: 1 };
   const [searchText, setSearchText] = useState('');
@@ -115,46 +118,99 @@ export default function BillOfQuantity() {
 
   return (
     <MainLayout title="Bill of Quantity">
-      <View className="flex-1 bg-gray-100">
+      <View className="flex-1 bg-gray-50">
         <StatusBar style="auto" />
         
-        {/* Filter Tabs */}
-        <View className="bg-blue-100 py-4 border-b border-gray-200 shadow-sm">
+        {/* Filter Tabs with Blue Gradient */}
+        <LinearGradient
+          colors={['#f0f7ff', '#e6f0ff']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 0, y: 1 }}
+          className="py-4"
+        >
           <ScrollView 
             horizontal
             showsHorizontalScrollIndicator={false}
             className="px-6"
-            contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 8, gap: 16 }}
+            contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 8, gap: 12 }}
           >
             {tabs.map(tab => (
               <TouchableOpacity 
                 key={tab}
                 onPress={() => setActiveTab(tab)}
-                className={`px-5 py-2 rounded-full ${activeTab === tab ? 'bg-blue-600' : 'bg-gray-100'} shadow-sm`}
+                style={{
+                  paddingHorizontal: 20,
+                  paddingVertical: 8,
+                  borderRadius: 9999, // Tailwind's rounded-full
+                  backgroundColor: activeTab === tab ? '#3b82f6' : '#ffffff',
+                }}
               >
-                <Text className={`font-semibold text-base ${activeTab === tab ? 'text-white' : 'text-gray-600'}`}>
+                <Text 
+                  style={{
+                    fontWeight: '600',
+                    fontSize: 14,
+                    color: activeTab === tab ? '#ffffff' : '#2563eb',
+                  }}
+                >
                   {tab}
                 </Text>
               </TouchableOpacity>
             ))}
           </ScrollView>
-        </View>
+        </LinearGradient>
         
-        {/* Search Bar */}
-        <View className="px-6 py-3 bg-white mb-1">
-          <View className="bg-gray-100 rounded-lg px-4 py-2 flex-row items-center">
-            <Text className="text-gray-400 mr-2">🔍</Text>
-            <TextInput
-              placeholder="Search..."
-              value={searchText}
-              onChangeText={setSearchText}
-              className="flex-1 text-gray-800"
-            />
+        {/* Search Bar - Styled like HomeScreen */}
+        <Animated.View 
+          className="px-6 py-6"
+          style={{
+            opacity: scaleAnim,
+            transform: [{ scale: scaleAnim }]
+          }}
+        >
+          <View className="flex-row items-center">
+            {/* Search Bar */}
+            <View 
+              className="mr-4 flex-1 flex-row items-center rounded-2xl bg-white px-5 py-3"
+              style={{
+                height: 56,
+              }}
+            >
+              <Feather name="search" size={20} color="#6b7280" style={{ marginRight: 12 }} />
+              <TextInput
+                className="flex-1 text-base font-medium"
+                placeholder="Search BOQ items..."
+                placeholderTextColor="#9ca3af"
+                value={searchText}
+                onChangeText={setSearchText}
+                style={{
+                  height: '100%',
+                }}
+              />
+              {searchText.length > 0 && (
+                <TouchableOpacity onPress={() => setSearchText('')}>
+                  <Feather name="x" size={18} color="#6b7280" />
+                </TouchableOpacity>
+              )}
+            </View>
+            
+            {/* Filter Button */}
+            <TouchableOpacity
+              className="rounded-2xl p-4"
+              style={{
+                backgroundColor: '#3b82f6',
+                height: 56,
+                width: 56,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              <Feather name="filter" size={20} color="#ffffff" />
+            </TouchableOpacity>
           </View>
-        </View>
+        </Animated.View>
         
         {/* BOQ List */}
-        <ScrollView className="flex-1 px-6 pt-3">
+        <ScrollView className="flex-1 px-6 bg-gray-50">
           {filteredData.map(item => (
             <BoqItem
               key={item.id}
@@ -170,7 +226,10 @@ export default function BillOfQuantity() {
         
         {/* Add Button */}
         <TouchableOpacity 
-          className="absolute bottom-6 right-6 w-14 h-14 bg-blue-600 rounded-full justify-center items-center shadow-lg"
+          className="absolute bottom-6 right-6 w-14 h-14 rounded-full justify-center items-center"
+          style={{
+            backgroundColor: '#3b82f6',
+          }}
           onPress={() => setModalVisible(true)}
         >
           <Text className="text-white text-2xl">+</Text>
@@ -198,16 +257,17 @@ export default function BillOfQuantity() {
                   value={phaseName}
                   onChangeText={setPhaseName}
                   className="border border-gray-300 rounded-lg px-4 py-3 text-gray-800"
+                  placeholderTextColor="#9ca3af"
                 />
               </View>
               
               {/* Add Button */}
               <TouchableOpacity className="flex-row items-center mb-8">
-                <View className="w-5 h-5 rounded-full border-2 border-gray-300 mr-2 items-center justify-center">
-                  <View className="w-3 h-0.5 bg-gray-400"></View>
-                  <View className="w-0.5 h-3 bg-gray-400 absolute"></View>
+                <View className="w-5 h-5 rounded-full border-2 border-blue-300 mr-2 items-center justify-center">
+                  <View className="w-3 h-0.5 bg-blue-400"></View>
+                  <View className="w-0.5 h-3 bg-blue-400 absolute"></View>
                 </View>
-                <Text className="text-gray-700">Add</Text>
+                <Text className="text-blue-600">Add</Text>
               </TouchableOpacity>
               
               <View className="h-px bg-gray-200 mb-6"></View>
@@ -237,9 +297,9 @@ export default function BillOfQuantity() {
               ))}
               
               {/* Modal Actions */}
-              <View className="flex-row justify-end mt-8">
+              <View className="flex-row justify-end mt-8 space-x-3">
                 <TouchableOpacity 
-                  className="px-5 py-2 rounded-lg mr-3"
+                  className="px-5 py-2 rounded-lg border border-gray-300"
                   onPress={() => setModalVisible(false)}
                 >
                   <Text className="text-gray-600">Cancel</Text>
@@ -248,7 +308,7 @@ export default function BillOfQuantity() {
                   className="bg-blue-600 px-5 py-2 rounded-lg"
                   onPress={() => setModalVisible(false)}
                 >
-                  <Text className="text-white">Save</Text>
+                  <Text className="text-white font-medium">Save</Text>
                 </TouchableOpacity>
               </View>
             </View>
