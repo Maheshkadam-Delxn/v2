@@ -1,7 +1,38 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, Image, TouchableOpacity, TextInput, Modal, Animated, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { 
+  View, 
+  Text, 
+  ScrollView, 
+  Image, 
+  TouchableOpacity, 
+  TextInput, 
+  Modal, 
+  Animated, 
+  TouchableWithoutFeedback, 
+  Keyboard,
+  Dimensions
+} from 'react-native';
 import MainLayout from '../../components/MainLayout';
-import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { LinearGradient } from 'expo-linear-gradient';
+
+const screenWidth = Dimensions.get('window').width;
+
+const colors = {
+  primary: '#1D4ED8',
+  secondary: '#6366F1',
+  success: '#10B981',
+  warning: '#F59E0B',
+  danger: '#EF4444',
+  info: '#3B82F6',
+  background: '#FFFFFF',
+  surface: '#FFFFFF',
+  surfaceVariant: '#F8FAFC',
+  text: '#0F172A',
+  textSecondary: '#475569',
+  textMuted: '#6B7280',
+  border: '#E2E8F0',
+};
 
 export default function UsersMembersScreen() {
   const [modalVisible, setModalVisible] = useState(false);
@@ -61,7 +92,7 @@ export default function UsersMembersScreen() {
       lastLogin: '20 Aug 2025 5:51 PM',
       project: 'Granite Horizon',
       status: 'Active',
-      image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=870&q=80'
+      image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwa90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=870&q=80'
     }
   ];
 
@@ -128,207 +159,350 @@ export default function UsersMembersScreen() {
 
   const getRoleColor = (role) => {
     switch(role) {
-      case 'Project Admin': return 'bg-purple-500';
-      case 'Consultant': return 'bg-blue-500';
-      case 'Approver': return 'bg-amber-500';
-      default: return 'bg-gray-500';
+      case 'Project Admin': return colors.secondary;
+      case 'Consultant': return colors.info;
+      case 'Approver': return colors.warning;
+      default: return colors.textMuted;
     }
+  };
+
+  const getStatusColor = (status) => {
+    return status === 'Active' ? colors.success : colors.danger;
   };
 
   return (
     <MainLayout title="Members">
-      <ScrollView className="flex-1 px-5 py-4 bg-gray-50 mb-10">
-        <View className="mb-6">
-          <Text className="text-2xl font-bold text-gray-900 mb-2">Team Members</Text>
-          <Text className="text-sm text-gray-500">List of project members and their roles</Text>
-        </View>
-        
-        {/* Search bar and action buttons row */}
-        <View className="flex-row items-center mb-6">
-          {/* Search bar */}
-          <View className="flex-1 flex-row items-center bg-white rounded-xl px-4 py-3 shadow-sm border border-gray-200">
-            <Ionicons name="search" size={20} color="#9ca3af" />
-            <TextInput
-              placeholder="Search team members..."
-              className="ml-2 flex-1 text-gray-700"
-              placeholderTextColor="#9ca3af"
-            />
+      <View style={{ flex: 1, backgroundColor: colors.background }}>
+        {/* Header */}
+        <LinearGradient 
+          colors={['#f0f7ff', '#e6f0ff']} 
+          start={{ x: 0, y: 0 }}
+          end={{ x: 0, y: 1 }}
+          style={{ padding: 16 }}
+        >
+          <View style={{ 
+            flexDirection: 'row', 
+            justifyContent: 'space-between', 
+            alignItems: 'center',
+            marginBottom: 12
+          }}>
+            <View>
+              <Text style={{ 
+                fontSize: 20, 
+                fontWeight: '700', 
+                color: colors.text 
+              }}>
+                Team Members
+              </Text>
+              <Text style={{ 
+                fontSize: 12, 
+                color: colors.textMuted,
+                marginTop: 4
+              }}>
+                List of project members and their roles
+              </Text>
+            </View>
+            <View style={{ flexDirection: 'row', gap: 8 }}>
+              <TouchableOpacity
+                style={{ 
+                  padding: 10, 
+                  backgroundColor: colors.surface, 
+                  borderRadius: 12,
+                  borderWidth: 1,
+                  borderColor: colors.border
+                }}
+                onPress={() => console.log('Refresh')}
+              >
+                <Icon name="refresh" size={20} color={colors.info} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{ 
+                  padding: 10, 
+                  backgroundColor: colors.info,
+                  borderRadius: 12
+                }}
+                onPress={openModal}
+              >
+                <Icon name="plus" size={20} color="#ffffff" />
+              </TouchableOpacity>
+            </View>
           </View>
-          
-          {/* Plus icon with box and radius */}
-          <TouchableOpacity 
-            className="ml-3 bg-blue-600 w-12 h-12 rounded-xl items-center justify-center shadow-sm" // Changed to blue-600
-            onPress={openModal}
-          >
-            <Ionicons name="add" size={24} color="white" />
-          </TouchableOpacity>
-          
-          {/* Add new user icon */}
-          <TouchableOpacity className="ml-3 bg-white w-12 h-12 rounded-xl items-center justify-center shadow-sm border border-gray-200">
-            <Ionicons name="person-add" size={24} color="#2563eb" /> {/* Changed to blue-600 */}
-          </TouchableOpacity>
-          
-          {/* Filter icon */}
-          <TouchableOpacity className="ml-3 bg-white w-12 h-12 rounded-xl items-center justify-center shadow-sm border border-gray-200">
-            <Ionicons name="filter" size={24} color="#2563eb" /> {/* Changed to blue-600 */}
-          </TouchableOpacity>
-        </View>
-        
-        {/* Increased spacing between cards - space-y-8 creates even larger gaps */}
-        <View className="space-y-8"> 
+
+          {/* Search and Filter Row */}
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            <View style={{ 
+              flex: 1,
+              backgroundColor: colors.surface, 
+              borderRadius: 12, 
+              paddingHorizontal: 12,
+              paddingVertical: 8,
+              borderWidth: 1,
+              borderColor: colors.border
+            }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Icon name="magnify" size={18} color={colors.textMuted} style={{ marginRight: 8 }} />
+                <TextInput
+                  placeholder="Search team members..."
+                  placeholderTextColor={colors.textMuted}
+                  style={{ 
+                    flex: 1, 
+                    color: colors.text, 
+                    fontSize: 14 
+                  }}
+                />
+              </View>
+            </View>
+            <TouchableOpacity
+              style={{ 
+                minWidth: 56,
+                backgroundColor: colors.info,
+                paddingHorizontal: 12,
+                paddingVertical: 8,
+                borderRadius: 12,
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+              onPress={() => console.log('Filter')}
+            >
+              <Icon name="filter-outline" size={16} color="#ffffff" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{ 
+                minWidth: 56,
+                backgroundColor: colors.surface,
+                paddingHorizontal: 12,
+                paddingVertical: 8,
+                borderRadius: 12,
+                borderWidth: 1,
+                borderColor: colors.border,
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+              onPress={() => console.log('Add user')}
+            >
+              <Icon name="account-plus" size={16} color={colors.info} />
+            </TouchableOpacity>
+          </View>
+        </LinearGradient>
+
+        {/* Members List */}
+        <ScrollView 
+          contentContainerStyle={{ padding: 16 }}
+          showsVerticalScrollIndicator={false}
+        >
           {members.map((member, index) => (
-            <View key={index} className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-              <View className="flex-row justify-between items-start mb-4">
-                <View className="flex-row items-center">
+            <View key={index} style={{ 
+              backgroundColor: colors.surface, 
+              borderRadius: 16, 
+              padding: 16, 
+              marginBottom: 16,
+           
+              elevation: 3,
+              borderWidth: 1,
+              borderColor: colors.border
+            }}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                   <Image 
                     source={{ uri: member.image }} 
-                    className="w-12 h-12 rounded-full mr-4" 
+                    style={{ width: 48, height: 44, borderRadius: 24, marginRight: 16 }} 
                   />
                   <View>
-                    <Text className="text-lg font-semibold text-gray-900">{member.name}</Text>
-                    <Text className="text-sm text-gray-500">{member.email}</Text>
+                    <Text style={{ fontSize: 16, fontWeight: '600', color: colors.text }}>{member.name}</Text>
+                    <Text style={{ fontSize: 12, color: colors.textMuted, marginTop: 4 }}>{member.email}</Text>
                   </View>
                 </View>
                 
-                <View className="flex-row items-center">
-                  <View className={`rounded-full h-3 w-3 ${member.status === 'Active' ? 'bg-green-500' : 'bg-gray-300'} mr-2`} />
-                  <Text className="text-sm text-gray-600 mr-4">{member.status}</Text>
-                  <TouchableOpacity className="ml-auto">
-                    <Ionicons name="create-outline" size={20} color="#6b7280" />
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <View style={{ 
+                    borderRadius: 8, 
+                    height: 12, 
+                    width: 12, 
+                    backgroundColor: getStatusColor(member.status), 
+                    marginRight: 8 
+                  }} />
+                  <Text style={{ fontSize: 12, color: colors.textMuted, marginRight: 16 }}>{member.status}</Text>
+                  <TouchableOpacity>
+                    <Icon name="pencil-outline" size={20} color={colors.textMuted} />
                   </TouchableOpacity>
                 </View>
               </View>
               
-              <View className="border-t border-gray-100 pt-4">
-                <View className="flex-row items-center mb-3">
-                  <View className={`h-8 w-1.5 ${getRoleColor(member.role)} rounded-full mr-3`} />
+              <View style={{ borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 16 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
+                  <View style={{ 
+                    height: 32, 
+                    width: 4, 
+                    backgroundColor: getRoleColor(member.role), 
+                    borderRadius: 2, 
+                    marginRight: 12 
+                  }} />
                   <View>
-                    <Text className="text-xs text-gray-500">Role</Text>
-                    <Text className="text-sm font-medium text-gray-900">{member.role}</Text>
+                    <Text style={{ fontSize: 12, color: colors.textMuted }}>Role</Text>
+                    <Text style={{ fontSize: 14, fontWeight: '600', color: colors.text }}>{member.role}</Text>
                   </View>
                 </View>
                 
-                <View className="flex-row items-center mb-3 ml-4">
-                  <Ionicons name="time-outline" size={16} color="#9ca3af" style={{ marginRight: 12 }} />
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12, marginLeft: 16 }}>
+                  <Icon name="clock-outline" size={16} color={colors.textMuted} style={{ marginRight: 12 }} />
                   <View>
-                    <Text className="text-xs text-gray-500">Last Login</Text>
-                    <Text className="text-sm font-medium text-gray-900">{member.lastLogin}</Text>
+                    <Text style={{ fontSize: 12, color: colors.textMuted }}>Last Login</Text>
+                    <Text style={{ fontSize: 14, fontWeight: '600', color: colors.text }}>{member.lastLogin}</Text>
                   </View>
                 </View>
                 
-                <View className="flex-row items-center ml-4">
-                  <Ionicons name="folder-outline" size={16} color="#9ca3af" style={{ marginRight: 12 }} />
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 16 }}>
+                  <Icon name="folder-outline" size={16} color={colors.textMuted} style={{ marginRight: 12 }} />
                   <View>
-                    <Text className="text-xs text-gray-500">Project</Text>
-                    <Text className="text-sm font-medium text-gray-900">{member.project}</Text>
+                    <Text style={{ fontSize: 12, color: colors.textMuted }}>Project</Text>
+                    <Text style={{ fontSize: 14, fontWeight: '600', color: colors.text }}>{member.project}</Text>
                   </View>
                 </View>
               </View>
             </View>
           ))}
-        </View>
-      </ScrollView>
+        </ScrollView>
 
-      {/* Sidebar Modal for Department Management */}
-      <Modal
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={closeModal}
-        animationType="none"
-      >
-        <TouchableWithoutFeedback onPress={closeModal}>
-          <View className="flex-1 bg-black/50">
-            <TouchableWithoutFeedback>
-              <Animated.View 
-                style={{ 
-                  transform: [{ translateX: slideAnim }],
-                  position: 'absolute',
-                  right: 0,
-                  top: 0,
-                  bottom: 0,
-                  width: '85%'
-                }}
-                className="bg-white"
-              >
-                <ScrollView className="flex-1 p-6">
-                  <View className="flex-row justify-between items-center mb-6">
-                    <Text className="text-xl font-bold text-gray-900">
-                      {editingDepartment ? 'Edit Department' : 'Add New Department'}
-                    </Text>
-                    <TouchableOpacity onPress={closeModal} className="p-2">
-                      <Ionicons name="close" size={24} color="#4b5563" />
-                    </TouchableOpacity>
-                  </View>
-
-                  <View className="space-y-5">
-                    <View>
-                      <Text className="text-sm font-medium text-gray-700 mb-2">Department Name</Text>
-                      <TextInput
-                        className="border border-gray-300 rounded-xl p-4 text-gray-900 text-sm"
-                        placeholder="New department"
-                        value={newDepartment}
-                        onChangeText={setNewDepartment}
-                        autoFocus
-                      />
-                    </View>
-
-                    <View className="flex-row justify-between mt-6">
-                      <TouchableOpacity 
-                        className="flex-1 bg-blue-600 rounded-xl p-4 items-center mr-3" // Changed to blue-600
-                        onPress={handleSubmit}
-                      >
-                        <Text className="text-white font-semibold">Submit</Text>
-                      </TouchableOpacity>
-                      
-                      <TouchableOpacity 
-                        className="flex-1 bg-gray-200 rounded-xl p-4 items-center ml-3"
-                        onPress={closeModal}
-                      >
-                        <Text className="text-gray-700 font-semibold">Cancel</Text>
+        {/* Sidebar Modal for Department Management */}
+        <Modal
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={closeModal}
+          animationType="none"
+        >
+          <TouchableWithoutFeedback onPress={closeModal}>
+            <View style={{ flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+              <TouchableWithoutFeedback>
+                <Animated.View 
+                  style={{ 
+                    transform: [{ translateX: slideAnim }],
+                    position: 'absolute',
+                    right: 0,
+                    top: 0,
+                    bottom: 0,
+                    width: '85%',
+                    backgroundColor: colors.surface,
+                
+                    elevation: 5,
+                  }}
+                >
+                  <ScrollView style={{ flex: 1, padding: 24 }}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+                      <Text style={{ fontSize: 20, fontWeight: '700', color: colors.text }}>
+                        {editingDepartment ? 'Edit Department' : 'Add New Department'}
+                      </Text>
+                      <TouchableOpacity onPress={closeModal} style={{ padding: 8 }}>
+                        <Icon name="close" size={24} color={colors.textMuted} />
                       </TouchableOpacity>
                     </View>
 
-                    {/* Department List */}
-                    <View className="mt-8">
-                      <Text className="text-lg font-semibold text-gray-800 mb-4">Department List</Text>
-                      
-                      {departments.map((department) => (
-                        <View key={department.id} className="flex-row items-center justify-between p-4 mb-3 bg-gray-50 rounded-xl border border-gray-200">
-                          <View className="flex-1">
-                            <Text className="text-gray-800 font-medium">{department.name}</Text>
+                    <View style={{ gap: 20 }}>
+                      <View>
+                        <Text style={{ fontSize: 14, fontWeight: '600', color: colors.text, marginBottom: 8 }}>Department Name</Text>
+                        <TextInput
+                          style={{ 
+                            borderWidth: 1, 
+                            borderColor: colors.border, 
+                            borderRadius: 12, 
+                            padding: 16, 
+                            color: colors.text, 
+                            fontSize: 14,
+                            backgroundColor: colors.surfaceVariant
+                          }}
+                          placeholder="New department"
+                          placeholderTextColor={colors.textMuted}
+                          value={newDepartment}
+                          onChangeText={setNewDepartment}
+                          autoFocus
+                        />
+                      </View>
+
+                      <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 16 }}>
+                        <TouchableOpacity 
+                          style={{ 
+                            flex: 1, 
+                            backgroundColor: colors.info, 
+                            borderRadius: 12, 
+                            padding: 16, 
+                            alignItems: 'center',
+                            marginRight: 12
+                          }}
+                          onPress={handleSubmit}
+                        >
+                          <Text style={{ color: '#ffffff', fontWeight: '600', fontSize: 14 }}>Submit</Text>
+                        </TouchableOpacity>
+                        
+                        <TouchableOpacity 
+                          style={{ 
+                            flex: 1, 
+                            backgroundColor: colors.surfaceVariant, 
+                            borderRadius: 12, 
+                            padding: 16, 
+                            alignItems: 'center',
+                            marginLeft: 12,
+                            borderWidth: 1,
+                            borderColor: colors.border
+                          }}
+                          onPress={closeModal}
+                        >
+                          <Text style={{ color: colors.text, fontWeight: '600', fontSize: 14 }}>Cancel</Text>
+                        </TouchableOpacity>
+                      </View>
+
+                      {/* Department List */}
+                      <View style={{ marginTop: 32 }}>
+                        <Text style={{ fontSize: 18, fontWeight: '600', color: colors.text, marginBottom: 16 }}>Department List</Text>
+                        
+                        {departments.map((department) => (
+                          <View key={department.id} style={{ 
+                            flexDirection: 'row', 
+                            alignItems: 'center', 
+                            justifyContent: 'space-between', 
+                            padding: 16, 
+                            marginBottom: 12, 
+                            backgroundColor: colors.surfaceVariant, 
+                            borderRadius: 12,
+                            borderWidth: 1,
+                            borderColor: colors.border
+                          }}>
+                            <View style={{ flex: 1 }}>
+                              <Text style={{ color: colors.text, fontWeight: '500' }}>{department.name}</Text>
+                            </View>
+                            
+                            <View style={{ flexDirection: 'row' }}>
+                              <TouchableOpacity 
+                                style={{ padding: 8, borderRadius: 8, marginRight: 8 }}
+                                onPress={() => handleEdit(department)}
+                              >
+                                <Icon name="pencil-outline" size={18} color={colors.textMuted} />
+                              </TouchableOpacity>
+                              <TouchableOpacity 
+                                style={{ padding: 8, borderRadius: 8 }}
+                                onPress={() => handleDelete(department)}
+                              >
+                                <Icon name="trash-can-outline" size={18} color={colors.danger} />
+                              </TouchableOpacity>
+                            </View>
                           </View>
-                          
-                          <View className="flex-row">
-                            <TouchableOpacity 
-                              className="p-2 rounded-lg mr-2"
-                              onPress={() => handleEdit(department)}
-                            >
-                              <Ionicons name="pencil-outline" size={18} color="#4b5563" />
-                            </TouchableOpacity>
-                            <TouchableOpacity 
-                              className="p-2 rounded-lg"
-                              onPress={() => handleDelete(department)}
-                            >
-                              <Ionicons name="trash-outline" size={18} color="#dc2626" />
-                            </TouchableOpacity>
+                        ))}
+                        
+                        {departments.length === 0 && (
+                          <View style={{ padding: 24, alignItems: 'center', justifyContent: 'center' }}>
+                            <Icon name="office-building" size={40} color={colors.textMuted} />
+                            <Text style={{ color: colors.textMuted, marginTop: 12 }}>No departments added yet</Text>
                           </View>
-                        </View>
-                      ))}
-                      
-                      {departments.length === 0 && (
-                        <View className="p-4 items-center justify-center">
-                          <Ionicons name="business-outline" size={40} color="#9ca3af" />
-                          <Text className="text-gray-500 mt-2">No departments added yet</Text>
-                        </View>
-                      )}
+                        )}
+                      </View>
                     </View>
-                  </View>
-                </ScrollView>
-              </Animated.View>
-            </TouchableWithoutFeedback>
-          </View>
-        </TouchableWithoutFeedback>
-      </Modal>
+                  </ScrollView>
+                </Animated.View>
+              </TouchableWithoutFeedback>
+            </View>
+          </TouchableWithoutFeedback>
+        </Modal>
+      </View>
     </MainLayout>
   );
 }

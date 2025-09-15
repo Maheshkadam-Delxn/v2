@@ -12,10 +12,32 @@ import {
 import MainLayout from '../../../components/MainLayout';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { LinearGradient } from 'expo-linear-gradient';
-import Animated, { FadeInDown, FadeOut, FadeInUp } from 'react-native-reanimated';
+import Animated, { 
+  FadeInDown, 
+  FadeOut, 
+  FadeInUp,
+  SlideInRight
+} from 'react-native-reanimated';
 
 const screenWidth = Dimensions.get('window').width;
 const cardWidth = Math.min(screenWidth - 32, 600);
+
+const colors = {
+  primary: '#1D4ED8',
+  secondary: '#6366F1',
+  success: '#10B981',
+  warning: '#F59E0B',
+  danger: '#EF4444',
+  info: '#3B82F6',
+  background: '#FFFFFF',
+  surface: '#FFFFFF',
+  surfaceVariant: '#F8FAFC',
+  text: '#0F172A',
+  textSecondary: '#475569',
+  textMuted: '#6B7280',
+  border: '#E2E8F0',
+  nestingColors: ['#DBEAFE', '#EFF6FF', '#E5E7EB'],
+};
 
 const activities = [
   {
@@ -197,63 +219,38 @@ const activities = [
           },
         ],
       },
-      {
-        id: '202',
-        name: 'Wing2',
-        actNo: '2002',
-        progress: 25,
-        startDate: '2025-08-02',
-        endDate: '2025-08-10',
-        duration: 9,
-        status: 'Not Started',
-        approvalStatus: 'Pending',
-        assignedTo: 'Sonalika',
-        description: 'Construction of Wing 2 structure',
-        budget: '$90,000',
-        subActivities: [
-          {
-            id: '2021',
-            name: 'Wall1',
-            actNo: '20021',
-            progress: 25,
-            startDate: '2025-08-02',
-            endDate: '2025-08-09',
-            duration: 8,
-            status: 'Not Started',
-            approvalStatus: 'Pending',
-            assignedTo: 'Sonalika',
-            description: 'Construction of primary wall for Wing 2',
-            budget: '$45,000',
-          },
-        ],
-      },
+     
     ],
   },
 ];
 
-const colors = {
-  primary: '#1D4ED8',
-  secondary: '#6366F1',
-  success: '#10B981',
-  warning: '#F59E0B',
-  danger: '#EF4444',
-  info: '#3B82F6',
-  background: '#FFFFFF',
-  surface: '#FFFFFF',
-  surfaceVariant: '#F8FAFC',
-  text: '#0F172A',
-  textSecondary: '#475569',
-  textMuted: '#6B7280',
-  border: '#E2E8F0',
-  nestingColors: ['#DBEAFE', '#EFF6FF', '#E5E7EB'], // Level 0: light blue, Level 1: lighter blue, Level 2: gray
+
+// Helper function to get all child IDs recursively
+const getAllChildIds = (activity) => {
+  let childIds = [];
+  if (activity.subActivities && activity.subActivities.length > 0) {
+    activity.subActivities.forEach(subActivity => {
+      childIds.push(subActivity.id);
+      childIds = [...childIds, ...getAllChildIds(subActivity)];
+    });
+  }
+  return childIds;
+};
+
+// Find activity by ID in the hierarchy
+const findActivityById = (id, activitiesList) => {
+  for (const activity of activitiesList) {
+    if (activity.id === id) return activity;
+    if (activity.subActivities && activity.subActivities.length > 0) {
+      const found = findActivityById(id, activity.subActivities);
+      if (found) return found;
+    }
+  }
+  return null;
 };
 
 // Circular Progress Component
-const CircularProgress = ({ progress, size = 40, strokeWidth = 4 }) => {
-  const radius = (size - strokeWidth) / 2;
-  const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference - (progress / 100) * circumference;
-
+const CircularProgress = ({ progress, size = 44, strokeWidth = 4 }) => {
   const getProgressColor = (progress) => {
     if (progress >= 80) return colors.success;
     if (progress >= 50) return colors.warning;
@@ -271,7 +268,7 @@ const CircularProgress = ({ progress, size = 40, strokeWidth = 4 }) => {
         alignItems: 'center',
         justifyContent: 'center',
         borderWidth: strokeWidth,
-        borderColor: colors.border,
+        borderColor: colors.border
       }}>
         <View style={{
           width: size - strokeWidth * 2,
@@ -283,8 +280,8 @@ const CircularProgress = ({ progress, size = 40, strokeWidth = 4 }) => {
         }}>
           <Text style={{ 
             fontSize: 12, 
-            fontWeight: '600', 
-            color: getProgressColor(progress),
+            fontWeight: '700', 
+            color: getProgressColor(progress) 
           }}>
             {progress}%
           </Text>
@@ -311,34 +308,34 @@ const StatusIndicator = ({ status, approvalStatus }) => {
   const approvalStyle = approvalConfig[approvalStatus] || approvalConfig['Pending'];
 
   return (
-    <View style={{ alignItems: 'flex-end', gap: 8 }}>
+    <View style={{ alignItems: 'flex-end', gap: 4 }}>
       <View style={{ 
         flexDirection: 'row', 
         alignItems: 'center', 
-        paddingHorizontal: 10,
-        paddingVertical: 5,
-        borderRadius: 12,
-        backgroundColor: config.bg,
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 16,
+        backgroundColor: config.bg 
       }}>
         <Icon name={config.icon} size={14} color={config.color} style={{ marginRight: 4 }} />
         <Text style={{ 
           fontSize: 12, 
           fontWeight: '600', 
-          color: config.color,
+          color: config.color 
         }}>
           {status}
         </Text>
       </View>
       <View style={{ 
-        paddingHorizontal: 10,
-        paddingVertical: 5,
+        paddingHorizontal: 8,
+        paddingVertical: 4,
         borderRadius: 12,
-        backgroundColor: approvalStyle.bg,
+        backgroundColor: approvalStyle.bg
       }}>
         <Text style={{ 
-          fontSize: 12, 
+          fontSize: 11, 
           fontWeight: '600', 
-          color: approvalStyle.color,
+          color: approvalStyle.color 
         }}>
           {approvalStatus}
         </Text>
@@ -347,26 +344,29 @@ const StatusIndicator = ({ status, approvalStatus }) => {
   );
 };
 
-// Activity Card Component
+// Activity Card Component with improved hierarchy display and rounded corners
 const ActivityCard = ({ item, level = 0, toggleExpand, expandedItems }) => {
   const [showDetails, setShowDetails] = useState(false);
-  const isExpanded = !!expandedItems[item.id];
-  const hasSubActivities = item.subActivities && item.subActivities.length > 0;
-
-  // Select nesting color based on level (capped at nestingColors length)
+  const hasChildren = item.subActivities && item.subActivities.length > 0;
+  const isExpanded = expandedItems[item.id];
   const nestingColor = colors.nestingColors[Math.min(level, colors.nestingColors.length - 1)];
 
   return (
     <Animated.View entering={FadeInDown.delay(level * 100)} exiting={FadeOut}>
       <TouchableOpacity
-        onPress={() => hasSubActivities && toggleExpand(item.id)}
+        onPress={() => hasChildren && toggleExpand(item.id)}
         style={{
           backgroundColor: colors.surface,
-          marginBottom: 12,
-          marginLeft: 0, // Align all cards at the same left edge
+          marginBottom: 16,
+          marginLeft: 0,
           width: cardWidth,
-          borderRadius: 12, // Added border radius
-          overflow: 'hidden', // Ensure child elements respect the border radius
+          borderRadius: 16,
+          overflow: 'hidden',
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 4,
+          elevation: 3,
         }}
       >
         {/* Header */}
@@ -378,41 +378,51 @@ const ActivityCard = ({ item, level = 0, toggleExpand, expandedItems }) => {
         >
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
-              <Icon
-                name={hasSubActivities ? (isExpanded ? 'chevron-down' : 'chevron-right') : 'minus'}
-                size={20}
-                color={colors.textMuted}
-                style={{ marginRight: 8 }}
-              />
+              {hasChildren && (
+                <Icon
+                  name={isExpanded ? 'chevron-down' : 'chevron-right'}
+                  size={20}
+                  color={colors.textMuted}
+                  style={{ marginRight: 8 }}
+                />
+              )}
+              {!hasChildren && (
+                <Icon
+                  name="circle-small"
+                  size={20}
+                  color={colors.textMuted}
+                  style={{ marginRight: 8, opacity: 0.7 }}
+                />
+              )}
               <View style={{ flex: 1 }}>
                 <Text style={{ 
-                  fontSize: 16, 
-                  fontWeight: '600', 
+                  fontSize: level === 0 ? 16 : 14, 
+                  fontWeight: '700', 
                   color: colors.text,
-                  marginBottom: 4,
+                  marginBottom: 4
                 }}>
                   {item.name}
                 </Text>
                 <Text style={{ 
                   fontSize: 12, 
                   color: colors.textMuted,
-                  marginBottom: 8,
+                  marginBottom: 8
                 }}>
                   {item.actNo}
                 </Text>
                 {item.tags && (
-                  <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+                  <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 4 }}>
                     {item.tags.map((tag, index) => (
                       <View key={index} style={{ 
                         backgroundColor: colors.border, 
                         paddingHorizontal: 8,
                         paddingVertical: 4,
-                        borderRadius: 10,
+                        borderRadius: 12
                       }}>
                         <Text style={{ 
                           fontSize: 10, 
                           color: colors.textSecondary,
-                          fontWeight: '600',
+                          fontWeight: '600'
                         }}>
                           {tag}
                         </Text>
@@ -422,7 +432,7 @@ const ActivityCard = ({ item, level = 0, toggleExpand, expandedItems }) => {
                 )}
               </View>
             </View>
-            <CircularProgress progress={item.progress} />
+            <CircularProgress progress={item.progress} size={44} strokeWidth={4} />
           </View>
         </LinearGradient>
 
@@ -438,7 +448,7 @@ const ActivityCard = ({ item, level = 0, toggleExpand, expandedItems }) => {
                   fontSize: 14, 
                   fontWeight: '600', 
                   color: colors.text,
-                  marginLeft: 6,
+                  marginLeft: 8
                 }}>
                   {item.duration} days
                 </Text>
@@ -452,7 +462,7 @@ const ActivityCard = ({ item, level = 0, toggleExpand, expandedItems }) => {
                   fontSize: 14, 
                   fontWeight: '600', 
                   color: colors.text,
-                  marginLeft: 6,
+                  marginLeft: 8
                 }}>
                   {item.budget || 'N/A'}
                 </Text>
@@ -464,10 +474,10 @@ const ActivityCard = ({ item, level = 0, toggleExpand, expandedItems }) => {
           {/* Dates */}
           <View style={{ 
             backgroundColor: colors.surfaceVariant, 
-            borderRadius: 12, 
             padding: 12,
+            borderRadius: 12,
             flexDirection: 'row',
-            justifyContent: 'space-between',
+            justifyContent: 'space-between'
           }}>
             <View style={{ gap: 4 }}>
               <Text style={{ fontSize: 12, color: colors.textMuted }}>Start Date</Text>
@@ -489,20 +499,19 @@ const ActivityCard = ({ item, level = 0, toggleExpand, expandedItems }) => {
             <Text style={{ 
               fontSize: 14, 
               color: colors.textMuted,
-              marginLeft: 6,
+              marginLeft: 8
             }}>
               Assigned to:{' '}
             </Text>
             <Text style={{ 
               fontSize: 14, 
               fontWeight: '600', 
-              color: colors.text,
+              color: colors.text
             }}>
               {item.assignedTo}
             </Text>
           </View>
 
-         
           {/* Action Buttons */}
           <View style={{ 
             flexDirection: 'row', 
@@ -510,7 +519,7 @@ const ActivityCard = ({ item, level = 0, toggleExpand, expandedItems }) => {
             gap: 8,
             paddingTop: 12,
             borderTopWidth: 1,
-            borderTopColor: colors.border,
+            borderTopColor: colors.border
           }}>
             <TouchableOpacity
               style={{ 
@@ -519,7 +528,7 @@ const ActivityCard = ({ item, level = 0, toggleExpand, expandedItems }) => {
                 paddingHorizontal: 12,
                 paddingVertical: 8,
                 backgroundColor: colors.border,
-                borderRadius: 12,
+                borderRadius: 12
               }}
               onPress={() => setShowDetails(!showDetails)}
             >
@@ -527,8 +536,8 @@ const ActivityCard = ({ item, level = 0, toggleExpand, expandedItems }) => {
               <Text style={{ 
                 color: colors.info, 
                 fontWeight: '600',
-                marginLeft: 6,
-                fontSize: 14,
+                marginLeft: 8,
+                fontSize: 14
               }}>
                 Details
               </Text>
@@ -540,7 +549,7 @@ const ActivityCard = ({ item, level = 0, toggleExpand, expandedItems }) => {
                 paddingHorizontal: 12,
                 paddingVertical: 8,
                 backgroundColor: colors.border,
-                borderRadius: 12,
+                borderRadius: 12
               }}
               onPress={() => console.log('Edit', item.id)}
             >
@@ -548,8 +557,8 @@ const ActivityCard = ({ item, level = 0, toggleExpand, expandedItems }) => {
               <Text style={{ 
                 color: colors.info, 
                 fontWeight: '600',
-                marginLeft: 6,
-                fontSize: 14,
+                marginLeft: 8,
+                fontSize: 14
               }}>
                 Edit
               </Text>
@@ -560,15 +569,15 @@ const ActivityCard = ({ item, level = 0, toggleExpand, expandedItems }) => {
           {showDetails && (
             <Animated.View entering={FadeInUp} style={{ 
               backgroundColor: colors.surfaceVariant, 
-              borderRadius: 12, 
               padding: 12,
-              marginTop: 8,
+              borderRadius: 12,
+              marginTop: 8
             }}>
               <Text style={{ 
                 fontSize: 14, 
                 fontWeight: '600', 
                 color: colors.text,
-                marginBottom: 8,
+                marginBottom: 8
               }}>
                 Additional Details
               </Text>
@@ -589,8 +598,8 @@ const ActivityCard = ({ item, level = 0, toggleExpand, expandedItems }) => {
       </TouchableOpacity>
 
       {/* Sub-activities */}
-      {isExpanded && hasSubActivities && (
-        <View style={{ marginTop: -8 }}>
+      {isExpanded && hasChildren && (
+        <Animated.View entering={SlideInRight} style={{ marginTop: -8 }}>
           {item.subActivities.map((subItem) => (
             <ActivityCard
               key={subItem.id}
@@ -600,7 +609,7 @@ const ActivityCard = ({ item, level = 0, toggleExpand, expandedItems }) => {
               expandedItems={expandedItems}
             />
           ))}
-        </View>
+        </Animated.View>
       )}
     </Animated.View>
   );
@@ -619,18 +628,18 @@ const FilterModal = ({ visible, onClose, currentFilter, onApplyFilter }) => {
           backgroundColor: colors.surface, 
           borderTopLeftRadius: 16,
           borderTopRightRadius: 16,
-          padding: 16,
+          padding: 16
         }}>
           <View style={{ 
             flexDirection: 'row', 
             justifyContent: 'space-between', 
             alignItems: 'center',
-            marginBottom: 16,
+            marginBottom: 16
           }}>
             <Text style={{ 
               fontSize: 18, 
               fontWeight: '700', 
-              color: colors.text,
+              color: colors.text 
             }}>
               Filter Activities
             </Text>
@@ -643,7 +652,7 @@ const FilterModal = ({ visible, onClose, currentFilter, onApplyFilter }) => {
             <Text style={{ 
               fontSize: 14, 
               fontWeight: '600', 
-              color: colors.text,
+              color: colors.text 
             }}>
               Status
             </Text>
@@ -659,7 +668,7 @@ const FilterModal = ({ visible, onClose, currentFilter, onApplyFilter }) => {
                   borderWidth: 1,
                   borderColor: (tempFilter === status || (status === 'All' && !tempFilter)) 
                     ? colors.info 
-                    : colors.border,
+                    : colors.border
                 }}
                 onPress={() => setTempFilter(status === 'All' ? null : status)}
               >
@@ -668,7 +677,7 @@ const FilterModal = ({ visible, onClose, currentFilter, onApplyFilter }) => {
                   fontWeight: '600',
                   color: (tempFilter === status || (status === 'All' && !tempFilter))
                     ? colors.info
-                    : colors.textSecondary,
+                    : colors.textSecondary
                 }}>
                   {status}
                 </Text>
@@ -679,7 +688,7 @@ const FilterModal = ({ visible, onClose, currentFilter, onApplyFilter }) => {
           <View style={{ 
             flexDirection: 'row', 
             gap: 8, 
-            marginTop: 16,
+            marginTop: 16 
           }}>
             <TouchableOpacity
               style={{
@@ -687,14 +696,14 @@ const FilterModal = ({ visible, onClose, currentFilter, onApplyFilter }) => {
                 backgroundColor: colors.border,
                 padding: 12,
                 borderRadius: 12,
-                alignItems: 'center',
+                alignItems: 'center'
               }}
               onPress={onClose}
             >
               <Text style={{ 
                 fontSize: 14, 
                 fontWeight: '600', 
-                color: colors.textSecondary,
+                color: colors.textSecondary 
               }}>
                 Cancel
               </Text>
@@ -705,7 +714,7 @@ const FilterModal = ({ visible, onClose, currentFilter, onApplyFilter }) => {
                 backgroundColor: colors.info,
                 padding: 12,
                 borderRadius: 12,
-                alignItems: 'center',
+                alignItems: 'center'
               }}
               onPress={() => {
                 onApplyFilter(tempFilter);
@@ -715,7 +724,7 @@ const FilterModal = ({ visible, onClose, currentFilter, onApplyFilter }) => {
               <Text style={{ 
                 fontSize: 14, 
                 fontWeight: '600', 
-                color: '#ffffff',
+                color: '#ffffff' 
               }}>
                 Apply Filter
               </Text>
@@ -729,16 +738,7 @@ const FilterModal = ({ visible, onClose, currentFilter, onApplyFilter }) => {
 
 // Main Activity Screen Component
 const ActivityScreen = () => {
-  const [expandedItems, setExpandedItems] = useState({
-    '1': true,
-    '2': true,
-    '101': true,
-    '201': true,
-    '202': true,
-    '2011': false,
-    '2012': false,
-    '2021': false,
-  });
+  const [expandedItems, setExpandedItems] = useState({});
   const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'asc' });
   const [filterStatus, setFilterStatus] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -746,7 +746,22 @@ const ActivityScreen = () => {
   const [showFilterModal, setShowFilterModal] = useState(false);
 
   const toggleExpand = useCallback((id) => {
-    setExpandedItems(prev => ({ ...prev, [id]: !prev[id] }));
+    setExpandedItems(prev => {
+      const newState = { ...prev };
+      const activity = findActivityById(id, activities);
+      
+      if (newState[id]) {
+        // If we're collapsing this item, also collapse all its children
+        const childIds = getAllChildIds(activity);
+        childIds.forEach(childId => {
+          newState[childId] = false;
+        });
+      }
+      
+      // Toggle the current item
+      newState[id] = !newState[id];
+      return newState;
+    });
   }, []);
 
   const handleSort = useCallback((key) => {
@@ -797,20 +812,25 @@ const ActivityScreen = () => {
             padding: 32, 
             borderRadius: 16,
             alignItems: 'center',
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
+            elevation: 3,
           }}>
             <ActivityIndicator size="large" color={colors.info} />
             <Text style={{ 
               marginTop: 16, 
               fontSize: 16, 
               fontWeight: '600', 
-              color: colors.text,
+              color: colors.text 
             }}>
               Loading activities...
             </Text>
             <Text style={{ 
               marginTop: 8, 
               fontSize: 14, 
-              color: colors.textMuted,
+              color: colors.textMuted 
             }}>
               Please wait while we fetch your data
             </Text>
@@ -834,20 +854,20 @@ const ActivityScreen = () => {
             flexDirection: 'row', 
             justifyContent: 'space-between', 
             alignItems: 'center',
-            marginBottom: 12,
+            marginBottom: 12
           }}>
             <View>
               <Text style={{ 
                 fontSize: 20, 
                 fontWeight: '700', 
-                color: colors.text,
+                color: colors.text 
               }}>
                 Project Activities
               </Text>
               <Text style={{ 
                 fontSize: 12, 
                 color: colors.textMuted,
-                marginTop: 4,
+                marginTop: 4
               }}>
                 {sortedAndFilteredActivities.length} activities • {filterStatus || 'All statuses'}
               </Text>
@@ -859,7 +879,7 @@ const ActivityScreen = () => {
                   backgroundColor: colors.surface, 
                   borderRadius: 12,
                   borderWidth: 1,
-                  borderColor: colors.border,
+                  borderColor: colors.border
                 }}
                 onPress={handleRefresh}
               >
@@ -869,7 +889,7 @@ const ActivityScreen = () => {
                 style={{ 
                   padding: 10, 
                   backgroundColor: colors.info,
-                  borderRadius: 12,
+                  borderRadius: 12
                 }}
                 onPress={() => console.log('Add activity')}
               >
@@ -879,16 +899,15 @@ const ActivityScreen = () => {
           </View>
 
           {/* Search and Filter Row */}
-          <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
+          <View style={{ flexDirection: 'row', gap: 8 }}>
             <View style={{ 
               flex: 1,
-              height: 44, // Fixed height for consistency
               backgroundColor: colors.surface, 
               borderRadius: 12, 
               paddingHorizontal: 12,
+              paddingVertical: 8,
               borderWidth: 1,
-              borderColor: colors.border,
-              justifyContent: 'center', // Center content vertically
+              borderColor: colors.border
             }}>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <Icon name="magnify" size={18} color={colors.textMuted} style={{ marginRight: 8 }} />
@@ -900,8 +919,7 @@ const ActivityScreen = () => {
                   style={{ 
                     flex: 1, 
                     color: colors.text, 
-                    fontSize: 14,
-                    height: 40, // Match the container height
+                    fontSize: 14 
                   }}
                 />
                 {searchQuery.length > 0 && (
@@ -913,14 +931,14 @@ const ActivityScreen = () => {
             </View>
             <TouchableOpacity
               style={{ 
-                height: 44, // Same height as search bar
-                minWidth: 44, // Minimum width for square appearance
+                minWidth: 60,
                 backgroundColor: colors.info,
                 paddingHorizontal: 12,
+                paddingVertical: 8,
                 borderRadius: 12,
                 flexDirection: 'row',
                 alignItems: 'center',
-                justifyContent: 'center',
+                justifyContent: 'center'
               }}
               onPress={() => setShowFilterModal(true)}
             >
@@ -931,12 +949,12 @@ const ActivityScreen = () => {
                   backgroundColor: '#ffffff', 
                   paddingHorizontal: 8,
                   paddingVertical: 4,
-                  borderRadius: 8,
+                  borderRadius: 8
                 }}>
                   <Text style={{ 
                     fontSize: 12, 
                     color: colors.info,
-                    fontWeight: '600',
+                    fontWeight: '600'
                   }}>
                     {filterStatus}
                   </Text>
@@ -956,7 +974,7 @@ const ActivityScreen = () => {
               { key: 'name', label: 'Name' },
               { key: 'progress', label: 'Progress' },
               { key: 'status', label: 'Status' },
-              { key: 'approvalStatus', label: 'Approval' },
+              { key: 'approvalStatus', label: 'Approval' }
             ].map(({ key, label }) => (
               <TouchableOpacity
                 key={key}
@@ -966,16 +984,20 @@ const ActivityScreen = () => {
                   alignItems: 'center',
                   paddingHorizontal: 12,
                   paddingVertical: 8,
-                  borderRadius: 9999,
-                  backgroundColor: sortConfig.key === key ? colors.info : colors.surface,
+                  borderRadius: 12,
+                  backgroundColor: sortConfig.key === key 
+                    ? colors.info 
+                    : colors.surface,
                   borderWidth: 1,
-                  borderColor: sortConfig.key === key ? colors.info : colors.border,
+                  borderColor: sortConfig.key === key 
+                    ? colors.info 
+                    : colors.border
                 }}
               >
                 <Text style={{ 
-                  fontSize: 14, 
+                  fontSize: 12, 
                   color: sortConfig.key === key ? '#ffffff' : colors.textSecondary,
-                  fontWeight: '600',
+                  fontWeight: '600' 
                 }}>
                   {label}
                 </Text>
@@ -1017,6 +1039,11 @@ const ActivityScreen = () => {
                 backgroundColor: colors.surface,
                 borderRadius: 16,
                 margin: 16,
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.1,
+                shadowRadius: 4,
+                elevation: 3,
               }}
             >
               <Icon name="folder-search-outline" size={64} color={colors.textMuted} />
@@ -1024,7 +1051,7 @@ const ActivityScreen = () => {
                 fontSize: 18, 
                 fontWeight: '600', 
                 color: colors.text,
-                marginTop: 16,
+                marginTop: 16
               }}>
                 No activities found
               </Text>
@@ -1032,7 +1059,7 @@ const ActivityScreen = () => {
                 fontSize: 14, 
                 color: colors.textMuted,
                 marginTop: 8,
-                textAlign: 'center',
+                textAlign: 'center'
               }}>
                 {searchQuery ? 
                   'Try adjusting your search terms or filters' : 
@@ -1045,14 +1072,14 @@ const ActivityScreen = () => {
                   paddingHorizontal: 24,
                   paddingVertical: 12,
                   borderRadius: 12,
-                  marginTop: 16,
+                  marginTop: 16
                 }}
                 onPress={() => console.log('Add first activity')}
               >
                 <Text style={{ 
                   color: '#ffffff', 
                   fontWeight: '600',
-                  fontSize: 14,
+                  fontSize: 14
                 }}>
                   Create Activity
                 </Text>

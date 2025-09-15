@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Modal, ScrollView, Switch, Animated } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Modal, ScrollView, Switch, Animated, Platform } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useRoute } from '@react-navigation/native';
 import MainLayout from '../../../components/MainLayout';
@@ -117,10 +117,10 @@ export default function BillOfQuantity() {
   const tabs = ['All', 'General', 'Structural', 'Other', 'External'];
 
   return (
-    <MainLayout title="Bill of Quantity">
-      <View className="flex-1 bg-gray-50">
-        <StatusBar style="auto" />
-        
+    <View className="flex-1 bg-gray-50">
+      <StatusBar style="auto" />
+      
+      <MainLayout title="Bill of Quantity">
         {/* Filter Tabs with Blue Gradient */}
         <LinearGradient
           colors={['#f0f7ff', '#e6f0ff']}
@@ -141,7 +141,7 @@ export default function BillOfQuantity() {
                 style={{
                   paddingHorizontal: 20,
                   paddingVertical: 8,
-                  borderRadius: 9999, // Tailwind's rounded-full
+                  borderRadius: 9999,
                   backgroundColor: activeTab === tab ? '#3b82f6' : '#ffffff',
                 }}
               >
@@ -170,9 +170,9 @@ export default function BillOfQuantity() {
           <View className="flex-row items-center">
             {/* Search Bar */}
             <View 
-              className="mr-4 flex-1 flex-row items-center rounded-2xl bg-white px-5 py-3"
+              className="mr-4 flex-1 flex-row items-center rounded-2xl bg-white px-5 "
               style={{
-                height: 56,
+                height: 44,
               }}
             >
               <Feather name="search" size={20} color="#6b7280" style={{ marginRight: 12 }} />
@@ -195,10 +195,10 @@ export default function BillOfQuantity() {
             
             {/* Filter Button */}
             <TouchableOpacity
-              className="rounded-2xl p-4"
+              className="rounded-2xl "
               style={{
                 backgroundColor: '#3b82f6',
-                height: 56,
+                height: 44,
                 width: 56,
                 justifyContent: 'center',
                 alignItems: 'center',
@@ -314,7 +314,7 @@ export default function BillOfQuantity() {
             </View>
           </View>
         </Modal>
-      </View>
-    </MainLayout> 
+      </MainLayout>
+    </View>
   );
 }
