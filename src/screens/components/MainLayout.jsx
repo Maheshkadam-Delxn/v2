@@ -31,14 +31,14 @@ export default function MainLayout({ children, title }) {
             left: 0,
             width: 256, // Matches w-64 in Sidebar
             transform: [{ translateX: sidebarAnim }],
-            zIndex: 10,
+            zIndex: 40,
           }}
         >
           <View className="flex-1 bg-blue-900 ">
             {/* Cross Icon to Close Sidebar */}
             {isSidebarOpen && (
               <TouchableOpacity
-                className="absolute top-4 right-4 z-20"
+                className="absolute top-4 right-4 pt-8 z-20"
                 onPress={toggleSidebar}
               >
                 <Feather name="x" size={24} color="#ffffff" />
@@ -49,7 +49,7 @@ export default function MainLayout({ children, title }) {
         </Animated.View>
 
         {/* Main Content */}
-        <View className="flex-1">
+        <View className="flex-1 pt-12">
           {/* Header */}
           <View className="bg-white px-6 py-4 flex-row justify-between items-center shadow-sm">
             <View className="flex-row items-center">

@@ -687,7 +687,7 @@ export default function HomeScreen() {
           end={{ x: 0, y: 1 }}
         >
           <Animated.View 
-            className="px-6 pb-6 pt-8"
+            className="px-6 pb-6 pt-14"
             style={{
               opacity: fadeAnim,
               transform: [{ translateY: slideAnim }]

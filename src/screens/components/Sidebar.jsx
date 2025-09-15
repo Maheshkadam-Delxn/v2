@@ -14,7 +14,7 @@ export default function Sidebar() {
   };
 
   return (
-    <View className="w-64 bg-blue-900 h-full p-4 ">
+    <View className="w-64 bg-blue-900 h-full p-4 pt-12">
       <TouchableOpacity
         onPress={() => navigation.navigate('Dashboard', { projectId: 1 })} 
         className="mb-6"
