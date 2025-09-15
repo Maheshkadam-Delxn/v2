@@ -687,7 +687,7 @@ export default function HomeScreen() {
           end={{ x: 0, y: 1 }}
         >
           <Animated.View 
-            className="px-6 pb-6 pt-16"
+            className="px-6 pb-6 pt-10"
             style={{
               opacity: fadeAnim,
               transform: [{ translateY: slideAnim }]
@@ -776,14 +776,14 @@ export default function HomeScreen() {
             <View className="flex-row items-center">
               {/* Enhanced Search Bar - Height adjusted to match add button */}
               <View 
-                className="mr-4 flex-1 flex-row items-center rounded-2xl bg-white px-5 py-3" // Changed py-4 to py-3
+                className="mr-4 flex-1 flex-row items-center rounded-2xl bg-white px-5 " // Changed py-4 to py-3
                 style={{
                   shadowColor: '#000',
                   shadowOffset: { width: 0, height: 4 },
                   shadowOpacity: 0.05,
                   shadowRadius: 8,
                   elevation: 3,
-                  height: 56, // Added fixed height to match add button
+                  height: 44, // Added fixed height to match add button
                 }}
               >
                 <Feather name="search" size={20} color="#6b7280" style={{ marginRight: 12 }} />
@@ -806,7 +806,7 @@ export default function HomeScreen() {
               
               {/* Enhanced Add Button */}
               <TouchableOpacity
-                className="rounded-2xl p-4 active:scale-95"
+                className="rounded-2xl p-2 active:scale-95"
                 onPress={() => navigation.navigate('AddNewProject')}
                 style={{
                   backgroundColor: '#3b82f6',
@@ -815,7 +815,7 @@ export default function HomeScreen() {
                   shadowOpacity: 0.4,
                   shadowRadius: 12,
                   elevation: 8,
-                  height: 56, // Added fixed height
+                  height: 44, // Added fixed height
                   width: 56, // Added fixed width for consistency
                   justifyContent: 'center',
                   alignItems: 'center',
