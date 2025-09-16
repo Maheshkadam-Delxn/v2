@@ -154,6 +154,7 @@ import WorkOrderScreen from './src/screens/dashboard/sub-header/work-order/WorkO
 
 import './global.css';
 import InventoryScreen from './src/screens/dashboard/sub-header/Inventory/InventoryScreen';
+import HomeScreen from './src/screens/HomeScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -170,10 +171,10 @@ export default function App() {
         <Stack.Screen name="OTP" component={OTPScreen} />
         <Stack.Screen
           name="Main"
-          component={MyTabs}
-          options={{
-            gestureEnabled: false, // Prevent swipe back to auth
-          }}
+          component={HomeScreen}
+          // options={{
+          //   gestureEnabled: false, // Prevent swipe back to auth
+          // }}
         />
         <Stack.Screen name="Dashboard" component={DashboardScreen} />
         <Stack.Screen name="AddNewProject" component={AddNewProjectScreen} />
