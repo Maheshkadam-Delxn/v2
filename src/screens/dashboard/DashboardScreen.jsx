@@ -553,6 +553,73 @@ export default function DashboardScreen() {
   ];
 
   const project = projects.find((p) => p.id === projectId);
+
+  // const cardData = [
+  //   {
+  //     title: 'Not Started',
+  //     value: '18',
+  //     icon: 'assignment-late',
+  //     gradient: ['#F0F9FF', '#E0F2FE'],
+  //     iconBg: '#0EA5E9',
+  //     subheading: 'Pending Tasks',
+  //   },
+  //   {
+  //     title: 'Drawings',
+  //     value: '1',
+  //     icon: 'architecture',
+  //     gradient: ['#FFF7ED', '#FFEDD5'],
+  //     iconBg: '#F97316',
+  //     subheading: 'Under Review',
+  //   },
+  //   {
+  //     title: 'Open GRN',
+  //     value: '47',
+  //     icon: 'inventory',
+  //     gradient: ['#F0FDF4', '#DCFCE7'],
+  //     iconBg: '#22C55E',
+  //     subheading: 'Goods Received',
+  //   },
+  //   {
+  //     title: 'Paid Bill',
+  //     value: '₹49.1L',
+  //     icon: 'payment',
+  //     gradient: ['#F5F3FF', '#EDE9FE'],
+  //     iconBg: '#8B5CF6',
+  //     subheading: 'Total Payments',
+  //   },
+  //   {
+  //     title: 'Open Indent',
+  //     value: '22',
+  //     icon: 'description',
+  //     gradient: ['#FEF2F2', '#FEE2E2'],
+  //     iconBg: '#EF4444',
+  //     subheading: 'Material Requests',
+  //   },
+  //   {
+  //     title: 'Open RFI',
+  //     value: '2',
+  //     icon: 'help-outline',
+  //     gradient: ['#FEFCE8', '#FEF3C7'],
+  //     iconBg: '#EAB308',
+  //     subheading: 'Information Requests',
+  //   },
+  //   {
+  //     title: 'Re-inspect',
+  //     value: '1',
+  //     icon: 'search',
+  //     gradient: ['#F0F9FF', '#E0F2FE'],
+  //     iconBg: '#0EA5E9',
+  //     subheading: 'Quality Check',
+  //   },
+  //   {
+  //     title: 'Submittals',
+  //     value: '10',
+  //     icon: 'article',
+  //     gradient: ['#FDF2F8', '#FCE7F3'],
+  //     iconBg: '#EC4899',
+  //     subheading: 'Document Review',
+  //   },
+  // ];
 const cardData = [
   {
     title: 'Activity',
@@ -627,7 +694,6 @@ const cardData = [
     screen: 'Submittals',
   },
 ];
-
   useEffect(() => {
     Animated.parallel([
       Animated.timing(fadeAnim, {
@@ -837,8 +903,8 @@ const FilterSection = () => (
     )}
   </LinearGradient>
 );
- const StatsCard = ({ item, index }) => (
-  <TouchableOpacity 
+const StatsCard = ({ item, index }) => (
+  <TouchableOpacity
     onPress={() => item.screen && navigation.navigate(item.screen)}
     activeOpacity={0.7}
   >
@@ -884,7 +950,7 @@ const FilterSection = () => (
             <Icon name={item.icon} size={20} color="#FFFFFF" />
           </View>
         </View>
-
+ 
         <Text
           style={{
             fontSize: 28,
@@ -895,7 +961,7 @@ const FilterSection = () => (
         >
           {item.value}
         </Text>
-
+ 
         <Text
           style={{
             fontSize: 12,
@@ -906,12 +972,12 @@ const FilterSection = () => (
         >
           {item.subheading}
         </Text>
-        
+       
         {/* Navigation indicator for clickable cards */}
         {item.screen && (
-          <View style={{ 
-            position: 'absolute', 
-            bottom: 8, 
+          <View style={{
+            position: 'absolute',
+            bottom: 8,
             right: 8,
             backgroundColor: 'rgba(255, 255, 255, 0.7)',
             borderRadius: 10,

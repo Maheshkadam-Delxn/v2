@@ -477,64 +477,65 @@ const FilterModal = ({ visible, onClose, currentFilter, onApplyFilter }) => {
   );
 };
 
-// ✅ Main Screen
+// ✅ Main Daily Progress Screen Component
 const DailyProgressScreen = () => {
-  const [expandedDates, setExpandedDates] = useState({});
+  const [expandedDays, setExpandedDays] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [isFilterVisible, setIsFilterVisible] = useState(false);
-  const [selectedStatus, setSelectedStatus] = useState(null); // null = all
+  const [showFilterModal, setShowFilterModal] = useState(false);
+  const [filterStatus, setFilterStatus] = useState(null);
   const [selectedItem, setSelectedItem] = useState(null);
-  const [isDetailsModalVisible, setIsDetailsModalVisible] = useState(false);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
 
   const toggleExpand = (date) => {
-    setExpandedDates((prev) => ({ ...prev, [date]: !prev[date] }));
+    setExpandedDays(prev => ({
+      ...prev,
+      [date]: !prev[date]
+    }));
   };
 
   const handleRefresh = () => {
-    setIsRefreshing(true);
-    setTimeout(() => setIsRefreshing(false), 1200);
+    setIsLoading(true);
+    setTimeout(() => setIsLoading(false), 1500);
   };
 
   const handleViewItem = (item) => {
     setSelectedItem(item);
-    setIsDetailsModalVisible(true);
+    setShowDetailsModal(true);
   };
 
-  const filteredData = useMemo(() => {
-    let data = progressData;
-
-    // apply search
+  const filteredProgressData = useMemo(() => {
+    let result = [...progressData];
+    
+    // Apply search filter
     if (searchQuery.trim()) {
-      data = data.map(day => ({
+      result = result.map(day => ({
         ...day,
         items: day.items.filter(item => 
           item.activity.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          item.status.toLowerCase().includes(searchQuery.toLowerCase())
+          item.title.toLowerCase().includes(searchQuery.toLowerCase())
         )
       })).filter(day => day.items.length > 0);
     }
-
-    // apply filter
-    if (selectedStatus) {
-      data = data.map(day => ({
+    
+    // Apply status filter
+    if (filterStatus) {
+      result = result.map(day => ({
         ...day,
-        items: day.items.filter(item => item.status === selectedStatus)
+        items: day.items.filter(item => item.status === filterStatus)
       })).filter(day => day.items.length > 0);
     }
+    
+    return result;
+  }, [filterStatus, searchQuery]);
 
-    return data;
-  }, [searchQuery, selectedStatus]);
-
-  // ✅ Refresh Loading State
-  if (isRefreshing) {
+  if (isLoading) {
     return (
       <MainLayout title="Daily Progress">
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f8fafc' }}>
-          <View style={{
-            backgroundColor: '#ffffff',
-            padding: 32,
+          <View style={{ 
+            backgroundColor: '#ffffff', 
+            padding: 32, 
             borderRadius: 24,
             alignItems: 'center',
             shadowColor: '#000',
@@ -544,8 +545,13 @@ const DailyProgressScreen = () => {
             elevation: 4
           }}>
             <ActivityIndicator size="large" color="#3b82f6" />
-            <Text style={{ marginTop: 16, fontSize: 16, fontWeight: '600', color: '#374151' }}>
-              Loading daily progress...
+            <Text style={{ 
+              marginTop: 16, 
+              fontSize: 16, 
+              fontWeight: '600', 
+              color: '#374151' 
+            }}>
+              Loading progress data...
             </Text>
           </View>
         </View>
@@ -557,7 +563,12 @@ const DailyProgressScreen = () => {
     <MainLayout title="Daily Progress">
       <View style={{ flex: 1, backgroundColor: '#f8fafc' }}>
         {/* Header */}
-        <View style={{ backgroundColor: '#dbeafe', padding: 16 }}>
+        <LinearGradient 
+          colors={['#f0f7ff', '#e6f0ff']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 0, y: 1 }}
+          style={{ padding: 16 }}
+        >
           <View style={{ 
             flexDirection: 'row', 
             justifyContent: 'space-between', 
@@ -565,50 +576,81 @@ const DailyProgressScreen = () => {
             marginBottom: 12
           }}>
             <View>
-              <Text style={{ fontSize: 20, fontWeight: '700', color: '#1e40af' }}>
-                Daily Progress List
+              <Text style={{ 
+                fontSize: 20, 
+                fontWeight: '700', 
+                color: '#0F172A' 
+              }}>
+                Daily Progress
               </Text>
-              <Text style={{ fontSize: 12, color: '#3b82f6', marginTop: 2 }}>
-                {filteredData.length} days • {selectedStatus || 'All statuses'}
+              <Text style={{ 
+                fontSize: 12, 
+                color: '#6B7280',
+                marginTop: 2
+              }}>
+                {filteredProgressData.length} days • {filterStatus || 'All statuses'}
               </Text>
             </View>
             <View style={{ flexDirection: 'row', gap: 8 }}>
               <TouchableOpacity
                 style={{ 
                   padding: 10, 
-                  backgroundColor: 'rgba(255, 255, 255, 0.8)', 
-                  borderRadius: 12 
+                  backgroundColor: '#FFFFFF', 
+                  borderRadius: 12,
+                  borderWidth: 1,
+                  borderColor: '#E2E8F0'
                 }}
                 onPress={handleRefresh}
               >
-                <Icon name="refresh" size={18} color="#1e40af" />
+                <Icon name="refresh" size={18} color="#3B82F6" />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{ 
+                  padding: 10, 
+                  backgroundColor: '#3B82F6',
+                  borderRadius: 12
+                }}
+                onPress={() => console.log('Add progress')}
+              >
+                <Icon name="plus" size={18} color="#FFFFFF" />
               </TouchableOpacity>
             </View>
           </View>
 
-          {/* Search + Filter Row */}
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            {/* Search Box */}
+          {/* Search and Filter Row */}
+          <View style={{ 
+            flexDirection: 'row', 
+            alignItems: 'center',
+            gap: 8
+          }}>
+            {/* Search Bar */}
             <View style={{ 
               flex: 1,
-              backgroundColor: 'rgba(255, 255, 255, 0.8)', 
+              backgroundColor: '#FFFFFF', 
               borderRadius: 12, 
               paddingHorizontal: 12,
               height: 40,
-              justifyContent: 'center'
+              justifyContent: 'center',
+              borderWidth: 1,
+              borderColor: '#E2E8F0'
             }}>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Icon name="magnify" size={18} color="#3b82f6" style={{ marginRight: 8 }} />
+                <Icon name="magnify" size={18} color="#6B7280" style={{ marginRight: 8 }} />
                 <TextInput
-                  placeholder="Search activity, title, status..."
                   value={searchQuery}
                   onChangeText={setSearchQuery}
-                  placeholderTextColor="#6b7280"
-                  style={{ flex: 1, color: '#1e40af', fontSize: 14, paddingVertical: 0 }}
+                  placeholder="Search activities, titles..."
+                  placeholderTextColor="#6B7280"
+                  style={{ 
+                    flex: 1, 
+                    color: '#0F172A', 
+                    fontSize: 14,
+                    paddingVertical: 0
+                  }}
                 />
                 {searchQuery.length > 0 && (
                   <TouchableOpacity onPress={() => setSearchQuery('')}>
-                    <Icon name="close-circle" size={18} color="#6b7280" />
+                    <Icon name="close-circle" size={18} color="#6B7280" />
                   </TouchableOpacity>
                 )}
               </View>
@@ -619,69 +661,121 @@ const DailyProgressScreen = () => {
               style={{ 
                 flexDirection: 'row', 
                 alignItems: 'center',
-                backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                backgroundColor: '#3B82F6',
                 paddingHorizontal: 12,
                 height: 40,
                 borderRadius: 12,
                 minWidth: 60,
                 justifyContent: 'center'
               }}
-              onPress={() => setIsFilterVisible(true)}
+              onPress={() => setShowFilterModal(true)}
             >
-              <Icon name="filter-outline" size={16} color="#1e40af" />
-              {selectedStatus && (
+              <Icon name="filter-outline" size={16} color="#FFFFFF" />
+              {filterStatus && (
                 <View style={{ 
                   marginLeft: 4, 
-                  backgroundColor: '#3b82f6', 
+                  backgroundColor: '#FFFFFF', 
                   paddingHorizontal: 6,
                   paddingVertical: 2,
                   borderRadius: 8
                 }}>
-                  <Text style={{ fontSize: 10, color: '#ffffff', fontWeight: '600' }}>
-                    {selectedStatus}
+                  <Text style={{ 
+                    fontSize: 10, 
+                    color: '#3B82F6',
+                    fontWeight: '600'
+                  }}>
+                    {filterStatus}
                   </Text>
                 </View>
               )}
             </TouchableOpacity>
           </View>
-        </View>
+        </LinearGradient>
 
-        {/* List */}
-        <ScrollView contentContainerStyle={{ padding: 16 }}>
-          {filteredData.length > 0 ? (
-            filteredData.map(day => (
-              <DailyProgressCard 
+        {/* Progress List */}
+        <ScrollView 
+          contentContainerStyle={{ padding: 16 }}
+          showsVerticalScrollIndicator={false}
+        >
+          {filteredProgressData.length > 0 ? (
+            filteredProgressData.map((day) => (
+              <DailyProgressCard
                 key={day.date}
                 day={day}
-                expanded={expandedDates[day.date]}
+                expanded={expandedDays[day.date]}
                 onToggle={() => toggleExpand(day.date)}
                 onViewItem={handleViewItem}
               />
             ))
           ) : (
-            <Animated.View entering={FadeInUp} style={{ alignItems: 'center', marginTop: 40 }}>
-              <Icon name="file-document-outline" size={64} color="#d1d5db" />
-              <Text style={{ marginTop: 16, fontSize: 16, fontWeight: '600', color: '#6b7280' }}>No records found</Text>
+            <Animated.View 
+              entering={FadeInUp}
+              style={{ 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                padding: 40,
+                backgroundColor: '#ffffff',
+                borderRadius: 24,
+                margin: 16
+              }}
+            >
+              <Icon name="file-search-outline" size={64} color="#d1d5db" />
+              <Text style={{ 
+                fontSize: 18, 
+                fontWeight: '600', 
+                color: '#6b7280',
+                marginTop: 16
+              }}>
+                No progress found
+              </Text>
+              <Text style={{ 
+                fontSize: 14, 
+                color: '#9ca3af',
+                marginTop: 8,
+                textAlign: 'center'
+              }}>
+                {searchQuery ? 
+                  'Try adjusting your search terms or filters' : 
+                  'Get started by adding your first progress update'
+                }
+              </Text>
+              <TouchableOpacity 
+                style={{ 
+                  backgroundColor: '#3b82f6', 
+                  paddingHorizontal: 24,
+                  paddingVertical: 12,
+                  borderRadius: 16,
+                  marginTop: 16
+                }}
+                onPress={() => console.log('Add first progress')}
+              >
+                <Text style={{ 
+                  color: '#ffffff', 
+                  fontWeight: '600' 
+                }}>
+                  Add Progress
+                </Text>
+              </TouchableOpacity>
             </Animated.View>
           )}
         </ScrollView>
+
+        {/* Filter Modal */}
+        <FilterModal
+          visible={showFilterModal}
+          onClose={() => setShowFilterModal(false)}
+          currentFilter={filterStatus}
+          onApplyFilter={setFilterStatus}
+        />
+
+        {/* Activity Details Modal */}
+        <ActivityDetailsModal
+          visible={showDetailsModal}
+          onClose={() => setShowDetailsModal(false)}
+          item={selectedItem}
+        />
       </View>
-
-      {/* ✅ Filter Modal */}
-      <FilterModal
-        visible={isFilterVisible}
-        onClose={() => setIsFilterVisible(false)}
-        currentFilter={selectedStatus}
-        onApplyFilter={setSelectedStatus}
-      />
-
-      {/* ✅ Activity Details Modal */}
-      <ActivityDetailsModal
-        visible={isDetailsModalVisible}
-        onClose={() => setIsDetailsModalVisible(false)}
-        item={selectedItem}
-      />
-    </MainLayout>                               
+    </MainLayout>
   );
 };
 
