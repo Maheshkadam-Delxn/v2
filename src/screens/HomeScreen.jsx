@@ -1,196 +1,3 @@
-// // import React, { useState } from 'react';
-// // import {
-// //   View,
-// //   Text,
-// //   ScrollView,
-// //   TouchableOpacity,
-// //   StatusBar,
-// //   TextInput,
-// //   Image,
-// // } from 'react-native';
-// // import { Feather } from '@expo/vector-icons';
-// // import { useNavigation } from '@react-navigation/native';
-// // import towerImage from '../../assets/image.jpg'; // Correct path based on folder structure
-
-// // export default function HomeScreen() {
-// //   const [selectedFilter, setSelectedFilter] = useState('All Projects');
-// //   const navigation = useNavigation();
-
-// //   const projects = [
-// //     {
-// //       id: 1,
-// //       name: 'Acura Heights Tower',
-// //       progress: '64%',
-// //       duration: '18 months',
-// //       amount: '$2.5M',
-// //       image: towerImage,
-// //       status: 'Under Construction',
-// //     },
-// //     {
-// //       id: 2,
-// //       name: 'Commercial Residences',
-// //       progress: '89%',
-// //       duration: '14 months',
-// //       amount: '$1.8M',
-// //       image: towerImage,
-// //       status: 'Under Construction',
-// //     },
-// //     {
-// //       id: 3,
-// //       name: 'Corporate Landmark Project',
-// //       progress: '52%',
-// //       duration: '24 months',
-// //       amount: '$3.2M',
-// //       image: towerImage,
-// //       status: 'In Design',
-// //     },
-// //   ];
-
-// //   const filterOptions = [
-// //     'All Projects',
-// //     'In Planning',
-// //     'In Design',
-// //     'In Tender',
-// //     'Under Construction',
-// //     'Completed',
-// //     'On Hold',
-// //     'Cancelled',
-// //   ];
-
-// //   const getProgressColor = (progress) => {
-// //     const percentage = parseInt(progress);
-// //     if (percentage >= 80) return '#10b981'; // Green
-// //     if (percentage >= 60) return '#f59e0b'; // Orange
-// //     return '#ef4444'; // Red
-// //   };
-
-// //   return (
-// //     <>
-// //       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
-// //       <ScrollView className="flex-1 bg-gray-50" showsVerticalScrollIndicator={false}>
-// //         {/* Header Section */}
-// //         <View className="bg-blue-100 px-6 pb-6 pt-14 shadow-sm">
-// //           <View className="mb-6 flex-row items-center justify-between">
-// //             <View>
-// //               <Text className="mb-1 text-2xl font-bold text-gray-800">Project Overview</Text>
-// //               <Text className="text-sm text-gray-500">Managing your construction projects</Text>
-// //             </View>
-// //             <TouchableOpacity className="h-10 w-10 items-center justify-center rounded-full bg-blue-100">
-// //               <Feather name="bell" size={20} color="#2563eb" />
-// //             </TouchableOpacity>
-// //           </View>
-
-// //           {/* Filter Tabs with Project Counts */}
-// //           <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-4">
-// //             <View className="flex-row">
-// //               {filterOptions.map((filter, index) => (
-// //                 <TouchableOpacity
-// //                   key={filter}
-// //                   onPress={() => setSelectedFilter(filter)}
-// //                   className={`mr-3 flex-row items-center rounded-full px-4 py-2 ${
-// //                     selectedFilter === filter ? 'bg-blue-600' : 'bg-gray-100'
-// //                   }`}>
-// //                   <Text
-// //                     className={`font-medium ${
-// //                       selectedFilter === filter ? 'text-white' : 'text-gray-600'
-// //                     }`}>
-// //                     {filter}
-// //                   </Text>
-// //                 </TouchableOpacity>
-// //               ))}
-// //             </View>
-// //           </ScrollView>
-// //         </View>
-
-// //         {/* Create New Project Section */}
-// //         <View className="mb-8 px-6 py-6">
-// //           <View className="flex-row items-center">
-// //             <View className="mr-2 flex-1 flex-row items-center rounded-2xl bg-gray-100 px-4 py-3">
-// //               <Feather name="search" size={20} color="#6b7280" style={{ marginRight: 8 }} />
-// //               <TextInput
-// //                 className="flex-1 text-base"
-// //                 placeholder="Search projects..."
-// //                 placeholderTextColor="#6b7280"
-// //               />
-// //             </View>
-// //             <TouchableOpacity
-// //               className="rounded-2xl bg-blue-600 p-3 px-4 shadow-lg active:scale-95"
-// //               onPress={() => navigation.navigate('AddNewProject')}>
-// //               <Feather name="plus" size={20} color="#ffffff" />
-// //             </TouchableOpacity>
-// //           </View>
-// //         </View>
-
-// //         {/* Project Detail Section */}
-// //         <View className="px-6">
-// //           <Text className="mb-4 text-lg font-bold text-gray-800">Project Detail</Text>
-
-// //           {projects
-// //             .filter(
-// //               (project) => selectedFilter === 'All Projects' || project.status === selectedFilter
-// //             )
-// //             .map((project) => (
-// //               <TouchableOpacity
-// //                 key={project.id}
-// //                 className="mb-4 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm"
-// //                 activeOpacity={0.7}
-// //                 onPress={() => navigation.navigate('Dashboard', { projectId: project.id })}>
-// //                 <View className="flex-row">
-// //                   {/* Project Image */}
-// //                   <Image
-// //                     source={project.image}
-// //                     className="mr-4 h-20 w-20 rounded-xl"
-// //                     resizeMode="cover"
-// //                   />
-
-// //                   {/* Project Details */}
-// //                   <View className="flex-1">
-// //                     <Text className="mb-1 text-lg font-bold text-gray-800">{project.name}</Text>
-
-// //                     <View className="mb-2 flex-row items-center">
-// //                       <Text className="mr-4 text-sm text-gray-500">{project.duration}</Text>
-// //                       <Text className="text-sm font-semibold text-green-600">{project.amount}</Text>
-// //                     </View>
-
-// //                     {/* Progress Bar */}
-// //                     <View className="mb-2">
-// //                       <View className="mb-1 flex-row items-center justify-between">
-// //                         <Text className="text-xs text-gray-500">Progress</Text>
-// //                         <Text
-// //                           className="text-xs font-semibold"
-// //                           style={{ color: getProgressColor(project.progress) }}>
-// //                           {project.progress}
-// //                         </Text>
-// //                       </View>
-// //                       <View className="h-2 w-full rounded-full bg-gray-200">
-// //                         <View
-// //                           className="h-2 rounded-full"
-// //                           style={{
-// //                             width: project.progress,
-// //                             backgroundColor: getProgressColor(project.progress),
-// //                           }}
-// //                         />
-// //                       </View>
-// //                     </View>
-
-// //                     {/* Action Buttons */}
-// //                     {/* <View className="flex-row space-x-2 mt-2">
-// //                       <TouchableOpacity className="bg-blue-50 px-3 py-1 rounded-full">
-// //                         <Text className="text-blue-600 text-xs font-medium">View Details</Text>
-// //                       </TouchableOpacity>
-// //                       <TouchableOpacity className="bg-gray-50 px-3 py-1 rounded-full">
-// //                         <Text className="text-gray-600 text-xs font-medium">Edit</Text>
-// //                       </TouchableOpacity>
-// //                     </View> */}
-// //                   </View>
-// //                 </View>
-// //               </TouchableOpacity>
-// //             ))}
-// //         </View>
-// //       </ScrollView>
-// //     </>
-// //   );
-// // }
 
 
 // import React, { useState, useRef, useEffect } from 'react';
@@ -204,17 +11,20 @@
 //   Image,
 //   Animated,
 //   Dimensions,
+//   Platform,
+//   SafeAreaView,
 // } from 'react-native';
 // import { Feather } from '@expo/vector-icons';
 // import { useNavigation } from '@react-navigation/native';
 // import { LinearGradient } from 'expo-linear-gradient';
 // import towerImage from '../../assets/image.jpg';
+// import Sidebar from './components/Sidebar';
 
 // const { width } = Dimensions.get('window');
 
 // export default function HomeScreen() {
 //   const [selectedFilter, setSelectedFilter] = useState('All Projects');
-//   const [searchQuery, setSearchQuery] = useState('');
+//   const [searchQuery, setSearchQuery] = useState(''); 
 //   const navigation = useNavigation();
 
 //   // Animation values
@@ -288,11 +98,45 @@
 //     { name: 'Cancelled', count: 0 },
 //   ];
 
+//   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+//   const sidebarAnim = useRef(new Animated.Value(-256)).current;
+//   const menuButtonScale = useRef(new Animated.Value(1)).current;
+//   const menuButtonRotation = useRef(new Animated.Value(0)).current;
+
+//   const toggleSidebar = () => {
+//     Animated.sequence([
+//       Animated.timing(menuButtonScale, {
+//         toValue: 0.9,
+//         duration: 100,
+//         useNativeDriver: true,
+//       }),
+//       Animated.timing(menuButtonScale, {
+//         toValue: 1,
+//         duration: 100,
+//         useNativeDriver: true,
+//       })
+//     ]).start();
+
+//     Animated.timing(menuButtonRotation, {
+//       toValue: isSidebarOpen ? 0 : 1,
+//       duration: 300,
+//       useNativeDriver: true,
+//     }).start();
+
+//     Animated.timing(sidebarAnim, {
+//       toValue: isSidebarOpen ? -256 : 0,
+//       duration: 300,
+//       useNativeDriver: true,
+//     }).start();
+
+//     setIsSidebarOpen(!isSidebarOpen);
+//   };
+
 //   const getProgressColor = (progress) => {
 //     const percentage = parseInt(progress);
-//     if (percentage >= 80) return '#10b981'; // Green
-//     if (percentage >= 60) return '#f59e0b'; // Orange
-//     return '#ef4444'; // Red
+//     if (percentage >= 80) return '#10b981';
+//     if (percentage >= 60) return '#f59e0b';
+//     return '#ef4444';
 //   };
 
 //   const getStatusColor = (status) => {
@@ -312,34 +156,124 @@
 //     return matchesFilter && matchesSearch;
 //   });
 
+//   const rotateInterpolation = menuButtonRotation.interpolate({
+//     inputRange: [0, 1],
+//     outputRange: ['0deg', '90deg'],
+//   });
+
+//   // Only apply paddingTop on Android
+//   const safeAreaTop = Platform.OS === 'android' ? StatusBar.currentHeight || 0 : 0;
+
 //   return (
-//     <>
+//     <SafeAreaView style={{ flex: 1, backgroundColor: '#ffffff' }}>
+//       <Animated.View
+//         style={{
+//           position: 'absolute',
+//           top: 0,
+//           bottom: 0,
+//           left: 0,
+//           width: 256,
+//           transform: [{ translateX: sidebarAnim }],
+//           zIndex: 40,
+//         }}
+//       >
+//         <View className="flex-1 bg-blue-900">
+//           {isSidebarOpen && (
+//             <TouchableOpacity
+//               className="absolute top-4 right-4 pt-8 z-20"
+//               onPress={toggleSidebar}
+//             >
+//               <Feather name="x" size={24} color="#ffffff" />
+//             </TouchableOpacity>
+//           )}
+//           <Sidebar />
+//         </View>
+//       </Animated.View>
+
 //       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+
 //       <View className="flex-1 bg-gray-50">
-//         {/* Enhanced Header with Gradient */}
 //         <LinearGradient
 //           colors={['#ffffff', '#f8fafc', '#e2e8f0']}
-//           // className="shadow-lg"
 //           start={{ x: 0, y: 0 }}
 //           end={{ x: 0, y: 1 }}
 //         >
 //           <Animated.View 
-//             className="px-6 pb-6 pt-16"
+//             className="px-6 pb-6"
 //             style={{
+//               paddingTop: safeAreaTop,
 //               opacity: fadeAnim,
 //               transform: [{ translateY: slideAnim }]
 //             }}
 //           >
-//             {/* Header Title Section */}
 //             <View className="mb-6 flex-row items-center justify-between">
+//               {!isSidebarOpen && (
+//                 <Animated.View
+//                   style={{
+//                     transform: [
+//                       { scale: menuButtonScale },
+//                       { rotate: rotateInterpolation }
+//                     ]
+//                   }}
+//                 >
+//                   <TouchableOpacity 
+//                     className="mr-4 h-12 w-12 items-center justify-center rounded-2xl"
+//                     onPress={toggleSidebar}
+//                     activeOpacity={0.8}
+//                     style={{
+//                       backgroundColor: '#ffffff',
+//                       shadowColor: '#3b82f6',
+//                       shadowOffset: { width: 0, height: 8 },
+//                       shadowOpacity: 0.15,
+//                       shadowRadius: 16,
+//                       elevation: 8,
+//                     }}
+//                   >
+//                     <LinearGradient colors={['#fdfeffff', '#f8fafdff']} start={{ x: 0, y: 0 }}
+//                       end={{ x: 1, y: 1 }}
+//                       style={{
+//                         width: 48,
+//                         height: 48,
+//                         borderRadius: 16,
+//                         alignItems: 'center',
+//                         justifyContent: 'center',
+//                       }}
+//                     >
+//                       <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+//                         <View style={{
+//                             width: 18,
+//                             height: 2,
+//                             backgroundColor: '#4662edff',
+//                             borderRadius: 1,
+//                             marginBottom: 3,
+//                           }}/>
+//                         <View style={{
+//                             width: 14,
+//                             height: 2,
+//                             backgroundColor: '#4662edff',
+//                             borderRadius: 1,
+//                             marginBottom: 3,
+//                             alignSelf: 'flex-start',
+//                           }}/>
+//                         <View style={{
+//                             width: 18,
+//                             height: 2,
+//                             backgroundColor: '#4662edff',
+//                             borderRadius: 1,
+//                           }}/>
+//                       </View>
+//                     </LinearGradient>
+//                   </TouchableOpacity>
+//                 </Animated.View>
+//               )}
+              
 //               <View className="flex-1">
-//                 <Text className="text-3xl font-bold text-gray-800 mb-1">Project Overview</Text>
-//                 <Text className="text-base text-gray-600 font-medium">
+//                 <Text className="text-2xl font-bold text-gray-800 mb-1">Project Overview</Text>
+//                 <Text className="text-sm text-gray-600 font-medium">
 //                   Managing {projects.length} construction projects
 //                 </Text>
 //               </View>
               
-//               {/* Enhanced Notification Button */}
 //               <TouchableOpacity 
 //                 className="h-12 w-12 items-center justify-center rounded-2xl bg-white"
 //                 style={{
@@ -357,43 +291,26 @@
 //               </TouchableOpacity>
 //             </View>
 
-//             {/* Enhanced Filter Tabs */}
 //             <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-4">
 //               <View className="flex-row pr-6">
-//                 {filterOptions.map((filter, index) => (
+//                 {filterOptions.map((filter) => (
 //                   <TouchableOpacity
 //                     key={filter.name}
 //                     onPress={() => setSelectedFilter(filter.name)}
-//                     className={`mr-3 flex-row items-center rounded-2xl px-5 py-3 ${
-//                       selectedFilter === filter.name ? '' : 'bg-white'
-//                     }`}
+//                     className={`mr-3 flex-row items-center rounded-2xl px-5 py-3`}
 //                     style={{
 //                       backgroundColor: selectedFilter === filter.name ? '#3b82f6' : 'white',
-//                       shadowColor: selectedFilter === filter.name ? '#3b82f6' : '#000',
-//                       shadowOffset: { width: 0, height: 4 },
-//                       shadowOpacity: selectedFilter === filter.name ? 0.3 : 0.05,
-//                       shadowRadius: 8,
-//                       elevation: selectedFilter === filter.name ? 8 : 2,
 //                     }}
 //                   >
-//                     <Text
-//                       className={`font-semibold ${
-//                         selectedFilter === filter.name ? 'text-white' : 'text-gray-700'
-//                       }`}
-//                     >
+//                     <Text className={`font-semibold ${selectedFilter === filter.name ? 'text-white' : 'text-gray-700'}`}>
 //                       {filter.name}
 //                     </Text>
 //                     {filter.count > 0 && (
 //                       <View 
-//                         className={`ml-2 px-2 py-1 rounded-full ${
-//                           selectedFilter === filter.name ? 'bg-white/20' : 'bg-gray-200'
-//                         }`}
+//                         className={`ml-2 px-2 py-1 rounded-full`}
+//                         style={{ backgroundColor: selectedFilter === filter.name ? 'rgba(255,255,255,0.2)' : '#e5e7eb' }}
 //                       >
-//                         <Text 
-//                           className={`text-xs font-bold ${
-//                             selectedFilter === filter.name ? 'text-white' : 'text-gray-600'
-//                           }`}
-//                         >
+//                         <Text className={`text-xs font-bold ${selectedFilter === filter.name ? 'text-white' : 'text-gray-600'}`}>
 //                           {filter.count}
 //                         </Text>
 //                       </View>
@@ -406,7 +323,6 @@
 //         </LinearGradient>
 
 //         <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
-//           {/* Enhanced Search and Add Section */}
 //           <Animated.View 
 //             className="px-6 py-6"
 //             style={{
@@ -415,15 +331,15 @@
 //             }}
 //           >
 //             <View className="flex-row items-center">
-//               {/* Enhanced Search Bar */}
 //               <View 
-//                 className="mr-4 flex-1 flex-row items-center rounded-2xl bg-white px-5 py-4"
+//                 className="mr-4 flex-1 flex-row items-center rounded-2xl bg-white px-5"
 //                 style={{
 //                   shadowColor: '#000',
 //                   shadowOffset: { width: 0, height: 4 },
 //                   shadowOpacity: 0.05,
 //                   shadowRadius: 8,
 //                   elevation: 3,
+//                   height: 44,
 //                 }}
 //               >
 //                 <Feather name="search" size={20} color="#6b7280" style={{ marginRight: 12 }} />
@@ -433,6 +349,7 @@
 //                   placeholderTextColor="#9ca3af"
 //                   value={searchQuery}
 //                   onChangeText={setSearchQuery}
+//                   style={{ height: '100%' }}
 //                 />
 //                 {searchQuery.length > 0 && (
 //                   <TouchableOpacity onPress={() => setSearchQuery('')}>
@@ -441,17 +358,19 @@
 //                 )}
 //               </View>
               
-//               {/* Enhanced Add Button */}
 //               <TouchableOpacity
-//                 className="rounded-2xl p-4 active:scale-95"
+//                 className="rounded-2xl p-2 active:scale-95"
 //                 onPress={() => navigation.navigate('AddNewProject')}
 //                 style={{
 //                   backgroundColor: '#3b82f6',
-//                   shadowColor: '#3b82f6',
 //                   shadowOffset: { width: 0, height: 6 },
 //                   shadowOpacity: 0.4,
 //                   shadowRadius: 12,
 //                   elevation: 8,
+//                   height: 44,
+//                   width: 56,
+//                   justifyContent: 'center',
+//                   alignItems: 'center',
 //                 }}
 //               >
 //                 <Feather name="plus" size={22} color="#ffffff" />
@@ -459,7 +378,6 @@
 //             </View>
 //           </Animated.View>
 
-//           {/* Project List Section */}
 //           <View className="px-6 pb-8">
 //             <View className="mb-6 flex-row items-center justify-between">
 //               <Text className="text-2xl font-bold text-gray-800">Active Projects</Text>
@@ -477,8 +395,7 @@
 //                   onPress={() => navigation.navigate('Dashboard', { projectId: project.id })}
 //                 >
 //                   <View className="flex-row">
-//                     {/* Project Image */}
-//                     <View className="mr-4 h-20 w-20 rounded-xl  border-blue-100 items-center justify-center">
+//                     <View className="mr-4 h-20 w-20 rounded-xl border-blue-100 items-center justify-center">
 //                       <Image
 //                         source={project.image}
 //                         className="h-20 w-20 rounded-lg"
@@ -486,7 +403,6 @@
 //                       />
 //                     </View>
 
-//                     {/* Project Details */}
 //                     <View className="flex-1">
 //                       <View className="flex-row items-start justify-between mb-2">
 //                         <Text className="text-lg font-bold text-blue-900 flex-1 mr-2">
@@ -512,7 +428,6 @@
 //                         </View>
 //                       </View>
 
-//                       {/* Progress Bar */}
 //                       <View className="mb-3">
 //                         <View className="mb-1 flex-row items-center justify-between">
 //                           <Text className="text-xs text-gray-600">Progress</Text>
@@ -533,7 +448,6 @@
 //                           />
 //                         </View>
 //                       </View>
-
 //                     </View>
 //                   </View>
 //                 </TouchableOpacity>
@@ -549,13 +463,13 @@
 //             )}
 //           </View>
 
-//           {/* Bottom Padding */}
 //           <View className="h-6" />
 //         </ScrollView>
 //       </View>
-//     </>
+//     </SafeAreaView>
 //   );
 // }
+
 
 import React, { useState, useRef, useEffect } from 'react';
 import {
@@ -568,20 +482,23 @@ import {
   Image,
   Animated,
   Dimensions,
+  Platform,
+  SafeAreaView,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
 import towerImage from '../../assets/image.jpg';
+import Sidebar from './components/Sidebar';
 
 const { width } = Dimensions.get('window');
 
 export default function HomeScreen() {
   const [selectedFilter, setSelectedFilter] = useState('All Projects');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(''); 
   const navigation = useNavigation();
 
-  // Animation values
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
   const scaleAnim = useRef(new Animated.Value(0.95)).current;
@@ -652,11 +569,45 @@ export default function HomeScreen() {
     { name: 'Cancelled', count: 0 },
   ];
 
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const sidebarAnim = useRef(new Animated.Value(-256)).current;
+  const menuButtonScale = useRef(new Animated.Value(1)).current;
+  const menuButtonRotation = useRef(new Animated.Value(0)).current;
+
+  const toggleSidebar = () => {
+    Animated.sequence([
+      Animated.timing(menuButtonScale, {
+        toValue: 0.9,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.timing(menuButtonScale, {
+        toValue: 1,
+        duration: 100,
+        useNativeDriver: true,
+      })
+    ]).start();
+
+    Animated.timing(menuButtonRotation, {
+      toValue: isSidebarOpen ? 0 : 1,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+
+    Animated.timing(sidebarAnim, {
+      toValue: isSidebarOpen ? -256 : 0,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
   const getProgressColor = (progress) => {
     const percentage = parseInt(progress);
-    if (percentage >= 80) return '#10b981'; // Green
-    if (percentage >= 60) return '#f59e0b'; // Orange
-    return '#ef4444'; // Red
+    if (percentage >= 80) return '#10b981';
+    if (percentage >= 60) return '#f59e0b';
+    return '#ef4444';
   };
 
   const getStatusColor = (status) => {
@@ -676,33 +627,142 @@ export default function HomeScreen() {
     return matchesFilter && matchesSearch;
   });
 
+  const rotateInterpolation = menuButtonRotation.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '90deg'],
+  });
+
+  const safeAreaTop = Platform.OS === 'android' ? StatusBar.currentHeight || 0 : 0;
+
   return (
-    <>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#ffffff' }}>
+      {/* Sidebar */}
+      <Animated.View
+        style={{
+          position: 'absolute',
+          top: 0,
+          bottom: 0,
+          left: 0,
+          width: 256,
+          transform: [{ translateX: sidebarAnim }],
+          zIndex: 40,
+        }}
+      >
+        <View className="flex-1 bg-blue-900">
+          {isSidebarOpen && (
+            <TouchableOpacity
+              className="absolute top-4 right-4 pt-8 z-20"
+              onPress={toggleSidebar}
+            >
+              <Feather name="x" size={24} color="#ffffff" />
+            </TouchableOpacity>
+          )}
+          <Sidebar />
+        </View>
+      </Animated.View>
+
+      {/* Overlay Blur */}
+      {isSidebarOpen && (
+        <TouchableOpacity
+          activeOpacity={1}
+          onPress={toggleSidebar}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 256,
+            right: 0,
+            bottom: 0,
+            zIndex: 30,
+          }}
+        >
+          <BlurView intensity={50} tint="light" style={{ flex: 1 }} />
+        </TouchableOpacity>
+      )}
+
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+
       <View className="flex-1 bg-gray-50">
-        {/* Enhanced Header with Gradient */}
         <LinearGradient
           colors={['#ffffff', '#f8fafc', '#e2e8f0']}
           start={{ x: 0, y: 0 }}
           end={{ x: 0, y: 1 }}
         >
           <Animated.View 
-            className="px-6 pb-6 pt-8"
+            className="px-6 pb-6"
             style={{
+              paddingTop: safeAreaTop,
               opacity: fadeAnim,
               transform: [{ translateY: slideAnim }]
             }}
           >
-            {/* Header Title Section */}
             <View className="mb-6 flex-row items-center justify-between">
+              {!isSidebarOpen && (
+                <Animated.View
+                  style={{
+                    transform: [
+                      { scale: menuButtonScale },
+                      { rotate: rotateInterpolation }
+                    ]
+                  }}
+                >
+                  <TouchableOpacity 
+                    className="mr-4 h-12 w-12 items-center justify-center rounded-2xl"
+                    onPress={toggleSidebar}
+                    activeOpacity={0.8}
+                    style={{
+                      backgroundColor: '#ffffff',
+                      shadowColor: '#3b82f6',
+                      shadowOffset: { width: 0, height: 8 },
+                      shadowOpacity: 0.15,
+                      shadowRadius: 16,
+                      elevation: 8,
+                    }}
+                  >
+                    <LinearGradient colors={['#fdfeffff', '#f8fafdff']} start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 1 }}
+                      style={{
+                        width: 48,
+                        height: 48,
+                        borderRadius: 16,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+                        <View style={{
+                            width: 18,
+                            height: 2,
+                            backgroundColor: '#4662edff',
+                            borderRadius: 1,
+                            marginBottom: 3,
+                          }}/>
+                        <View style={{
+                            width: 14,
+                            height: 2,
+                            backgroundColor: '#4662edff',
+                            borderRadius: 1,
+                            marginBottom: 3,
+                            alignSelf: 'flex-start',
+                          }}/>
+                        <View style={{
+                            width: 18,
+                            height: 2,
+                            backgroundColor: '#4662edff',
+                            borderRadius: 1,
+                          }}/>
+                      </View>
+                    </LinearGradient>
+                  </TouchableOpacity>
+                </Animated.View>
+              )}
+              
               <View className="flex-1">
-                <Text className="text-3xl font-bold text-gray-800 mb-1">Project Overview</Text>
-                <Text className="text-base text-gray-600 font-medium">
+                <Text className="text-2xl font-bold text-gray-800 mb-1">Project Overview</Text>
+                <Text className="text-sm text-gray-600 font-medium">
                   Managing {projects.length} construction projects
                 </Text>
               </View>
               
-              {/* Enhanced Notification Button */}
               <TouchableOpacity 
                 className="h-12 w-12 items-center justify-center rounded-2xl bg-white"
                 style={{
@@ -720,39 +780,26 @@ export default function HomeScreen() {
               </TouchableOpacity>
             </View>
 
-            {/* Enhanced Filter Tabs - Shadow Removed */}
             <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-4">
               <View className="flex-row pr-6">
-                {filterOptions.map((filter, index) => (
+                {filterOptions.map((filter) => (
                   <TouchableOpacity
                     key={filter.name}
                     onPress={() => setSelectedFilter(filter.name)}
-                    className={`mr-3 flex-row items-center rounded-2xl px-5 py-3 ${
-                      selectedFilter === filter.name ? '' : 'bg-white'
-                    }`}
+                    className={`mr-3 flex-row items-center rounded-2xl px-5 py-3`}
                     style={{
                       backgroundColor: selectedFilter === filter.name ? '#3b82f6' : 'white',
-                      // Shadow properties removed from here
                     }}
                   >
-                    <Text
-                      className={`font-semibold ${
-                        selectedFilter === filter.name ? 'text-white' : 'text-gray-700'
-                      }`}
-                    >
+                    <Text className={`font-semibold ${selectedFilter === filter.name ? 'text-white' : 'text-gray-700'}`}>
                       {filter.name}
                     </Text>
                     {filter.count > 0 && (
                       <View 
-                        className={`ml-2 px-2 py-1 rounded-full ${
-                          selectedFilter === filter.name ? 'bg-white/20' : 'bg-gray-200'
-                        }`}
+                        className={`ml-2 px-2 py-1 rounded-full`}
+                        style={{ backgroundColor: selectedFilter === filter.name ? 'rgba(255,255,255,0.2)' : '#e5e7eb' }}
                       >
-                        <Text 
-                          className={`text-xs font-bold ${
-                            selectedFilter === filter.name ? 'text-white' : 'text-gray-600'
-                          }`}
-                        >
+                        <Text className={`text-xs font-bold ${selectedFilter === filter.name ? 'text-white' : 'text-gray-600'}`}>
                           {filter.count}
                         </Text>
                       </View>
@@ -765,7 +812,6 @@ export default function HomeScreen() {
         </LinearGradient>
 
         <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
-          {/* Enhanced Search and Add Section */}
           <Animated.View 
             className="px-6 py-6"
             style={{
@@ -774,16 +820,15 @@ export default function HomeScreen() {
             }}
           >
             <View className="flex-row items-center">
-              {/* Enhanced Search Bar - Height adjusted to match add button */}
               <View 
-                className="mr-4 flex-1 flex-row items-center rounded-2xl bg-white px-5 " // Changed py-4 to py-3
+                className="mr-4 flex-1 flex-row items-center rounded-2xl bg-white px-5"
                 style={{
                   shadowColor: '#000',
                   shadowOffset: { width: 0, height: 4 },
                   shadowOpacity: 0.05,
                   shadowRadius: 8,
                   elevation: 3,
-                  height: 44, // Added fixed height to match add button
+                  height: 44,
                 }}
               >
                 <Feather name="search" size={20} color="#6b7280" style={{ marginRight: 12 }} />
@@ -793,9 +838,7 @@ export default function HomeScreen() {
                   placeholderTextColor="#9ca3af"
                   value={searchQuery}
                   onChangeText={setSearchQuery}
-                  style={{
-                    height: '100%', // Make text input fill the container height
-                  }}
+                  style={{ height: '100%' }}
                 />
                 {searchQuery.length > 0 && (
                   <TouchableOpacity onPress={() => setSearchQuery('')}>
@@ -804,19 +847,17 @@ export default function HomeScreen() {
                 )}
               </View>
               
-              {/* Enhanced Add Button */}
               <TouchableOpacity
                 className="rounded-2xl p-2 active:scale-95"
                 onPress={() => navigation.navigate('AddNewProject')}
                 style={{
                   backgroundColor: '#3b82f6',
-                  // shadowColor: '#3b82f6',
                   shadowOffset: { width: 0, height: 6 },
                   shadowOpacity: 0.4,
                   shadowRadius: 12,
                   elevation: 8,
-                  height: 44, // Added fixed height
-                  width: 56, // Added fixed width for consistency
+                  height: 44,
+                  width: 56,
                   justifyContent: 'center',
                   alignItems: 'center',
                 }}
@@ -826,7 +867,6 @@ export default function HomeScreen() {
             </View>
           </Animated.View>
 
-          {/* Project List Section */}
           <View className="px-6 pb-8">
             <View className="mb-6 flex-row items-center justify-between">
               <Text className="text-2xl font-bold text-gray-800">Active Projects</Text>
@@ -844,8 +884,7 @@ export default function HomeScreen() {
                   onPress={() => navigation.navigate('Dashboard', { projectId: project.id })}
                 >
                   <View className="flex-row">
-                    {/* Project Image */}
-                    <View className="mr-4 h-20 w-20 rounded-xl  border-blue-100 items-center justify-center">
+                    <View className="mr-4 h-20 w-20 rounded-xl border-blue-100 items-center justify-center">
                       <Image
                         source={project.image}
                         className="h-20 w-20 rounded-lg"
@@ -853,7 +892,6 @@ export default function HomeScreen() {
                       />
                     </View>
 
-                    {/* Project Details */}
                     <View className="flex-1">
                       <View className="flex-row items-start justify-between mb-2">
                         <Text className="text-lg font-bold text-blue-900 flex-1 mr-2">
@@ -879,7 +917,6 @@ export default function HomeScreen() {
                         </View>
                       </View>
 
-                      {/* Progress Bar */}
                       <View className="mb-3">
                         <View className="mb-1 flex-row items-center justify-between">
                           <Text className="text-xs text-gray-600">Progress</Text>
@@ -900,7 +937,6 @@ export default function HomeScreen() {
                           />
                         </View>
                       </View>
-
                     </View>
                   </View>
                 </TouchableOpacity>
@@ -916,10 +952,9 @@ export default function HomeScreen() {
             )}
           </View>
 
-          {/* Bottom Padding */}
           <View className="h-6" />
         </ScrollView>
       </View>
-    </>
+    </SafeAreaView>
   );
 }
