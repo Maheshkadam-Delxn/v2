@@ -710,7 +710,7 @@ export default function HomeScreen() {
                     onPress={toggleSidebar}
                     activeOpacity={0.8}
                     style={{
-                      backgroundColor: '#ffffff',
+                      backgroundColor: '#f9f2f2ff',
                       shadowColor: '#3b82f6',
                       shadowOffset: { width: 0, height: 8 },
                       shadowOpacity: 0.15,

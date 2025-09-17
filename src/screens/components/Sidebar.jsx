@@ -3,14 +3,27 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Sidebar() {
   const navigation = useNavigation();
   const [isUsersOpen, setIsUsersOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
-  const handleLogout = () => {
-    navigation.navigate('SignIn');
+  const handleLogout =async () => {
+    try {
+      // Clear user data from AsyncStorage
+      await AsyncStorage.removeItem('userData');
+      // Navigate to SignIn screen with a clean navigation stack
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'SignIn' }], // Assuming 'Login' is the navigation name for SignInScreen
+      });
+    } catch (err) {
+      console.error('Error during logout:', err);
+      Alert.alert('Error', 'Failed to log out. Please try again.');
+    }
+    // navigation.navigate('SignIn');
   };
 
   return (
