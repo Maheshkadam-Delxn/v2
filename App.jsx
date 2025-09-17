@@ -6,6 +6,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import MyTabs from './src/navigation/TabNavigator';
 import SignInScreen from './src/auth/SignInScreen';
 import SignUpScreen from './src/auth/SignUpScreen';
+import ForgotPasswordScreen from './src/auth/ForgotPasswordScreen';
 import OTPScreen from './src/auth/OTPScreen';
 import DashboardScreen from './src/screens/dashboard/DashboardScreen';
 import AddNewProjectScreen from './src/screens/AddNewProjectScreen';
@@ -71,6 +72,7 @@ export default function App() {
         <Stack.Screen name="SignIn" component={SignInScreen} />
         <Stack.Screen name="SignUp" component={SignUpScreen} />
         <Stack.Screen name="OTP" component={OTPScreen} />
+        <Stack.Screen name='ForgotPassword' component={ForgotPasswordScreen}/>
         <Stack.Screen
           name="Main"
           component={HomeScreen}
