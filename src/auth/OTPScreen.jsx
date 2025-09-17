@@ -163,25 +163,60 @@
 // }
 import React, { useState, useRef } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StatusBar, Alert ,Image} from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation ,useRoute} from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import SkyStructLogo from '../../assets/SkystructLogo.png';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function OTPScreen() {
   const navigation = useNavigation();
+  const route = useRoute();
+  const { formData } = route.params || {};
   const [otp, setOtp] = useState(['', '', '', '']);
   const [focusedIndex, setFocusedIndex] = useState(0);
   
   const inputRefs = useRef([]);
-
-  const handleVerification = () => {
+console.log("ok google",formData)
+  const handleVerification =async () => {
+    const url = 'https://api-v2-skystruct.prudenttec.com/member/signup-developer-details';
+    const body = {
+      memberFormBean: {
+        ...formData,
+        otp: otpCode,
+       
+      }
+    };
     const otpCode = otp.join('');
     if (otpCode.length === 4) {
       console.log('OTP entered:', otpCode);
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'Main' }],
+      
+      try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
       });
+
+      const data = await response.json();
+      console.log(data);
+
+      if (response.ok) {
+        console.log('OTP Verification Response:', data);
+        console.log("adsf",data);
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'Main' }],
+        });
+      } else {
+        console.error('Verification Error:', data);
+        Alert.alert('Verification Failed', 'Invalid OTP. Please try again.');
+      }
+    } catch (err) {
+      console.error('Internal server error', err);
+      Alert.alert('Error', 'Internal server error. Please try again later.');
+    }
     } else {
       Alert.alert('Invalid OTP', 'Please enter all 4 digits');
     }
