@@ -505,7 +505,7 @@ export default function SignUpScreen() {
       });
 
       const data = await response.json();
-    
+    console.log(data);
 
       if (data.status) {
         console.log('Response:', data);
@@ -516,7 +516,7 @@ export default function SignUpScreen() {
             name: fullName,
             emailId: email,
             mobileNumber: phoneNumber,
-            zoneId: selectedCountry.countryId,
+            zoneId: selectedCountry.autoId,
             password: password,
             encryptedOTP:data.otp
           }

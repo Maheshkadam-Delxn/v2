@@ -177,35 +177,88 @@ export default function OTPScreen() {
   
   const inputRefs = useRef([]);
 console.log("ok google",formData)
-  const handleVerification =async () => {
-    const url = 'https://api-v2-skystruct.prudenttec.com/member/signup-developer-details';
+  // const handleVerification =async () => {
+  //   const url = 'https://api-v2-skystruct.prudenttec.com/member/signup-developer-details';
+    
+  //   const otpCode = otp.join('');
+  //   if (otpCode.length === 4) {
+  //     console.log('OTP entered:', otpCode);
+  //     const body = {
+  //     memberFormBean: {
+  //       ...formData,
+  //       otp: otpCode,
+       
+  //     }
+  //   };
+  //     console.log("changes done",body);
+      
+  //     try {
+  //     const response = await fetch(url, {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json'
+  //       },
+  //       body: JSON.stringify(body)
+  //     });
+
+  //     const data = await response.json();
+  //     console.log("all ok nothing doen",data);
+
+  //     if (data.status) {
+  //       console.log('OTP Verification Response:', data);
+  //       console.log("adsf",data);
+  //       navigation.reset({
+  //         index: 0,
+  //         routes: [{ name: 'Main' }],
+  //       });
+  //     } else {
+  //       console.error('Verification Error:', data);
+  //       Alert.alert('Verification Failed', 'Invalid OTP. Please try again.');
+  //     }
+  //   } catch (err) {
+  //     console.error('Internal server error', err);
+  //     Alert.alert('Error', 'Internal server error. Please try again later.');
+  //   }
+  //   } else {
+  //     Alert.alert('Invalid OTP', 'Please enter all 4 digits');
+  //   }
+  // };
+const handleVerification = async () => {
+  const url = 'https://api-v2-skystruct.prudenttec.com/member/signup-developer-details';
+
+  const otpCode = otp.join('');
+  if (otpCode.length === 4) {
+    console.log('OTP entered:', otpCode);
+
     const body = {
       memberFormBean: {
         ...formData,
         otp: otpCode,
-       
-      }
+      },
     };
-    const otpCode = otp.join('');
-    if (otpCode.length === 4) {
-      console.log('OTP entered:', otpCode);
-      console.log("changes done",body);
-      
-      try {
+
+    try {
       const response = await fetch(url, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify(body)
+        body: JSON.stringify(body),
       });
 
       const data = await response.json();
-      console.log("all ok nothing doen",data);
+      console.log('API Response:', data);
 
-      if (response.ok) {
-        console.log('OTP Verification Response:', data);
-        console.log("adsf",data);
+      if (data.status) {
+        // ✅ Store data in AsyncStorage
+        try {
+          await AsyncStorage.setItem('userData', JSON.stringify(data));
+          await AsyncStorage.setItem('jwtToken', data.jwtToken); // store token separately if needed
+          console.log('User data saved in AsyncStorage');
+        } catch (err) {
+          console.error('AsyncStorage Error:', err);
+        }
+
         navigation.reset({
           index: 0,
           routes: [{ name: 'Main' }],
@@ -218,10 +271,10 @@ console.log("ok google",formData)
       console.error('Internal server error', err);
       Alert.alert('Error', 'Internal server error. Please try again later.');
     }
-    } else {
-      Alert.alert('Invalid OTP', 'Please enter all 4 digits');
-    }
-  };
+  } else {
+    Alert.alert('Invalid OTP', 'Please enter all 4 digits');
+  }
+};
 
   const handleOtpChange = (value, index) => {
     const newOtp = [...otp];

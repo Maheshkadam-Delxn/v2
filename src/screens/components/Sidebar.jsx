@@ -13,6 +13,7 @@ export default function Sidebar() {
   const handleLogout =async () => {
     try {
       // Clear user data from AsyncStorage
+      await AsyncStorage.removeItem('jwtToken')
       await AsyncStorage.removeItem('userData');
       // Navigate to SignIn screen with a clean navigation stack
       navigation.reset({
