@@ -5,7 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as ImagePicker from 'expo-image-picker';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 export default function AddNewProjectScreen() {
   const navigation = useNavigation();
   const [formData, setFormData] = useState({
@@ -22,9 +22,59 @@ export default function AddNewProjectScreen() {
   });
   const [errors, setErrors] = useState({});
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [token,setToken]=useState();
+  const [currencydata,setCurrencyData]=useState([]);
+
+    const checkLoginStatus = async () => {
+      try {
+        const userData = await AsyncStorage.getItem('userData');
+        if (userData) {
+          const parsedData = JSON.parse(userData);
+          console.log("🔑 Stored JWT:", parsedData.jwtToken);
+          setToken(parsedData.jwtToken) // check if token exists
+          // if (parsedData?.isLoggedIn && parsedData?.jwtToken) {
+          //   navigation.reset({
+          //     index: 0,
+          //     routes: [{ name: 'Main' }],
+          //   });
+          // }
+        }
+      } catch (err) {
+        console.error('Error checking login status:', err);
+      }
+    };
+
+    checkLoginStatus();
+
+const fetchCurrency = async () => {
+  try {
+    const response = await fetch("https://api-v2-skystruct.prudenttec.com/project/project-dropdown", {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "X-Menu-Id": "DRlBbUjgXSb",
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log("Project dropdown response:", data);
+    setCurrencyData(data.currencyMasterBeans)
+    return data;
+  } catch (err) {
+    console.log("Internal Server Error", err);
+  }
+};
+
+
 
   // Request permissions for image picker
   useEffect(() => {
+    fetchCurrency();
     (async () => {
       if (Platform.OS !== 'web') {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -33,7 +83,7 @@ export default function AddNewProjectScreen() {
         }
       }
     })();
-  }, []);
+  }, [token]);
 
   const handleInputChange = (field, value) => {
     setFormData({ ...formData, [field]: value });
@@ -215,23 +265,27 @@ export default function AddNewProjectScreen() {
             </View>
 
             {/* Currency */}
-            <View className="mb-4">
-              <Text className="text-sm text-gray-600 mb-2">Currency</Text>
-              <View className="bg-gray-100 rounded-2xl">
-                <Picker
-                  selectedValue={formData.currency}
-                  onValueChange={(itemValue) => handleInputChange('currency', itemValue)}
-                  style={{ paddingVertical: 12, paddingHorizontal: 16 }}
-                >
-                  <Picker.Item label="USD" value="USD" />
-                  <Picker.Item label="EUR" value="EUR" />
-                  <Picker.Item label="GBP" value="GBP" />
-                  <Picker.Item label="JPY" value="JPY" />
-                  <Picker.Item label="CAD" value="CAD" />
-                </Picker>
-              </View>
-              {errors.currency && <Text className="text-red-500 text-xs mt-1">{errors.currency}</Text>}
-            </View>
+            {/* Currency */}
+<View className="mb-4">
+  <Text className="text-sm text-gray-600 mb-2">Currency</Text>
+  <View className="bg-gray-100 rounded-2xl">
+    <Picker
+      selectedValue={formData.currency}
+      onValueChange={(itemValue) => handleInputChange('currency', itemValue)}
+      style={{ paddingVertical: 12, paddingHorizontal: 16 }}
+    >
+      {currencydata.map((item) => (
+        <Picker.Item 
+          key={item.currencyId || item.currencyCode} 
+          label={item.currencyCode} 
+          value={item.currencyCode} 
+        />
+      ))}
+    </Picker>
+  </View>
+  {errors.currency && <Text className="text-red-500 text-xs mt-1">{errors.currency}</Text>}
+</View>
+
 
             {/* Zone Offset */}
             <View className="mb-4">
