@@ -189,6 +189,7 @@ console.log("ok google",formData)
     const otpCode = otp.join('');
     if (otpCode.length === 4) {
       console.log('OTP entered:', otpCode);
+      console.log("changes done",body);
       
       try {
       const response = await fetch(url, {
@@ -200,7 +201,7 @@ console.log("ok google",formData)
       });
 
       const data = await response.json();
-      console.log(data);
+      console.log("all ok nothing doen",data);
 
       if (response.ok) {
         console.log('OTP Verification Response:', data);

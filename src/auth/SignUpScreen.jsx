@@ -489,7 +489,7 @@ export default function SignUpScreen() {
         name: fullName,
         emailId: email,
         mobileNumber: phoneNumber,
-        zoneId: selectedCountry.countryId,
+        zoneId: selectedCountry.autoId,
         password: password,
         otpType: "SIGNUP_OTP"
       }
@@ -507,8 +507,9 @@ export default function SignUpScreen() {
       const data = await response.json();
     
 
-      if (response.ok) {
+      if (data.status) {
         console.log('Response:', data);
+        console.log("selected country",selectedCountry)
         // Navigate to OTP screen and pass form data
         navigation.navigate('OTP', {
           formData: {

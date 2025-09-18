@@ -14,20 +14,59 @@ export default function ForgotPasswordScreen() {
   const [otpSent, setOtpSent] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  // const handleGenerateOTP = async () => {
+  //   if (email.trim()) {
+  //     setIsLoading(true);
+  //     // Simulate API call to generate OTP
+  //     setTimeout(() => {
+  //       setOtpSent(true);
+  //       setIsLoading(false);
+  //       console.log('OTP sent to:', email);
+  //     }, 2000);
+  //   } else {
+  //     // Show error message (you can implement your own error handling)
+  //     console.log('Please enter a valid email address');
+  //   }
+  // };
+
+
+
   const handleGenerateOTP = async () => {
-    if (email.trim()) {
-      setIsLoading(true);
-      // Simulate API call to generate OTP
-      setTimeout(() => {
+     console.log(email)
+  if (email.trim()) {
+    setIsLoading(true);
+    try {
+      const response = await fetch('https://api-v2-skystruct.prudenttec.com/member/generate-otp', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+       
+        body: JSON.stringify({
+          memberFormBean: {
+            emailId: email,
+            otpType: 'FORGOT_OTP'
+          }
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
         setOtpSent(true);
-        setIsLoading(false);
-        console.log('OTP sent to:', email);
-      }, 2000);
-    } else {
-      // Show error message (you can implement your own error handling)
-      console.log('Please enter a valid email address');
+        console.log('OTP sent:', data);
+      } else {
+        const errorData = await response.json();
+        console.error('Error sending OTP:', errorData);
+      }
+    } catch (error) {
+      console.error('Network error:', error);
+    } finally {
+      setIsLoading(false);
     }
-  };
+  } else {
+    console.log('Please enter a valid email address');
+  }
+};
 
   const handleSubmitOTP = () => {
     if (otp.trim()) {
