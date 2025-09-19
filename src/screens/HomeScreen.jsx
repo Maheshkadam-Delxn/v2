@@ -1083,10 +1083,10 @@ export default function HomeScreen() {
       }
 
       const data = await response.json();
-      console.log('✅ Projects API response:', data);
+      console.log('✅ Projects API response:', data.projectFormBean.projectFormBeans);
 
-      if (Array.isArray(data)) {
-        setProjects(data);
+      if (Array.isArray(data.projectFormBean.projectFormBeans)) {
+        setProjects(data.projectFormBean.projectFormBeans);
       } else {
         console.log('⚠️ Unexpected API format:', data);
       }
@@ -1100,7 +1100,7 @@ export default function HomeScreen() {
   useEffect(() => {
     fetchProjects();
   }, []);
-
+console.log("ddd",projects.length)
   // Sidebar state
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const sidebarAnim = useRef(new Animated.Value(-256)).current;
@@ -1304,7 +1304,94 @@ export default function HomeScreen() {
             Active Projects
           </Text>
 
-          {loading ? (
+{filteredProjects.length > 0 ? (
+              filteredProjects.map((project) => (
+                <TouchableOpacity
+                  key={project.organizationId}
+                  className="mb-4 rounded-2xl bg-white p-5 border border-gray-100 shadow-sm"
+                  activeOpacity={0.7}
+                  onPress={() => navigation.navigate('Dashboard', { projectId: project.organizationId })}
+                >
+                  <View className="flex-row">
+                    <View className="mr-4 h-20 w-20 rounded-xl border-blue-100 items-center justify-center">
+                      <Image
+  source={{ uri: project.profileUrl }}
+  className="h-20 w-20 rounded-lg"
+  resizeMode="cover"
+/>
+
+                    </View>
+
+                    <View className="flex-1">
+                      <View className="flex-row items-start justify-between mb-2">
+                        <Text className="text-lg font-bold text-blue-900 flex-1 mr-2">
+                          {project.projectName}
+                        </Text>
+                        <Text className="text-sm font-semibold text-green-600">
+                          {project.budget}
+                        </Text>
+                      </View>
+
+                      <View className="mb-3 flex-row items-center">
+                        <Text className="text-sm text-gray-600 mr-4">{project.duration}</Text>
+                        <View 
+                          className="px-2 py-1 rounded-full"
+                          // style={{ backgroundColor: getStatusColor(project.status) + '20' }}
+                        >
+                          <Text 
+                            className="text-xs font-medium"
+                            // style={{ color: getStatusColor(project.status) }}
+                          >
+                            {project.statusId}
+                          </Text>
+                        </View>
+                      </View>
+
+                      <View className="mb-3">
+                        <View className="mb-1 flex-row items-center justify-between">
+                          <Text className="text-xs text-gray-600">Progress</Text>
+                          <Text
+                            className="text-xs font-semibold"
+                            // style={{ color: getProgressColor(project.progress) }}
+                          >
+                            {project.progress}
+                          </Text>
+                        </View>
+                        <View className="h-2 w-full rounded-full bg-gray-200">
+                          <View
+                            className="h-2 rounded-full"
+                            style={{
+                              width: project.progress,
+                              // backgroundColor: getProgressColor(project.progress),
+                            }}
+                          />
+                        </View>
+                      </View>
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              ))
+            ) : (
+              <View className="items-center py-12">
+                <Feather name="folder" size={48} color="#d1d5db" />
+                <Text className="mt-4 text-lg font-medium text-gray-500">No projects found</Text>
+                <Text className="text-sm text-gray-400 text-center px-8 mt-2">
+                  Try adjusting your search or filter criteria
+                </Text>
+              </View>
+            )}
+
+
+
+
+
+
+
+
+
+
+
+          {/* {loading ? (
             <Text className="text-center text-gray-500">Loading...</Text>
           ) : filteredProjects.length > 0 ? (
             filteredProjects.map((project, idx) => (
@@ -1313,14 +1400,14 @@ export default function HomeScreen() {
                 className="mb-4 rounded-2xl bg-white p-5 border border-gray-100 shadow-sm"
                 activeOpacity={0.7}
                 onPress={() =>
-                  navigation.navigate('Dashboard', { projectId: project.projectId })
+                  navigation.navigate('Dashboard', { projectId: project.autoId })
                 }
               >
                 <Text className="text-lg font-bold text-blue-900 mb-2">
                   {project.projectName}
                 </Text>
                 <Text className="text-sm text-gray-600">
-                  Status: {project.status || 'N/A'}
+                  Status: {project.statusId || 'N/A'}
                 </Text>
               </TouchableOpacity>
             ))
@@ -1331,7 +1418,7 @@ export default function HomeScreen() {
                 No projects found
               </Text>
             </View>
-          )}
+          )} */}
         </ScrollView>
       </View>
     </SafeAreaView>
