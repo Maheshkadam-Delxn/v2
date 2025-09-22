@@ -563,6 +563,7 @@
 //     </SafeAreaView>
 //   );
 // }
+
 import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
@@ -995,9 +996,9 @@ export default function HomeScreen() {
               transform: [{ scale: scaleAnim }],
             }}
           >
-            <View className="flex-row items-center">
+            <View className="flex-row items-center gap-1">
               <View
-                className="mr-4 flex-1 flex-row items-center rounded-2xl bg-white px-5"
+                className="mr-1 flex-1 flex-row items-center rounded-2xl bg-white px-5"
                 style={{
                   shadowColor: '#000',
                   shadowOffset: { width: 0, height: 4 },
@@ -1044,6 +1045,23 @@ export default function HomeScreen() {
                 }}
               >
                 <Feather name="plus" size={22} color="#ffffff" />
+              </TouchableOpacity>
+              <TouchableOpacity
+  className="rounded-2xl p-2 active:scale-95"
+  onPress={() => navigation.navigate('EditProject')}
+  style={{
+    backgroundColor: '#10b981', // Changed to green
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
+    elevation: 8,
+    height: 44,
+    width: 56,
+    justifyContent: 'center',
+    alignItems: 'center',
+  }}
+>
+  <Feather name="edit-3" size={20} color="#ffffff" /> {/* Changed icon to edit-3 */}
               </TouchableOpacity>
             </View>
           </Animated.View>

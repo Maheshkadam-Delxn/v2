@@ -58,6 +58,7 @@ import WorkOrderScreen from './src/screens/dashboard/sub-header/work-order/WorkO
 import './global.css';
 import InventoryScreen from './src/screens/dashboard/sub-header/Inventory/InventoryScreen';
 import HomeScreen from './src/screens/HomeScreen';
+import EditProjectScreen from './src/screens/EditProjectScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -81,6 +82,7 @@ export default function App() {
           // }}
         />
         <Stack.Screen name="Dashboard" component={DashboardScreen} />
+        <Stack.Screen name="EditProject" component={EditProjectScreen} />
         <Stack.Screen name="AddNewProject" component={AddNewProjectScreen} />
         <Stack.Screen name="Profile" component={ProfileScreen} />
         <Stack.Screen name="ProjectOverview" component={ProjectOverviewScreen} />
