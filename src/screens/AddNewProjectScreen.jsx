@@ -1232,17 +1232,17 @@ export default function AddNewProjectScreen() {
       if (data.dropdownMap && data.dropdownMap.PROJECT_TYPE) {
         setProjectTypes(data.dropdownMap.PROJECT_TYPE);
       } else {
-        // Fallback to your provided data if API doesn't return project types
-        const fallbackProjectTypes = [
-          { autoId: "FJGBBOg9RO3", dropdownValue: "Residential" },
-          { autoId: "LRbQZvLhQE1", dropdownValue: "Commercial" },
-          { autoId: "88w25uNa2Wj", dropdownValue: "Mixed-Use" },
-          { autoId: "GshTDehQSrc", dropdownValue: "Infrastructure" },
-          { autoId: "GL1nJe0VAc9", dropdownValue: "Governmental" },
-          { autoId: "HSX4Q0OTQMi", dropdownValue: "Industrial" },
-          { autoId: "It4RSU7hRM9", dropdownValue: "Recreational" }
-        ];
-        setProjectTypes(fallbackProjectTypes);
+        // // Fallback to your provided data if API doesn't return project types
+        // const fallbackProjectTypes = [
+        //   { autoId: "FJGBBOg9RO3", dropdownValue: "Residential" },
+        //   { autoId: "LRbQZvLhQE1", dropdownValue: "Commercial" },
+        //   { autoId: "88w25uNa2Wj", dropdownValue: "Mixed-Use" },
+        //   { autoId: "GshTDehQSrc", dropdownValue: "Infrastructure" },
+        //   { autoId: "GL1nJe0VAc9", dropdownValue: "Governmental" },
+        //   { autoId: "HSX4Q0OTQMi", dropdownValue: "Industrial" },
+        //   { autoId: "It4RSU7hRM9", dropdownValue: "Recreational" }
+        // ];
+        setProjectTypes([]);
       }
     } catch (err) {
       console.error("Error fetching currency:", err);
