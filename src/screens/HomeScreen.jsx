@@ -657,7 +657,7 @@ export default function HomeScreen() {
         }
       );
       const dropdownData = await responsedropdown.json();
-      console.log("ddropdowna", dropdownData.dropdownMap.PROJECT_STATUS);
+      // console.log("ddropdowna", dropdownData.dropdownMap.PROJECT_STATUS);
       setStatus(dropdownData.dropdownMap.PROJECT_STATUS);
 
       if (!response.ok) {
@@ -726,6 +726,7 @@ export default function HomeScreen() {
       .includes(searchQuery.toLowerCase());
     return matchesFilter && matchesSearch;
   });
+  
 
   // Calculate counts for each filter based on statusId
   const getFilterCounts = () => {
@@ -944,7 +945,7 @@ export default function HomeScreen() {
                 {/* Dynamic Filters from API */}
                 {status.map((filter) => (
                   <TouchableOpacity
-                    key={filter.name}
+                    key={filter.autoId}
                     onPress={() => setSelectedFilter(filter.dropdownValue)}
                     className={`mr-3 flex-row items-center rounded-2xl px-5 py-3`}
                     style={{

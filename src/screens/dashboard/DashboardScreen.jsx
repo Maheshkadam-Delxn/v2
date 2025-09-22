@@ -474,7 +474,7 @@ import MainLayout from '../components/MainLayout';
 import { LinearGradient } from 'expo-linear-gradient';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import * as Progress from 'react-native-progress';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
 
@@ -523,8 +523,9 @@ export default function DashboardScreen() {
   const [selectedFilter, setSelectedFilter] = useState(null);
   const [selectedSubItem, setSelectedSubItem] = useState(null);
   const [fadeAnim] = useState(new Animated.Value(0));
+  const [dropdownoptions,setOptions]=useState([]);
   const [slideAnim] = useState(new Animated.Value(-50));
-
+console.log("asdf",projectId);
   const projects = [
     {
       id: 1,
@@ -553,7 +554,7 @@ export default function DashboardScreen() {
   ];
 
   const project = projects.find((p) => p.id === projectId);
-
+ 
   // const cardData = [
   //   {
   //     title: 'Not Started',
@@ -722,7 +723,66 @@ const cardData = [
       setSelectedSubItem(null);
     }
   };
+const fetchProjectData = async () => {
+ const userData = await AsyncStorage.getItem('userData');
 
+      if (!userData) {
+        console.log('❌ No user data found in storage');
+        return;
+      }
+
+      const parsedData = JSON.parse(userData);
+  try {
+
+    const response = await fetch(
+      "https://api-v2-skystruct.prudenttec.com/project/get-dashboard",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${parsedData.jwtToken}`,
+          "X-Menu-Id": "DRlBbUjgXSb",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          projectFormBean: {
+            autoId: projectId,
+            service: "1",
+          },
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log("✅ Dashboard response:", data.rolePermissionFormBeans);
+    if (data.jwtToken) {
+      const updatedUserData = {
+        ...parsedData,
+        jwtToken: data.jwtToken,
+      };
+      await AsyncStorage.setItem('userData', JSON.stringify(updatedUserData));
+      console.log("🔄 JWT Token updated in storage");
+    }
+    setOptions(data.rolePermissionFormBeans)
+
+    // Example: if you want to set some state
+    // setCurrencyData(data.currencyMasterBeans);
+
+  } catch (err) {
+    console.error("Error fetching dashboard data:", err);
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+  
+  useEffect(()=>{
+    fetchProjectData();
+
+  },[])
   const handleSubItemSelect = (subItem) => {
     setSelectedSubItem(subItem);
     let screenName = '';
@@ -797,25 +857,29 @@ const cardData = [
   };
 const FilterSection = () => (
   <LinearGradient
-    colors={['#f0f7ff', '#e6f0ff']} // Light blue gradient for elegance
+    colors={['#f0f7ff', '#e6f0ff']}
     start={{ x: 0, y: 0 }}
     end={{ x: 0, y: 1 }}
     style={{ paddingVertical: 20 }}
   >
-    <ScrollView 
-      horizontal 
-      showsHorizontalScrollIndicator={false} 
+    {/* Top filter bar */}
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
       contentContainerStyle={{ paddingHorizontal: 24 }}
     >
-      {filterOptions && Array.isArray(filterOptions) ? (
-        filterOptions.map((filter, index) => {
-          const isSelected = selectedFilter === filter;
-          const hasItems = dropdownItems[filter] && Array.isArray(dropdownItems[filter]) && dropdownItems[filter].length > 0;
+      {dropdownoptions && Array.isArray(dropdownoptions) ? (
+        dropdownoptions.map((menu, index) => {
+          const isSelected = selectedFilter?.autoId === menu.autoId;
+          const hasItems =
+            menu.submenu && Array.isArray(menu.submenu) && menu.submenu.length > 0;
 
           return (
             <TouchableOpacity
-              key={filter}
-              onPress={() => handleFilterSelect(filter)}
+              key={menu.autoId}
+              onPress={() =>
+                handleFilterSelect(isSelected ? null : menu) // pass whole object
+              }
               style={{
                 marginRight: 12,
                 paddingHorizontal: 20,
@@ -836,7 +900,7 @@ const FilterSection = () => (
                   marginRight: hasItems ? 8 : 0,
                 }}
               >
-                {filter}
+                {menu.label}
               </Text>
               {hasItems && (
                 <Text
@@ -853,56 +917,63 @@ const FilterSection = () => (
           );
         })
       ) : (
-        <Text style={{ color: colors.text, fontSize: 14 }}>Error: Filter options unavailable</Text>
+        <Text style={{ color: colors.text, fontSize: 14 }}>
+          Error: Filter options unavailable
+        </Text>
       )}
     </ScrollView>
 
-    {selectedFilter && dropdownItems[selectedFilter] && Array.isArray(dropdownItems[selectedFilter]) && dropdownItems[selectedFilter].length > 0 && (
-      <Animated.View
-        style={{
-          marginTop: 16,
-          marginHorizontal: 24,
-          backgroundColor: '#ffffff',
-          borderRadius: 16,
-          padding: 16,
-          opacity: fadeAnim,
-          borderWidth: 1,
-          borderColor: '#e6f0ff',
-        }}
-      >
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            {dropdownItems[selectedFilter].map((item, index) => (
-              <TouchableOpacity
-                key={index}
-                style={{
-                  marginRight: 12,
-                  paddingHorizontal: 16,
-                  paddingVertical: 10,
-                  borderRadius: 16,
-                  backgroundColor: '#f0f7ff',
-                  borderWidth: 1,
-                  borderColor: '#dbeafe',
-                }}
-                onPress={() => handleSubItemSelect(item)}
-              >
-                <Text
+    {/* Submenu section */}
+    {selectedFilter &&
+      selectedFilter.submenu &&
+      Array.isArray(selectedFilter.submenu) &&
+      selectedFilter.submenu.length > 0 && (
+        <Animated.View
+          style={{
+            marginTop: 16,
+            marginHorizontal: 24,
+            backgroundColor: '#ffffff',
+            borderRadius: 16,
+            padding: 16,
+            opacity: fadeAnim,
+            borderWidth: 1,
+            borderColor: '#e6f0ff',
+          }}
+        >
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              {selectedFilter.submenu.map((item, index) => (
+                <TouchableOpacity
+                  key={index}
                   style={{
-                    color: '#3b82f6',
-                    fontWeight: '500',
-                    fontSize: 13,
+                    marginRight: 12,
+                    paddingHorizontal: 16,
+                    paddingVertical: 10,
+                    borderRadius: 16,
+                    backgroundColor: '#f0f7ff',
+                    borderWidth: 1,
+                    borderColor: '#dbeafe',
                   }}
+                  onPress={() => handleSubItemSelect(item.label)}
                 >
-                  {item}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </ScrollView>
-      </Animated.View>
-    )}
+                  <Text
+                    style={{
+                      color: '#3b82f6',
+                      fontWeight: '500',
+                      fontSize: 13,
+                    }}
+                  >
+                    {item.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </ScrollView>
+        </Animated.View>
+      )}
   </LinearGradient>
 );
+
 const StatsCard = ({ item, index }) => (
   <TouchableOpacity
     onPress={() => item.screen && navigation.navigate(item.screen)}
@@ -916,11 +987,7 @@ const StatsCard = ({ item, index }) => (
         borderRadius: 20,
         backgroundColor: colors.surface,
         overflow: 'hidden',
-        // elevation: 2,
-        // shadowColor: '#000',
-        // shadowOffset: { width: 0, height: 1 },
-        // shadowOpacity: 0.1,
-        // shadowRadius: 2,
+       
       }}
     >
       <LinearGradient colors={item.gradient} style={{ padding: 20, paddingBottom: 16 }}>
