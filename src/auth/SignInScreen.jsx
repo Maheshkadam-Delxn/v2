@@ -561,7 +561,6 @@ export default function SignInScreen() {
             jwtToken: data.jwtToken,
             isLoggedIn: true,
           };
-
           await AsyncStorage.setItem('userData', JSON.stringify(userData));
 
           // Verify storage
