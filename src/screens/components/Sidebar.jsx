@@ -35,14 +35,6 @@ export default function Sidebar() {
       >
         {/* <Text className="text-white text-xl font-bold">Project Dashboard</Text> */}
       </TouchableOpacity>
-{/*home */}
-<TouchableOpacity
-        className="flex-row items-center py-3 px-2 mb-2 rounded-lg hover:bg-blue-800"
-        onPress={() => navigation.navigate('Main')}
-      >
-        <Feather name="home" size={20} color="#ffffff" />
-        <Text className="text-white ml-3 text-base">Home</Text>
-      </TouchableOpacity>
       {/* Profile */}
       
       <TouchableOpacity
@@ -53,12 +45,12 @@ export default function Sidebar() {
         <Text className="text-white ml-3 text-base">Profile</Text>
       </TouchableOpacity>
 
-      {/* Project Overview */}
+     
       <TouchableOpacity
         className="flex-row items-center py-3 px-2 mb-2 rounded-lg hover:bg-blue-800"
-        onPress={() => navigation.navigate('ProjectOverview')}
+        onPress={() => navigation.navigate('Main')}
       >
-        <Feather name="file-text" size={20} color="#ffffff" />
+       <Feather name="file-text" size={20} color="#ffffff" />
         <Text className="text-white ml-3 text-base">Project Overview</Text>
       </TouchableOpacity>
 

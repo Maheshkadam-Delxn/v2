@@ -12,6 +12,7 @@ import {
   Keyboard,
   Dimensions
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native'; // Import useNavigation
 import MainLayout from '../../components/MainLayout';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -35,6 +36,7 @@ const colors = {
 };
 
 export default function UsersMembersScreen() {
+  const navigation = useNavigation(); // Initialize navigation hook
   const [modalVisible, setModalVisible] = useState(false);
   const [slideAnim] = useState(new Animated.Value(300));
   const [newDepartment, setNewDepartment] = useState('');
@@ -280,7 +282,7 @@ export default function UsersMembersScreen() {
                 alignItems: 'center',
                 justifyContent: 'center'
               }}
-              onPress={() => console.log('Add user')}
+              onPress={() => navigation.navigate('AddMembers')} // Navigate to AddMembers screen
             >
               <Icon name="account-plus" size={16} color={colors.info} />
             </TouchableOpacity>
@@ -298,7 +300,6 @@ export default function UsersMembersScreen() {
               borderRadius: 16, 
               padding: 16, 
               marginBottom: 16,
-           
               elevation: 3,
               borderWidth: 1,
               borderColor: colors.border
@@ -384,7 +385,6 @@ export default function UsersMembersScreen() {
                     bottom: 0,
                     width: '85%',
                     backgroundColor: colors.surface,
-                
                     elevation: 5,
                   }}
                 >

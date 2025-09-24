@@ -59,6 +59,7 @@ import './global.css';
 import InventoryScreen from './src/screens/dashboard/sub-header/Inventory/InventoryScreen';
 import HomeScreen from './src/screens/HomeScreen';
 import EditProjectScreen from './src/screens/EditProjectScreen';
+import AddNewMember from './src/screens/dashboard/user/AddNewMember';
 
 const Stack = createNativeStackNavigator();
 
@@ -88,6 +89,7 @@ export default function App() {
         <Stack.Screen name="ProjectOverview" component={ProjectOverviewScreen} />
         <Stack.Screen name="OrganizationEmail" component={OrganizationEmailScreen} />
         <Stack.Screen name="UsersMembers" component={UsersMembersScreen} />
+        <Stack.Screen name="AddMembers" component={AddNewMember}/>
         <Stack.Screen name="UsersVendors" component={UsersVendorsScreen} />
         <Stack.Screen name="SettingsPermission" component={SettingsPermissionScreen} />
         <Stack.Screen name="SettingsEvents" component={SettingsEventsScreen} />
