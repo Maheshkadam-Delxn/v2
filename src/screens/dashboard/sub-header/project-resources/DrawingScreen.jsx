@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, Image, Modal } from 'react-native';
-import { useRoute } from '@react-navigation/native';
+import { useRoute, useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from 'react-native-vector-icons';
 import MainLayout from '../../../components/MainLayout';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -35,16 +35,15 @@ const ActionButton = ({ iconName, onPress }) => (
 
 export default function DrawingScreen() {
   const route = useRoute();
+  const navigation = useNavigation();
   const { projectId } = route.params || { projectId: 1 };
   const [searchText, setSearchText] = useState('');
   const [activeTab, setActiveTab] = useState('All');
   const [selectedDrawing, setSelectedDrawing] = useState(null);
   const [editModalVisible, setEditModalVisible] = useState(false);
-  const [addModalVisible, setAddModalVisible] = useState(false);
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const [filterModalVisible, setFilterModalVisible] = useState(false);
   const [editForm, setEditForm] = useState({ title: '', description: '', category: '' });
-  const [addForm, setAddForm] = useState({ title: '', description: '', category: '' });
   const [filterForm, setFilterForm] = useState({ category: '', type: '' });
 
   const drawings = [
@@ -66,6 +65,15 @@ export default function DrawingScreen() {
     return matchesTab && matchesFilter;
   });
 
+  // Navigation functions
+  const navigateToAddDrawing = () => {
+    navigation.navigate('AddDrawing', { projectId });
+  };
+
+  const navigateToAddPhase = () => {
+    navigation.navigate('AddDrawingPhase', { projectId });
+  };
+
   const handleEdit = () => {
     if (selectedDrawing) {
       setEditForm({
@@ -80,11 +88,6 @@ export default function DrawingScreen() {
   const handleSaveEdit = () => {
     // Logic to save edited drawing
     setEditModalVisible(false);
-  };
-
-  const handleAddSave = () => {
-    // Logic to add new drawing
-    setAddModalVisible(false);
   };
 
   const handleApplyFilter = () => {
@@ -164,33 +167,55 @@ export default function DrawingScreen() {
           </ScrollView>
         </LinearGradient>
 
-        {/* Search and Select Bar */}
-        <View className="px-6 py-3 bg-white flex-row items-center">
-          <View className="flex-1 bg-blue-50 rounded-lg px-4 py-2 flex-row items-center mr-2">
-            <MaterialIcons name="search" size={20} color="#3b82f6" className="mr-2" />
-            <TextInput
-              // placeholder=""
-              value={searchText}
-              onChangeText={setSearchText}
-              className="flex-1 text-blue-800"
-              placeholderTextColor="#93C5FD"
-            />
+        {/* Search and Action Buttons Bar */}
+        <View className="px-6 py-3 bg-white">
+          {/* Search Bar */}
+          <View className="flex-row items-center mb-3">
+            <View className="flex-1 bg-blue-50 rounded-lg px-4 py-2 flex-row items-center">
+              <MaterialIcons name="search" size={20} color="#3b82f6" className="mr-2" />
+              <TextInput
+                value={searchText}
+                onChangeText={setSearchText}
+                className="flex-1 text-blue-800"
+                placeholderTextColor="#93C5FD"
+                placeholder="Search drawings..."
+              />
+            </View>
           </View>
+
+          {/* Action Buttons Row */}
+          <View className="flex-row items-center justify-between">
+            <TouchableOpacity 
+              className="flex-1 px-4 py-3 rounded-lg mr-2 flex-row items-center justify-center"
+              style={{ backgroundColor: '#3b82f6' }}
+              onPress={navigateToAddDrawing}
+            >
+              <MaterialIcons name="add" size={20} color="#ffffff" className="mr-1" />
+              <Text className="text-white font-semibold ml-1">Add Drawing</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              className="flex-1 px-4 py-3 rounded-lg ml-2 flex-row items-center justify-center"
+              style={{ backgroundColor: '#34c759' }}
+              onPress={navigateToAddPhase}
+            >
+              <MaterialIcons name="timeline" size={20} color="#ffffff" className="mr-1" />
+              <Text className="text-white font-semibold ml-1">Add Phase</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Select Drawing Button */}
           <TouchableOpacity 
-            className="px-4 py-2 rounded-lg mr-2"
-            style={{ backgroundColor: '#3b82f6' }}
-            onPress={() => setAddModalVisible(true)}
-          >
-            <Text className="text-white font-semibold">+ Add Drawing</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            className="px-4 py-2 rounded-lg"
-            style={{ backgroundColor: '#3b82f6' }}
+            className="mt-3 px-4 py-3 rounded-lg border-2 border-blue-200"
+            style={{ backgroundColor: '#f8fafc' }}
             onPress={() => setDropdownVisible(true)}
           >
-            <Text className="text-white font-semibold">
-              {selectedDrawing ? selectedDrawing.title : 'Select a Drawing'}
-            </Text>
+            <View className="flex-row items-center justify-between">
+              <Text className="text-blue-800 font-medium">
+                {selectedDrawing ? selectedDrawing.title : 'Select a Drawing'}
+              </Text>
+              <MaterialIcons name="keyboard-arrow-down" size={24} color="#3b82f6" />
+            </View>
           </TouchableOpacity>
         </View>
 
@@ -200,9 +225,36 @@ export default function DrawingScreen() {
             {showImage1 && <ImagePlaceholder1 />}
             {showImage2 && <ImagePlaceholder2 />}
             {!showImage1 && !showImage2 && (
-              <Text className="text-blue-600 text-center w-full">No drawings available for this filter.</Text>
+              <View className="w-full bg-blue-50 rounded-lg p-8 items-center">
+                <MaterialIcons name="image" size={48} color="#93C5FD" />
+                <Text className="text-blue-600 text-center mt-2 font-medium">
+                  No drawings available for this filter
+                </Text>
+                <Text className="text-blue-400 text-center mt-1 text-sm">
+                  Try adjusting your filters or add a new drawing
+                </Text>
+              </View>
             )}
           </View>
+
+          {/* Drawing Info Card */}
+          {selectedDrawing && (
+            <View className="bg-blue-50 rounded-lg p-4 mb-4">
+              <View className="flex-row items-center mb-2">
+                <MaterialIcons name="description" size={20} color="#3b82f6" />
+                <Text className="text-blue-800 font-bold text-lg ml-2">{selectedDrawing.title}</Text>
+              </View>
+              <Text className="text-blue-600 mb-1">
+                <Text className="font-medium">Description:</Text> {selectedDrawing.description}
+              </Text>
+              <Text className="text-blue-600 mb-1">
+                <Text className="font-medium">Category:</Text> {selectedDrawing.category}
+              </Text>
+              <Text className="text-blue-600">
+                <Text className="font-medium">Type:</Text> {selectedDrawing.type}
+              </Text>
+            </View>
+          )}
         </ScrollView>
 
         {/* Action Buttons */}
@@ -225,97 +277,51 @@ export default function DrawingScreen() {
         >
           <View className="flex-1 bg-blue-800/30 justify-center items-center p-6">
             <View className="bg-white rounded-lg w-full max-w-md p-6">
-              <Text className="text-xl font-bold text-blue-800 mb-6">Edit Drawing</Text>
+              <View className="flex-row items-center mb-6">
+                <MaterialIcons name="edit" size={24} color="#3b82f6" />
+                <Text className="text-xl font-bold text-blue-800 ml-2">Edit Drawing</Text>
+              </View>
               <View className="mb-4">
-                <Text className="text-blue-700 mb-2">Title</Text>
+                <Text className="text-blue-700 mb-2 font-medium">Title</Text>
                 <TextInput
                   value={editForm.title}
                   onChangeText={text => setEditForm({ ...editForm, title: text })}
-                  className="border border-blue-200 rounded-lg px-4 py-2 text-blue-800"
+                  className="border border-blue-200 rounded-lg px-4 py-3 text-blue-800"
+                  placeholder="Enter title"
                 />
               </View>
               <View className="mb-4">
-                <Text className="text-blue-700 mb-2">Description</Text>
+                <Text className="text-blue-700 mb-2 font-medium">Description</Text>
                 <TextInput
                   value={editForm.description}
                   onChangeText={text => setEditForm({ ...editForm, description: text })}
-                  className="border border-blue-200 rounded-lg px-4 py-2 text-blue-800"
+                  className="border border-blue-200 rounded-lg px-4 py-3 text-blue-800"
+                  placeholder="Enter description"
+                  multiline
                 />
               </View>
               <View className="mb-6">
-                <Text className="text-blue-700 mb-2">Category</Text>
+                <Text className="text-blue-700 mb-2 font-medium">Category</Text>
                 <TextInput
                   value={editForm.category}
                   onChangeText={text => setEditForm({ ...editForm, category: text })}
-                  className="border border-blue-200 rounded-lg px-4 py-2 text-blue-800"
+                  className="border border-blue-200 rounded-lg px-4 py-3 text-blue-800"
+                  placeholder="Enter category"
                 />
               </View>
               <View className="flex-row justify-end">
                 <TouchableOpacity
-                  className="px-5 py-2 rounded-lg mr-3"
+                  className="px-6 py-3 rounded-lg mr-3"
                   onPress={() => setEditModalVisible(false)}
                 >
-                  <Text className="text-blue-600">Cancel</Text>
+                  <Text className="text-blue-600 font-medium">Cancel</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  className="px-5 py-2 rounded-lg"
+                  className="px-6 py-3 rounded-lg"
                   style={{ backgroundColor: '#3b82f6' }}
                   onPress={handleSaveEdit}
                 >
-                  <Text className="text-white">Save</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
-        </Modal>
-
-        {/* Add Modal */}
-        <Modal
-          animationType="slide"
-          transparent={true}
-          visible={addModalVisible}
-          onRequestClose={() => setAddModalVisible(false)}
-        >
-          <View className="flex-1 bg-blue-800/30 justify-center items-center p-6">
-            <View className="bg-white rounded-lg w-full max-w-md p-6">
-              <Text className="text-xl font-bold text-blue-800 mb-6">Add Drawing</Text>
-              <View className="mb-4">
-                <Text className="text-blue-700 mb-2">Title</Text>
-                <TextInput
-                  value={addForm.title}
-                  onChangeText={text => setAddForm({ ...addForm, title: text })}
-                  className="border border-blue-200 rounded-lg px-4 py-2 text-blue-800"
-                />
-              </View>
-              <View className="mb-4">
-                <Text className="text-blue-700 mb-2">Description</Text>
-                <TextInput
-                  value={addForm.description}
-                  onChangeText={text => setAddForm({ ...addForm, description: text })}
-                  className="border border-blue-200 rounded-lg px-4 py-2 text-blue-800"
-                />
-              </View>
-              <View className="mb-6">
-                <Text className="text-blue-700 mb-2">Category</Text>
-                <TextInput
-                  value={addForm.category}
-                  onChangeText={text => setAddForm({ ...addForm, category: text })}
-                  className="border border-blue-200 rounded-lg px-4 py-2 text-blue-800"
-                />
-              </View>
-              <View className="flex-row justify-end">
-                <TouchableOpacity
-                  className="px-5 py-2 rounded-lg mr-3"
-                  onPress={() => setAddModalVisible(false)}
-                >
-                  <Text className="text-blue-600">Cancel</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  className="px-5 py-2 rounded-lg"
-                  style={{ backgroundColor: '#3b82f6' }}
-                  onPress={handleAddSave}
-                >
-                  <Text className="text-white">Save</Text>
+                  <Text className="text-white font-medium">Save Changes</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -330,18 +336,32 @@ export default function DrawingScreen() {
           onRequestClose={() => setDropdownVisible(false)}
         >
           <View className="flex-1 bg-blue-800/30 justify-center items-center p-6">
-            <View className="bg-white rounded-lg w-full max-w-md p-4">
+            <View className="bg-white rounded-lg w-full max-w-md p-4 max-h-80">
+              <View className="flex-row items-center justify-between mb-4 pb-2 border-b border-blue-100">
+                <Text className="text-lg font-bold text-blue-800">Select Drawing</Text>
+                <TouchableOpacity onPress={() => setDropdownVisible(false)}>
+                  <MaterialIcons name="close" size={24} color="#6b7280" />
+                </TouchableOpacity>
+              </View>
               <ScrollView>
                 {drawings.map(drawing => (
                   <TouchableOpacity
                     key={drawing.id}
-                    className="py-2 border-b border-blue-100"
+                    className="py-3 border-b border-blue-50 flex-row items-center"
                     onPress={() => {
                       setSelectedDrawing(drawing);
                       setDropdownVisible(false);
                     }}
                   >
-                    <Text className="text-blue-800 font-medium">{drawing.title}</Text>
+                    <MaterialIcons name="description" size={20} color="#3b82f6" />
+                    <View className="ml-3 flex-1">
+                      <Text className="text-blue-800 font-medium">{drawing.title}</Text>
+                      <Text className="text-blue-600 text-sm">{drawing.description}</Text>
+                      <Text className="text-blue-400 text-xs">{drawing.category} • {drawing.type}</Text>
+                    </View>
+                    {selectedDrawing?.id === drawing.id && (
+                      <MaterialIcons name="check-circle" size={20} color="#34c759" />
+                    )}
                   </TouchableOpacity>
                 ))}
               </ScrollView>
@@ -358,38 +378,43 @@ export default function DrawingScreen() {
         >
           <View className="flex-1 bg-blue-800/30 justify-center items-center p-6">
             <View className="bg-white rounded-lg w-full max-w-md p-6">
-              <Text className="text-xl font-bold text-blue-800 mb-6">Filter Drawings</Text>
+              <View className="flex-row items-center mb-6">
+                <MaterialIcons name="filter-list" size={24} color="#3b82f6" />
+                <Text className="text-xl font-bold text-blue-800 ml-2">Filter Drawings</Text>
+              </View>
               <View className="mb-4">
-                <Text className="text-blue-700 mb-2">Category</Text>
+                <Text className="text-blue-700 mb-2 font-medium">Category</Text>
                 <TextInput
                   value={filterForm.category}
                   onChangeText={text => setFilterForm({ ...filterForm, category: text })}
-                  className="border border-blue-200 rounded-lg px-4 py-2 text-blue-800"
+                  className="border border-blue-200 rounded-lg px-4 py-3 text-blue-800"
+                  placeholder="Enter category to filter"
                   placeholderTextColor="#93C5FD"
                 />
               </View>
-              <View className="mb-4">
-                <Text className="text-blue-700 mb-2">Type</Text>
+              <View className="mb-6">
+                <Text className="text-blue-700 mb-2 font-medium">Type</Text>
                 <TextInput
                   value={filterForm.type}
                   onChangeText={text => setFilterForm({ ...filterForm, type: text })}
-                  className="border border-blue-200 rounded-lg px-4 py-2 text-blue-800"
+                  className="border border-blue-200 rounded-lg px-4 py-3 text-blue-800"
+                  placeholder="Enter type to filter"
                   placeholderTextColor="#93C5FD"
                 />
               </View>
               <View className="flex-row justify-end">
                 <TouchableOpacity
-                  className="px-5 py-2 rounded-lg mr-3"
+                  className="px-6 py-3 rounded-lg mr-3"
                   onPress={() => setFilterModalVisible(false)}
                 >
-                  <Text className="text-blue-600">Cancel</Text>
+                  <Text className="text-blue-600 font-medium">Cancel</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  className="px-5 py-2 rounded-lg"
+                  className="px-6 py-3 rounded-lg"
                   style={{ backgroundColor: '#3b82f6' }}
                   onPress={handleApplyFilter}
                 >
-                  <Text className="text-white">Apply</Text>
+                  <Text className="text-white font-medium">Apply Filter</Text>
                 </TouchableOpacity>
               </View>
             </View>

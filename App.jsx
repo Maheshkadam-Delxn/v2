@@ -62,6 +62,8 @@ import EditProjectScreen from './src/screens/EditProjectScreen';
 import AddNewMember from './src/screens/dashboard/user/AddNewMember';
 import AddBoq from './src/screens/dashboard/sub-header/project-resources/Boq/AddBoq';
 import PhaseModalBoq from './src/screens/dashboard/sub-header/project-resources/Boq/PhaseModalBoq';
+import AddDrawings from './src/screens/dashboard/sub-header/project-resources/Drawing/AddDrawings';
+import DrawingAddNewPhase from './src/screens/dashboard/sub-header/project-resources/Drawing/DrawingAddNewPhase';
 
 const Stack = createNativeStackNavigator();
 
@@ -107,6 +109,10 @@ export default function App() {
 
         <Stack.Screen name="Document" component={DocumentScreen} />
         <Stack.Screen name="Drawing" component={DrawingScreen} />
+        <Stack.Screen name="AddDrawing" component={AddDrawings} />
+        <Stack.Screen name="AddDrawingPhase" component={DrawingAddNewPhase} />
+
+
 
         {/* Project Planning */}
         <Stack.Screen name="Activity" component={ActivityScreen} />
