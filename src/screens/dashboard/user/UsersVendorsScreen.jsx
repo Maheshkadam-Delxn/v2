@@ -30,7 +30,7 @@ const colors = {
   border: '#E2E8F0',
 };
 
-export default function UsersVendorsScreen() {
+export default function UsersVendorsScreen({ navigation }) {
   const vendors = [
     {
       name: 'ABC Constructions',
@@ -125,14 +125,14 @@ export default function UsersVendorsScreen() {
                   backgroundColor: colors.info,
                   borderRadius: 12
                 }}
-                onPress={() => console.log('Add vendor')}
+                onPress={() => navigation.navigate('AddVendor')}
               >
                 <Icon name="plus" size={20} color="#ffffff" />
               </TouchableOpacity>
             </View>
           </View>
 
-          {/* Search and Filter Row */}
+          {/* Search and Action Row */}
           <View style={{ flexDirection: 'row', gap: 8 }}>
             <View style={{ 
               flex: 1,
@@ -158,21 +158,6 @@ export default function UsersVendorsScreen() {
             </View>
             <TouchableOpacity
               style={{ 
-                minWidth: 56,
-                backgroundColor: colors.info,
-                paddingHorizontal: 12,
-                paddingVertical: 8,
-                borderRadius: 12,
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}
-              onPress={() => console.log('Filter')}
-            >
-              <Icon name="filter-outline" size={16} color="#ffffff" />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={{ 
                 minWidth:56,
                 backgroundColor: colors.surface,
                 paddingHorizontal: 12,
@@ -184,7 +169,7 @@ export default function UsersVendorsScreen() {
                 alignItems: 'center',
                 justifyContent: 'center'
               }}
-              onPress={() => console.log('Add document')}
+              onPress={() => navigation.navigate('AddDocumentType')}
             >
               <Icon name="file-document-outline" size={16} color={colors.info} />
             </TouchableOpacity>
@@ -201,7 +186,7 @@ export default function UsersVendorsScreen() {
                 alignItems: 'center',
                 justifyContent: 'center'
               }}
-              onPress={() => console.log('People')}
+              onPress={() => navigation.navigate('AddVendortype')}
             >
               <Icon name="account-group" size={16} color={colors.info} />
             </TouchableOpacity>
@@ -241,7 +226,10 @@ export default function UsersVendorsScreen() {
                 
                 {/* Edit and Delete icons */}
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <TouchableOpacity style={{ padding: 8, marginLeft: 8 }}>
+                  <TouchableOpacity 
+                    style={{ padding: 8, marginLeft: 8 }}
+                    onPress={() => navigation.navigate('AddVendor', { vendor, isEdit: true })}
+                  >
                     <Icon name="pencil-outline" size={20} color={colors.info} />
                   </TouchableOpacity>
                   <TouchableOpacity style={{ padding: 8, marginLeft: 8 }}>

@@ -64,6 +64,9 @@ import AddBoq from './src/screens/dashboard/sub-header/project-resources/Boq/Add
 import PhaseModalBoq from './src/screens/dashboard/sub-header/project-resources/Boq/PhaseModalBoq';
 import AddDrawings from './src/screens/dashboard/sub-header/project-resources/Drawing/AddDrawings';
 import DrawingAddNewPhase from './src/screens/dashboard/sub-header/project-resources/Drawing/DrawingAddNewPhase';
+import AddVendor from './src/screens/dashboard/user/AddVendor';
+import AddVendorType from './src/screens/dashboard/user/AddVendorType';
+import AddDocumentType from './src/screens/dashboard/user/AddDocumentType';
 
 const Stack = createNativeStackNavigator();
 
@@ -95,6 +98,12 @@ export default function App() {
         <Stack.Screen name="UsersMembers" component={UsersMembersScreen} />
         <Stack.Screen name="AddMembers" component={AddNewMember}/>
         <Stack.Screen name="UsersVendors" component={UsersVendorsScreen} />
+
+        <Stack.Screen name="AddVendor" component={AddVendor} />
+        <Stack.Screen name="AddVendortype" component={AddVendorType} />
+        <Stack.Screen name="AddDocumentType" component={AddDocumentType} />
+
+
         <Stack.Screen name="SettingsPermission" component={SettingsPermissionScreen} />
         <Stack.Screen name="SettingsEvents" component={SettingsEventsScreen} />
         <Stack.Screen name="SettingsReminder" component={SettingsReminderScreen} />
