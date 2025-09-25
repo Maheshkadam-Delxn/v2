@@ -5,24 +5,33 @@
 |-- app.json
 |-- App.jsx
 |-- assets
+    |-- adaptive-icon.png
+    |-- favicon.png
+    |-- GoogleLogo.png
+    |-- icon.png
     |-- image.jpg
+    |-- SkystructLogo.png
+    |-- splash.png
 |-- babel.config.js
 |-- cesconfig.jsonc
 |-- eas.json
 |-- eslint.config.js
 |-- global.css
 |-- metro.config.js
+|-- nativewind-env.d.ts
 |-- package-lock.json
 |-- package.json
 |-- prettier.config.js
 |-- src
     |-- auth
+        |-- ForgotPasswordScreen.jsx
         |-- OTPScreen.jsx
         |-- SignInScreen.jsx
         |-- SignUpScreen.jsx
     |-- navigation
         |-- AppNavigator.jsx
         |-- AuthNavigator.jsx
+        |-- DashboardNavigator.jsx
         |-- TabNavigator.jsx
     |-- screens
         |-- AddNewProjectScreen.jsx
@@ -30,7 +39,6 @@
             |-- MainLayout.jsx
             |-- Sidebar.jsx
         |-- dashboard
-            |-- DashboardHeader.jsx
             |-- DashboardScreen.jsx
             |-- ProjectOverviewScreen.jsx
             |-- settings
@@ -43,8 +51,45 @@
                 |-- MyProjectsScreen.jsx
                 |-- OrganizationEmailScreen.jsx
                 |-- ProfileScreen.jsx
+            |-- sub-header
+                |-- approvals
+                    |-- InspectionScreen.jsx
+                    |-- RFIScreen.jsx
+                    |-- SnaggingReportScreen.jsx
+                    |-- SubmittalsScreen.jsx
+                |-- Inventory
+                    |-- InventoryScreen.jsx
+                |-- payments
+                    |-- BillPaymentScreen.jsx
+                    |-- ExpenseScreen.jsx
+                    |-- GoodReceiveNoteScreen.jsx
+                    |-- IndentScreen.jsx
+                    |-- PurchaseOrderScreen.jsx
+                |-- project-planning
+                    |-- ActivityScreen.jsx
+                    |-- ProjectPlannerScreen.jsx
+                    |-- ResourceScreen.jsx
+                |-- project-resources
+                    |-- BillOfQuantityScreen.jsx
+                    |-- Boq
+                        |-- AddBoq.jsx
+                        |-- PhaseModalBoq.jsx
+                    |-- DocumentScreen.jsx
+                    |-- DrawingScreen.jsx
+                |-- reports
+                    |-- ActivityTimelinesScreen.jsx
+                    |-- DailyProgressScreen.jsx
+                    |-- MaterialConsumptionScreen.jsx
+                |-- work-order
+                    |-- AdvancePaymentScreen.jsx
+                    |-- BillPaymentScreenn.jsx
+                    |-- BillScreen.jsx
+                    |-- WorkOrderScreen.jsx
             |-- user
+                |-- AddNewMember.jsx
                 |-- UsersMembersScreen.jsx
                 |-- UsersVendorsScreen.jsx
+        |-- EditProjectScreen.jsx
         |-- HomeScreen.jsx
 |-- tailwind.config.js
+|-- tsconfig.json
