@@ -60,6 +60,8 @@ import InventoryScreen from './src/screens/dashboard/sub-header/Inventory/Invent
 import HomeScreen from './src/screens/HomeScreen';
 import EditProjectScreen from './src/screens/EditProjectScreen';
 import AddNewMember from './src/screens/dashboard/user/AddNewMember';
+import AddBoq from './src/screens/dashboard/sub-header/project-resources/Boq/AddBoq';
+import PhaseModalBoq from './src/screens/dashboard/sub-header/project-resources/Boq/PhaseModalBoq';
 
 const Stack = createNativeStackNavigator();
 
@@ -99,6 +101,10 @@ export default function App() {
 
         {/* Project Resources */}
         <Stack.Screen name="BillOfQuantity" component={BillOfQuantityScreen} />
+        <Stack.Screen name="AddBoq" component={AddBoq}/>
+        <Stack.Screen name="AddPhaseBoq" component={PhaseModalBoq}/>
+
+
         <Stack.Screen name="Document" component={DocumentScreen} />
         <Stack.Screen name="Drawing" component={DrawingScreen} />
 

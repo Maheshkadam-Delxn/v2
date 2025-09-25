@@ -71,6 +71,9 @@
                     |-- ResourceScreen.jsx
                 |-- project-resources
                     |-- BillOfQuantityScreen.jsx
+                    |-- Boq
+                        |-- AddBoq.jsx
+                        |-- PhaseModalBoq.jsx
                     |-- DocumentScreen.jsx
                     |-- DrawingScreen.jsx
                 |-- reports
