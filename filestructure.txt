@@ -83,6 +83,7 @@
                     |-- BillScreen.jsx
                     |-- WorkOrderScreen.jsx
             |-- user
+                |-- AddNewMember.jsx
                 |-- UsersMembersScreen.jsx
                 |-- UsersVendorsScreen.jsx
         |-- EditProjectScreen.jsx

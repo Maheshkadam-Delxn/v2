@@ -49,7 +49,7 @@ export default function EditProjectScreen() {
     longitude: projectData.longitude || "",
     description: projectData.description || "A modern commercial tower complex with retail spaces on the ground floor and office spaces above.",
     projectPhoto: projectData.projectPhoto || "https://via.placeholder.com/300x200",
-    projectAutoId: projectData.autoId || "", // For update API
+    autoId: projectId || "", // For update 
   });
   
   const [errors, setErrors] = useState({});
@@ -112,7 +112,7 @@ export default function EditProjectScreen() {
       setIsLoading(false);
     }
   };
-  // console.log("okok",currencydata[0]);
+  console.log("okok",currencydata);
 
   // Fetch timezone data based on selected country
   const fetchTimezones = async (countryAutoId) => {
@@ -247,13 +247,13 @@ export default function EditProjectScreen() {
       setFormData({
         ...formData,
         currency: selectedCurrency.autoId,
-        currencyCode: selectedCurrency.currencyCode,
-        latitude: selectedCurrency.latitude,
-        longitude: selectedCurrency.longitude,
-        countryAutoId: selectedCurrency.autoId,
+        currencyCode: selectedCurrency.currencyCode || "",
+        latitude: selectedCurrency.latitude || "",
+        longitude: selectedCurrency.longitude || "",
+        countryAutoId: selectedCurrency.autoId || selectedCurrency.countryAutoId || "",
         zoneOffset: "", // Reset timezone when country changes
       });
-      fetchTimezones(selectedCurrency.autoId);
+      fetchTimezones(selectedCurrency.autoId || selectedCurrency.countryAutoId);
     }
   };
 
@@ -329,9 +329,9 @@ export default function EditProjectScreen() {
           type: `image/${fileType}`,
         });
       }
-
+     console.log(formData);
       const response = await fetch(
-        "https://api-v2-skystruct.prudenttec.com/project/update-project",
+        "https://api-v2-skystruct.prudenttec.com/project/save-project",
         {
           method: "POST",
           headers: {
@@ -341,12 +341,12 @@ export default function EditProjectScreen() {
           body: form,
         }
       );
-
+      
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const result = await response.json();
+      const result = await response.text();
       console.log("Update result:", result);
       Alert.alert("Success", "Project updated successfully!");
       navigation.goBack();
@@ -699,7 +699,7 @@ export default function EditProjectScreen() {
                 disabled={isLoading}
               >
                 <Text className="text-white text-center text-base font-medium">
-                  {isLoading ? "Updating..." : formData.projectAutoId ? "Update Project" : "Create Project"}
+                  {isLoading ? "Updating..." : formData.projectAutoId ? "Update Project" : "Update Project"}
                 </Text>
               </TouchableOpacity>
             </View>

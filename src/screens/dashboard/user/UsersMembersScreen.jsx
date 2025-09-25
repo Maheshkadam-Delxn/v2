@@ -15,7 +15,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import MainLayout from '../../components/MainLayout';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { LinearGradient } from 'expo-linear-gradient';
-
+import { useNavigation } from '@react-navigation/native';
 const screenWidth = Dimensions.get('window').width;
 
 const colors = {
@@ -35,6 +35,7 @@ const colors = {
 };
 
 export default function UsersMembersScreen() {
+  const navigation = useNavigation(); // Initialize navigation hook
   const [modalVisible, setModalVisible] = useState(false);
   const [slideAnim] = useState(new Animated.Value(300));
   const [newDepartment, setNewDepartment] = useState('');
@@ -359,7 +360,7 @@ export default function UsersMembersScreen() {
                 alignItems: 'center',
                 justifyContent: 'center'
               }}
-              onPress={() => console.log('Add user')}
+              onPress={() => navigation.navigate('AddMembers')} // Navigate to AddMembers screen
             >
               <Icon name="account-plus" size={16} color={colors.info} />
             </TouchableOpacity>
