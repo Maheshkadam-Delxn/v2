@@ -225,6 +225,7 @@ const fetchProjectData = async () => {
     const data = await response.json();
     console.log("✅ Dashboard response:", data.rolePermissionFormBeans);
     if (data.jwtToken) {
+      console.log("tokennn = ",data.jwtToken)
       const updatedUserData = {
         ...parsedData,
         jwtToken: data.jwtToken,

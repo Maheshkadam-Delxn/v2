@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   View, 
   Text, 
@@ -7,6 +7,7 @@ import {
   TextInput,
   Alert 
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import MainLayout from '../../components/MainLayout';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -29,21 +30,94 @@ const colors = {
 
 export default function AddDocumentType({ navigation }) {
   const [newDocumentType, setNewDocumentType] = useState('');
-  const [documentTypes, setDocumentTypes] = useState([
-    'Pdf',
-    'Jpg'
-  ]);
+  const [documentTypes, setDocumentTypes] = useState([]);
+  const [token, setToken] = useState('');
+  const [orgId, setOrgId] = useState('');
+  const [loading, setLoading] = useState(true);
 
-  const handleSubmit = () => {
-    if (newDocumentType.trim()) {
-      setDocumentTypes([...documentTypes, newDocumentType.trim()]);
-      setNewDocumentType('');
-      Alert.alert('Success', 'Document type added successfully!');
-    } else {
-      Alert.alert('Error', 'Please enter a document type name');
+  // Check login status and fetch token
+  const checkLoginStatus = async () => {
+    try {
+      const userData = await AsyncStorage.getItem("userData");
+      if (userData) {
+        const parsedData = JSON.parse(userData);
+        setToken(parsedData.jwtToken);
+        setOrgId(parsedData.memberFormBean.organizationId);
+      }
+    } catch (err) {
+      console.error("Error checking login status:", err);
     }
   };
 
+  // Fetch document types from API
+  const fetchDocumentTypes = async () => {
+    if (!token || !orgId) return;
+    try {
+      setLoading(true);
+      const response = await fetch('https://api-v2-skystruct.prudenttec.com/vendor-document', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'X-Menu-Id': 'Kb51jEhFhhV',
+        },
+      });
+      const data = await response.json();
+      if (data.vendorDocumentFormBeans) {
+        setDocumentTypes(data.vendorDocumentFormBeans.map(doc => ({
+          id: doc.autoId,
+          name: doc.name
+        })));
+      } else {
+        console.error('Failed to fetch document types:', data);
+        Alert.alert('Error', 'Failed to fetch document types');
+      }
+    } catch (error) {
+      console.error('Error fetching document types:', error);
+      Alert.alert('Error', 'Error fetching document types');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Save document type (add or edit)
+  const saveDocumentType = async () => {
+    if (!newDocumentType.trim() || !token || !orgId) {
+      Alert.alert('Error', 'Please enter a document type name');
+      return;
+    }
+    try {
+      const body = {
+        vendorDocumentFormBean: {
+          name: newDocumentType.trim(),
+          orgId: orgId
+        }
+      };
+      const response = await fetch('https://api-v2-skystruct.prudenttec.com/vendor-document', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'X-Menu-Id': '8OMNBJc0dAp',
+        },
+        body: JSON.stringify(body),
+      });
+      const data = await response.json();
+      if (data.status) {
+        setNewDocumentType('');
+        fetchDocumentTypes();
+        Alert.alert('Success', 'Document type added successfully!');
+      } else {
+        console.error('Failed to save document type:', data);
+        Alert.alert('Error', 'Failed to add document type');
+      }
+    } catch (error) {
+      console.error('Error saving document type:', error);
+      Alert.alert('Error', 'Error adding document type');
+    }
+  };
+
+  // Edit document type
   const handleEdit = (index, currentType) => {
     Alert.prompt(
       'Edit Document Type',
@@ -52,20 +126,47 @@ export default function AddDocumentType({ navigation }) {
         { text: 'Cancel', style: 'cancel' },
         { 
           text: 'Save', 
-          onPress: (newName) => {
+          onPress: async (newName) => {
             if (newName && newName.trim()) {
-              const updatedTypes = [...documentTypes];
-              updatedTypes[index] = newName.trim();
-              setDocumentTypes(updatedTypes);
+              try {
+                const body = {
+                  vendorDocumentFormBean: {
+                    autoId: documentTypes[index].id,
+                    name: newName.trim(),
+                    orgId: orgId
+                  }
+                };
+                const response = await fetch('https://api-v2-skystruct.prudenttec.com/vendor-document', {
+                  method: 'POST',
+                  headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                    'X-Menu-Id': '8OMNBJc0dAp',
+                  },
+                  body: JSON.stringify(body),
+                });
+                const data = await response.json();
+                if (data.status) {
+                  fetchDocumentTypes();
+                  Alert.alert('Success', 'Document type updated successfully!');
+                } else {
+                  console.error('Failed to update document type:', data);
+                  Alert.alert('Error', 'Failed to update document type');
+                }
+              } catch (error) {
+                console.error('Error updating document type:', error);
+                Alert.alert('Error', 'Error updating document type');
+              }
             }
           }
         }
       ],
       'plain-text',
-      currentType
+      currentType.name
     );
   };
 
+  // Delete document type
   const handleDelete = (index) => {
     Alert.alert(
       'Delete Document Type',
@@ -75,14 +176,44 @@ export default function AddDocumentType({ navigation }) {
         { 
           text: 'Delete', 
           style: 'destructive',
-          onPress: () => {
-            const updatedTypes = documentTypes.filter((_, i) => i !== index);
-            setDocumentTypes(updatedTypes);
+          onPress: async () => {
+            try {
+              const response = await fetch(`https://api-v2-skystruct.prudenttec.com/vendor-document/${documentTypes[index].id}`, {
+                method: 'DELETE',
+                headers: {
+                  'Authorization': `Bearer ${token}`,
+                  'Content-Type': 'application/json',
+                  'X-Menu-Id': '8OMNBJc0dAp',
+                },
+              });
+              if (response.ok) {
+                fetchDocumentTypes();
+                Alert.alert('Success', 'Document type deleted successfully!');
+              } else {
+                console.error('Failed to delete document type');
+                Alert.alert('Error', 'Failed to delete document type');
+              }
+            } catch (error) {
+              console.error('Error deleting document type:', error);
+              Alert.alert('Error', 'Error deleting document type');
+            }
           }
         }
       ]
     );
   };
+
+  // Run on component mount
+  useEffect(() => {
+    checkLoginStatus();
+  }, []);
+
+  // Fetch document types when token and orgId are available
+  useEffect(() => {
+    if (token && orgId) {
+      fetchDocumentTypes();
+    }
+  }, [token, orgId]);
 
   const handleCancel = () => {
     navigation.goBack();
@@ -116,7 +247,7 @@ export default function AddDocumentType({ navigation }) {
           </View>
           <TouchableOpacity
             style={{ padding: 8 }}
-            onPress={() => navigation.goBack()}
+            onPress={handleCancel}
           >
             <Icon name="close" size={24} color="#FFFFFF" />
           </TouchableOpacity>
@@ -170,7 +301,7 @@ export default function AddDocumentType({ navigation }) {
                   minWidth: 80,
                   alignItems: 'center'
                 }}
-                onPress={handleSubmit}
+                onPress={saveDocumentType}
               >
                 <Text style={{ 
                   color: '#FFFFFF', 
@@ -233,51 +364,62 @@ export default function AddDocumentType({ navigation }) {
               Document Type List
             </Text>
 
-            {documentTypes.map((type, index) => (
-              <View 
-                key={index} 
-                style={{ 
-                  flexDirection: 'row', 
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  paddingVertical: 16,
-                  borderBottomWidth: index < documentTypes.length - 1 ? 1 : 0,
-                  borderBottomColor: colors.border + '30'
-                }}
-              >
-                <Text style={{ 
-                  fontSize: 14, 
-                  color: colors.text,
-                  fontWeight: '500',
-                  flex: 1
-                }}>
-                  {type}
-                </Text>
-
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                  <TouchableOpacity 
-                    style={{ 
-                      padding: 8,
-                      borderRadius: 6,
-                      backgroundColor: `${colors.warning}15`
-                    }}
-                    onPress={() => handleEdit(index, type)}
-                  >
-                    <Icon name="pencil" size={18} color={colors.warning} />
-                  </TouchableOpacity>
-                  <TouchableOpacity 
-                    style={{ 
-                      padding: 8,
-                      borderRadius: 6,
-                      backgroundColor: `${colors.danger}15`
-                    }}
-                    onPress={() => handleDelete(index)}
-                  >
-                    <Icon name="delete" size={18} color={colors.danger} />
-                  </TouchableOpacity>
-                </View>
+            {loading ? (
+              <View style={{ padding: 24, alignItems: 'center', justifyContent: 'center' }}>
+                <Text style={{ color: colors.textMuted }}>Loading...</Text>
               </View>
-            ))}
+            ) : documentTypes.length === 0 ? (
+              <View style={{ padding: 24, alignItems: 'center', justifyContent: 'center' }}>
+                <Icon name="file-document-outline" size={40} color={colors.textMuted} />
+                <Text style={{ color: colors.textMuted, marginTop: 12 }}>No document types found</Text>
+              </View>
+            ) : (
+              documentTypes.map((type, index) => (
+                <View 
+                  key={index} 
+                  style={{ 
+                    flexDirection: 'row', 
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    paddingVertical: 16,
+                    borderBottomWidth: index < documentTypes.length - 1 ? 1 : 0,
+                    borderBottomColor: colors.border + '30'
+                  }}
+                >
+                  <Text style={{ 
+                    fontSize: 14, 
+                    color: colors.text,
+                    fontWeight: '500',
+                    flex: 1
+                  }}>
+                    {type.name}
+                  </Text>
+
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                    <TouchableOpacity 
+                      style={{ 
+                        padding: 8,
+                        borderRadius: 6,
+                        backgroundColor: `${colors.warning}15`
+                      }}
+                      onPress={() => handleEdit(index, type)}
+                    >
+                      <Icon name="pencil" size={18} color={colors.warning} />
+                    </TouchableOpacity>
+                    <TouchableOpacity 
+                      style={{ 
+                        padding: 8,
+                        borderRadius: 6,
+                        backgroundColor: `${colors.danger}15`
+                      }}
+                      onPress={() => handleDelete(index)}
+                    >
+                      <Icon name="delete" size={18} color={colors.danger} />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              ))
+            )}
           </View>
         </ScrollView>
       </View>

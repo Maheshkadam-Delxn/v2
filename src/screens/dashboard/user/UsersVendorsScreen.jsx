@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   View, 
   Text, 
@@ -8,9 +8,11 @@ import {
   TextInput,
   Dimensions 
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import MainLayout from '../../components/MainLayout';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useNavigation } from '@react-navigation/native';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -30,49 +32,64 @@ const colors = {
   border: '#E2E8F0',
 };
 
-export default function UsersVendorsScreen({ navigation }) {
-  const vendors = [
-    {
-      name: 'ABC Constructions',
-      email: 'abc@constructions.com',
-      vendorCode: 'VEND-00001',
-      taxNo: '8855',
-      gstinNo: '52GDFD65SD',
-      vendorType: 'General Contractor',
-      address: '123 Builder Lane, Mumbai, MH',
-      image: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=871&q=80'
-    },
-    {
-      name: 'XYZ Suppliers',
-      email: 'xyz@supplies.in',
-      vendorCode: 'VEND-00002',
-      taxNo: '455',
-      gstinNo: '45S4DGFD556',
-      vendorType: 'Subcontractor',
-      address: '45 Supply Road, Bengaluru, KA',
-      image: 'https://images.unsplash.com/photo-1560472355-536de3962603?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto-format&fit=crop&w=870&q=80'
-    },
-    {
-      name: 'Prime Electricals',
-      email: 'info@primeelectricals.com',
-      vendorCode: 'VEND-00003',
-      taxNo: '6743',
-      gstinNo: '27AABFP1352F1Z5',
-      vendorType: 'Electrical Contractor',
-      address: '78 Electronics City, Hyderabad, TS',
-      image: 'https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=870&q=80',
-    },
-    { 
-      name: 'Metro Plumbing Services',
-      email: 'service@metroplumbing.in',
-      vendorCode: 'VEND-00004',
-      taxNo: '3321',
-      gstinNo: '07AABCU9603R1ZM',
-      vendorType: 'Plumbing Contractor',
-      address: '22 Waterworks Road, Delhi, DL',
-      image: 'https://images.unsplash.com/photo-1621544402535-5cf6a8a5c6e3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=870&q=80',
+export default function UsersVendorsScreen() {
+  const navigation = useNavigation();
+  const [vendors, setVendors] = useState([]);
+  const [token, setToken] = useState('');
+  const [orgId, setOrgId] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  // Check login status and fetch token
+  const checkLoginStatus = async () => {
+    try {
+      const userData = await AsyncStorage.getItem("userData");
+      if (userData) {
+        const parsedData = JSON.parse(userData);
+        setToken(parsedData.jwtToken);
+        setOrgId(parsedData.memberFormBean.organizationId);
+      }
+    } catch (err) {
+      console.error("Error checking login status:", err);
     }
-  ];
+  };
+
+  // Fetch vendors from API
+  const fetchVendors = async () => {
+    if (!token || !orgId) return;
+    try {
+      setLoading(true);
+      const response = await fetch('https://api-v2-skystruct.prudenttec.com/vendor', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'X-Menu-Id': '8OMNBJc0dAp',
+        },
+      });
+      const data = await response.json();
+      if (data.vendorFormBeans) {
+        setVendors(data.vendorFormBeans);
+      } else {
+        console.error('Failed to fetch vendors:', data);
+      }
+    } catch (error) {
+      console.error('Error fetching vendors:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Run on component mount
+  useEffect(() => {
+    checkLoginStatus();
+  }, []);
+
+  // Fetch vendors when token and orgId are available
+  useEffect(() => {
+    if (token && orgId) {
+      fetchVendors();
+    }
+  }, [token, orgId]);
 
   return (
     <MainLayout title="Vendors">
@@ -115,7 +132,7 @@ export default function UsersVendorsScreen({ navigation }) {
                   borderWidth: 1,
                   borderColor: colors.border
                 }}
-                onPress={() => console.log('Refresh')}
+                onPress={fetchVendors}
               >
                 <Icon name="refresh" size={20} color={colors.info} />
               </TouchableOpacity>
@@ -198,130 +215,141 @@ export default function UsersVendorsScreen({ navigation }) {
           contentContainerStyle={{ padding: 16 }}
           showsVerticalScrollIndicator={false}
         >
-          {vendors.map((vendor, index) => (
-            <View key={index} style={{ 
-              backgroundColor: colors.surface, 
-              borderRadius: 16, 
-              padding: 16, 
-              marginBottom: 16,
-              shadowColor: '#000',
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.1,
-              shadowRadius: 4,
-              elevation: 3,
-              borderWidth: 1,
-              borderColor: colors.border
-            }}>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
-                  <Image 
-                    source={{ uri: vendor.image }} 
-                    style={{ width: 56, height: 56, borderRadius: 12, marginRight: 16, borderWidth: 1, borderColor: colors.border }} 
-                  />
-                  <View style={{ flex: 1 }}>
-                    <Text style={{ fontSize: 16, fontWeight: '700', color: colors.text }}>{vendor.name}</Text>
-                    <Text style={{ fontSize: 12, color: colors.info, fontWeight: '600', marginTop: 4 }}>{vendor.email}</Text>
-                  </View>
-                </View>
-                
-                {/* Edit and Delete icons */}
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <TouchableOpacity 
-                    style={{ padding: 8, marginLeft: 8 }}
-                    onPress={() => navigation.navigate('AddVendor', { vendor, isEdit: true })}
-                  >
-                    <Icon name="pencil-outline" size={20} color={colors.info} />
-                  </TouchableOpacity>
-                  <TouchableOpacity style={{ padding: 8, marginLeft: 8 }}>
-                    <Icon name="trash-can-outline" size={20} color={colors.danger} />
-                  </TouchableOpacity>
-                </View>
-              </View>
-              
-              <View style={{ borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 16 }}>
-                {/* Vendor Code */}
-                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
-                  <View style={{ 
-                    backgroundColor: `${colors.info}15`, 
-                    padding: 8, 
-                    borderRadius: 8, 
-                    marginRight: 12 
-                  }}>
-                    <Icon name="barcode" size={16} color={colors.info} />
-                  </View>
-                  <View>
-                    <Text style={{ fontSize: 12, color: colors.textMuted, marginBottom: 2 }}>Vendor Code</Text>
-                    <Text style={{ fontSize: 14, fontWeight: '600', color: colors.text }}>{vendor.vendorCode}</Text>
-                  </View>
-                </View>
-                
-                {/* Tax No. */}
-                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
-                  <View style={{ 
-                    backgroundColor: `${colors.secondary}15`, 
-                    padding: 8, 
-                    borderRadius: 8, 
-                    marginRight: 12 
-                  }}>
-                    <Icon name="receipt" size={16} color={colors.secondary} />
-                  </View>
-                  <View>
-                    <Text style={{ fontSize: 12, color: colors.textMuted, marginBottom: 2 }}>Tax No.</Text>
-                    <Text style={{ fontSize: 14, fontWeight: '600', color: colors.text }}>{vendor.taxNo}</Text>
-                  </View>
-                </View>
-                
-                {/* GSTIN No. */}
-                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
-                  <View style={{ 
-                    backgroundColor: `${colors.success}15`, 
-                    padding: 8, 
-                    borderRadius: 8, 
-                    marginRight: 12 
-                  }}>
-                    <Icon name="file-document" size={16} color={colors.success} />
-                  </View>
-                  <View>
-                    <Text style={{ fontSize: 12, color: colors.textMuted, marginBottom: 2 }}>GSTIN No.</Text>
-                    <Text style={{ fontSize: 14, fontWeight: '600', color: colors.text }}>{vendor.gstinNo}</Text>
-                  </View>
-                </View>
-                
-                {/* Vendor Type */}
-                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
-                  <View style={{ 
-                    backgroundColor: `${colors.info}15`, 
-                    padding: 8, 
-                    borderRadius: 8, 
-                    marginRight: 12 
-                  }}>
-                    <Icon name="office-building" size={16} color={colors.info} />
-                  </View>
-                  <View>
-                    <Text style={{ fontSize: 12, color: colors.textMuted, marginBottom: 2 }}>Vendor Type</Text>
-                    <Text style={{ fontSize: 14, fontWeight: '600', color: colors.text }}>{vendor.vendorType}</Text>
-                  </View>
-                </View>
-                
-                {/* Address */}
-                <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
-                  <View style={{ 
-                    backgroundColor: `${colors.textMuted}15`, 
-                    padding: 8, 
-                    borderRadius: 8, 
-                    marginRight: 12,
-                    marginTop: 2
-                  }}>
-                    <Icon name="map-marker" size={16} color={colors.textMuted} />
-                  </View>
-                  <View style={{ flex: 1 }}>
-                    <Text style={{ fontSize: 12, color: colors.textMuted, marginBottom: 2 }}>Address</Text>
-                    <Text style={{ fontSize: 14, fontWeight: '600', color: colors.text }}>{vendor.address}</Text>
-                  </View>
-                </View>
-              </View>
+          {loading ? (
+            <View style={{ padding: 24, alignItems: 'center', justifyContent: 'center' }}>
+              <Text style={{ color: colors.textMuted }}>Loading...</Text>
             </View>
-          ))}
+          ) : vendors.length === 0 ? (
+            <View style={{ padding: 24, alignItems: 'center', justifyContent: 'center' }}>
+              <Icon name="account-group" size={40} color={colors.textMuted} />
+              <Text style={{ color: colors.textMuted, marginTop: 12 }}>No vendors found</Text>
+            </View>
+          ) : (
+            vendors.map((vendor, index) => (
+              <View key={index} style={{ 
+                backgroundColor: colors.surface, 
+                borderRadius: 16, 
+                padding: 16, 
+                marginBottom: 16,
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.1,
+                shadowRadius: 4,
+                elevation: 3,
+                borderWidth: 1,
+                borderColor: colors.border
+              }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+                    <Image 
+                      source={{ uri: vendor.image || 'https://skystruct.blob.core.windows.net/file-skytruct/Setup/user-img.jpg' }} 
+                      style={{ width: 56, height: 56, borderRadius: 12, marginRight: 16, borderWidth: 1, borderColor: colors.border }} 
+                    />
+                    <View style={{ flex: 1 }}>
+                      <Text style={{ fontSize: 16, fontWeight: '700', color: colors.text }}>{vendor.name}</Text>
+                      <Text style={{ fontSize: 12, color: colors.info, fontWeight: '600', marginTop: 4 }}>{vendor.email}</Text>
+                    </View>
+                  </View>
+                
+                  {/* Edit and Delete icons */}
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <TouchableOpacity 
+                      style={{ padding: 8, marginLeft: 8 }}
+                      onPress={() => navigation.navigate('AddVendor', { vendor, isEdit: true })}
+                    >
+                      <Icon name="pencil-outline" size={20} color={colors.info} />
+                    </TouchableOpacity>
+                    <TouchableOpacity style={{ padding: 8, marginLeft: 8 }}>
+                      <Icon name="trash-can-outline" size={20} color={colors.danger} />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              
+                <View style={{ borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 16 }}>
+                  {/* Vendor Code */}
+                  <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
+                    <View style={{ 
+                      backgroundColor: `${colors.info}15`, 
+                      padding: 8, 
+                      borderRadius: 8, 
+                      marginRight: 12 
+                    }}>
+                      <Icon name="barcode" size={16} color={colors.info} />
+                    </View>
+                    <View>
+                      <Text style={{ fontSize: 12, color: colors.textMuted, marginBottom: 2 }}>Vendor Code</Text>
+                      <Text style={{ fontSize: 14, fontWeight: '600', color: colors.text }}>{vendor.vendorCode}</Text>
+                    </View>
+                  </View>
+                
+                  {/* Tax No. */}
+                  <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
+                    <View style={{ 
+                      backgroundColor: `${colors.secondary}15`, 
+                      padding: 8, 
+                      borderRadius: 8, 
+                      marginRight: 12 
+                    }}>
+                      <Icon name="receipt" size={16} color={colors.secondary} />
+                    </View>
+                    <View>
+                      <Text style={{ fontSize: 12, color: colors.textMuted, marginBottom: 2 }}>Tax No.</Text>
+                      <Text style={{ fontSize: 14, fontWeight: '600', color: colors.text }}>{vendor.taxNo}</Text>
+                    </View>
+                  </View>
+                
+                  {/* GSTIN No. */}
+                  <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
+                    <View style={{ 
+                      backgroundColor: `${colors.success}15`, 
+                      padding: 8, 
+                      borderRadius: 8, 
+                      marginRight: 12 
+                    }}>
+                      <Icon name="file-document" size={16} color={colors.success} />
+                    </View>
+                    <View>
+                      <Text style={{ fontSize: 12, color: colors.textMuted, marginBottom: 2 }}>GSTIN No.</Text>
+                      <Text style={{ fontSize: 14, fontWeight: '600', color: colors.text }}>{vendor.gstinNo}</Text>
+                    </View>
+                  </View>
+                
+                  {/* Vendor Type */}
+                  <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
+                    <View style={{ 
+                      backgroundColor: `${colors.info}15`, 
+                      padding: 8, 
+                      borderRadius: 8, 
+                      marginRight: 12 
+                    }}>
+                      <Icon name="office-building" size={16} color={colors.info} />
+                    </View>
+                    <View>
+                      <Text style={{ fontSize: 12, color: colors.textMuted, marginBottom: 2 }}>Vendor Type</Text>
+                      <Text style={{ fontSize: 14, fontWeight: '600', color: colors.text }}>{vendor.typeName}</Text>
+                    </View>
+                  </View>
+                
+                  {/* Address */}
+                  <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
+                    <View style={{ 
+                      backgroundColor: `${colors.textMuted}15`, 
+                      padding: 8, 
+                      borderRadius: 8, 
+                      marginRight: 12,
+                      marginTop: 2
+                    }}>
+                      <Icon name="map-marker" size={16} color={colors.textMuted} />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={{ fontSize: 12, color: colors.textMuted, marginBottom: 2 }}>Address</Text>
+                      <Text style={{ fontSize: 14, fontWeight: '600', color: colors.text }}>{vendor.address}</Text>
+                    </View>
+                  </View>
+                </View>
+              </View>
+            ))
+          )}
         </ScrollView>
       </View>
     </MainLayout>

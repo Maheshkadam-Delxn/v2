@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   View, 
   Text, 
@@ -7,6 +7,7 @@ import {
   TextInput,
   Alert 
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import MainLayout from '../../components/MainLayout';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -29,29 +30,94 @@ const colors = {
 
 export default function AddVendorType({ navigation }) {
   const [newVendorType, setNewVendorType] = useState('');
-  const [vendorTypes, setVendorTypes] = useState([
-    'General Contractor',
-    'Subcontractor',
-    'Electrical Contractor',
-    'Plumbing Contractor',
-    'HVAC Contractor',
-    'Roofing Contractor',
-    'Carpentry Contractor',
-    'Masonry Contractor',
-    'Painting Contractor',
-    'Flooring Contractor'
-  ]);
+  const [vendorTypes, setVendorTypes] = useState([]);
+  const [token, setToken] = useState('');
+  const [orgId, setOrgId] = useState('');
+  const [loading, setLoading] = useState(true);
 
-  const handleSubmit = () => {
-    if (newVendorType.trim()) {
-      setVendorTypes([...vendorTypes, newVendorType.trim()]);
-      setNewVendorType('');
-      Alert.alert('Success', 'Vendor type added successfully!');
-    } else {
-      Alert.alert('Error', 'Please enter a vendor type name');
+  // Check login status and fetch token
+  const checkLoginStatus = async () => {
+    try {
+      const userData = await AsyncStorage.getItem("userData");
+      if (userData) {
+        const parsedData = JSON.parse(userData);
+        setToken(parsedData.jwtToken);
+        setOrgId(parsedData.memberFormBean.organizationId);
+      }
+    } catch (err) {
+      console.error("Error checking login status:", err);
     }
   };
 
+  // Fetch vendor types from API
+  const fetchVendorTypes = async () => {
+    if (!token || !orgId) return;
+    try {
+      setLoading(true);
+      const response = await fetch('https://api-v2-skystruct.prudenttec.com/vendor-type', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'X-Menu-Id': 'Kb51jEhFhhV',
+        },
+      });
+      const data = await response.json();
+      if (data.vendorTypeFormBeans) {
+        setVendorTypes(data.vendorTypeFormBeans.map(type => ({
+          id: type.autoId,
+          name: type.name
+        })));
+      } else {
+        console.error('Failed to fetch vendor types:', data);
+        Alert.alert('Error', 'Failed to fetch vendor types');
+      }
+    } catch (error) {
+      console.error('Error fetching vendor types:', error);
+      Alert.alert('Error', 'Error fetching vendor types');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Save vendor type (add or edit)
+  const saveVendorType = async () => {
+    if (!newVendorType.trim() || !token || !orgId) {
+      Alert.alert('Error', 'Please enter a vendor type name');
+      return;
+    }
+    try {
+      const body = {
+        vendorTypeFormBean: {
+          name: newVendorType.trim(),
+          orgId: orgId
+        }
+      };
+      const response = await fetch('https://api-v2-skystruct.prudenttec.com/vendor-type', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'X-Menu-Id': '8OMNBJc0dAp',
+        },
+        body: JSON.stringify(body),
+      });
+      const data = await response.json();
+      if (data.status) {
+        setNewVendorType('');
+        fetchVendorTypes();
+        Alert.alert('Success', 'Vendor type added successfully!');
+      } else {
+        console.error('Failed to save vendor type:', data);
+        Alert.alert('Error', 'Failed to add vendor type');
+      }
+    } catch (error) {
+      console.error('Error saving vendor type:', error);
+      Alert.alert('Error', 'Error adding vendor type');
+    }
+  };
+
+  // Edit vendor type
   const handleEdit = (index, currentType) => {
     Alert.prompt(
       'Edit Vendor Type',
@@ -60,20 +126,47 @@ export default function AddVendorType({ navigation }) {
         { text: 'Cancel', style: 'cancel' },
         { 
           text: 'Save', 
-          onPress: (newName) => {
+          onPress: async (newName) => {
             if (newName && newName.trim()) {
-              const updatedTypes = [...vendorTypes];
-              updatedTypes[index] = newName.trim();
-              setVendorTypes(updatedTypes);
+              try {
+                const body = {
+                  vendorTypeFormBean: {
+                    autoId: vendorTypes[index].id,
+                    name: newName.trim(),
+                    orgId: orgId
+                  }
+                };
+                const response = await fetch('https://api-v2-skystruct.prudenttec.com/vendor-type', {
+                  method: 'POST',
+                  headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                    'X-Menu-Id': '8OMNBJc0dAp',
+                  },
+                  body: JSON.stringify(body),
+                });
+                const data = await response.json();
+                if (data.status) {
+                  fetchVendorTypes();
+                  Alert.alert('Success', 'Vendor type updated successfully!');
+                } else {
+                  console.error('Failed to update vendor type:', data);
+                  Alert.alert('Error', 'Failed to update vendor type');
+                }
+              } catch (error) {
+                console.error('Error updating vendor type:', error);
+                Alert.alert('Error', 'Error updating vendor type');
+              }
             }
           }
         }
       ],
       'plain-text',
-      currentType
+      currentType.name
     );
   };
 
+  // Delete vendor type
   const handleDelete = (index) => {
     Alert.alert(
       'Delete Vendor Type',
@@ -83,14 +176,44 @@ export default function AddVendorType({ navigation }) {
         { 
           text: 'Delete', 
           style: 'destructive',
-          onPress: () => {
-            const updatedTypes = vendorTypes.filter((_, i) => i !== index);
-            setVendorTypes(updatedTypes);
+          onPress: async () => {
+            try {
+              const response = await fetch(`https://api-v2-skystruct.prudenttec.com/vendor-type/${vendorTypes[index].id}`, {
+                method: 'DELETE',
+                headers: {
+                  'Authorization': `Bearer ${token}`,
+                  'Content-Type': 'application/json',
+                  'X-Menu-Id': '8OMNBJc0dAp',
+                },
+              });
+              if (response.ok) {
+                fetchVendorTypes();
+                Alert.alert('Success', 'Vendor type deleted successfully!');
+              } else {
+                console.error('Failed to delete vendor type');
+                Alert.alert('Error', 'Failed to delete vendor type');
+              }
+            } catch (error) {
+              console.error('Error deleting vendor type:', error);
+              Alert.alert('Error', 'Error deleting vendor type');
+            }
           }
         }
       ]
     );
   };
+
+  // Run on component mount
+  useEffect(() => {
+    checkLoginStatus();
+  }, []);
+
+  // Fetch vendor types when token and orgId are available
+  useEffect(() => {
+    if (token && orgId) {
+      fetchVendorTypes();
+    }
+  }, [token, orgId]);
 
   const handleCancel = () => {
     navigation.goBack();
@@ -124,7 +247,7 @@ export default function AddVendorType({ navigation }) {
           </View>
           <TouchableOpacity
             style={{ padding: 8 }}
-            onPress={() => navigation.goBack()}
+            onPress={handleCancel}
           >
             <Icon name="close" size={24} color="#FFFFFF" />
           </TouchableOpacity>
@@ -178,7 +301,7 @@ export default function AddVendorType({ navigation }) {
                   minWidth: 80,
                   alignItems: 'center'
                 }}
-                onPress={handleSubmit}
+                onPress={saveVendorType}
               >
                 <Text style={{ 
                   color: '#FFFFFF', 
@@ -241,51 +364,62 @@ export default function AddVendorType({ navigation }) {
               Vendor Type List
             </Text>
 
-            {vendorTypes.map((type, index) => (
-              <View 
-                key={index} 
-                style={{ 
-                  flexDirection: 'row', 
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  paddingVertical: 16,
-                  borderBottomWidth: index < vendorTypes.length - 1 ? 1 : 0,
-                  borderBottomColor: colors.border + '30'
-                }}
-              >
-                <Text style={{ 
-                  fontSize: 14, 
-                  color: colors.text,
-                  fontWeight: '500',
-                  flex: 1
-                }}>
-                  {type}
-                </Text>
-
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                  <TouchableOpacity 
-                    style={{ 
-                      padding: 8,
-                      borderRadius: 6,
-                      backgroundColor: `${colors.warning}15`
-                    }}
-                    onPress={() => handleEdit(index, type)}
-                  >
-                    <Icon name="pencil" size={18} color={colors.warning} />
-                  </TouchableOpacity>
-                  <TouchableOpacity 
-                    style={{ 
-                      padding: 8,
-                      borderRadius: 6,
-                      backgroundColor: `${colors.danger}15`
-                    }}
-                    onPress={() => handleDelete(index)}
-                  >
-                    <Icon name="delete" size={18} color={colors.danger} />
-                  </TouchableOpacity>
-                </View>
+            {loading ? (
+              <View style={{ padding: 24, alignItems: 'center', justifyContent: 'center' }}>
+                <Text style={{ color: colors.textMuted }}>Loading...</Text>
               </View>
-            ))}
+            ) : vendorTypes.length === 0 ? (
+              <View style={{ padding: 24, alignItems: 'center', justifyContent: 'center' }}>
+                <Icon name="account-group" size={40} color={colors.textMuted} />
+                <Text style={{ color: colors.textMuted, marginTop: 12 }}>No vendor types found</Text>
+              </View>
+            ) : (
+              vendorTypes.map((type, index) => (
+                <View 
+                  key={index} 
+                  style={{ 
+                    flexDirection: 'row', 
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    paddingVertical: 16,
+                    borderBottomWidth: index < vendorTypes.length - 1 ? 1 : 0,
+                    borderBottomColor: colors.border + '30'
+                  }}
+                >
+                  <Text style={{ 
+                    fontSize: 14, 
+                    color: colors.text,
+                    fontWeight: '500',
+                    flex: 1
+                  }}>
+                    {type.name}
+                  </Text>
+
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                    <TouchableOpacity 
+                      style={{ 
+                        padding: 8,
+                        borderRadius: 6,
+                        backgroundColor: `${colors.warning}15`
+                      }}
+                      onPress={() => handleEdit(index, type)}
+                    >
+                      <Icon name="pencil" size={18} color={colors.warning} />
+                    </TouchableOpacity>
+                    <TouchableOpacity 
+                      style={{ 
+                        padding: 8,
+                        borderRadius: 6,
+                        backgroundColor: `${colors.danger}15`
+                      }}
+                      onPress={() => handleDelete(index)}
+                    >
+                      <Icon name="delete" size={18} color={colors.danger} />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              ))
+            )}
           </View>
         </ScrollView>
       </View>

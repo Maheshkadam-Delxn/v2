@@ -75,6 +75,9 @@
                         |-- AddBoq.jsx
                         |-- PhaseModalBoq.jsx
                     |-- DocumentScreen.jsx
+                    |-- Drawing
+                        |-- AddDrawings.jsx
+                        |-- DrawingAddNewPhase.jsx
                     |-- DrawingScreen.jsx
                 |-- reports
                     |-- ActivityTimelinesScreen.jsx
@@ -82,11 +85,14 @@
                     |-- MaterialConsumptionScreen.jsx
                 |-- work-order
                     |-- AdvancePaymentScreen.jsx
-                    |-- BillPaymentScreenn.jsx
                     |-- BillScreen.jsx
+                    |-- WOBillPaymentScreenn.jsx
                     |-- WorkOrderScreen.jsx
             |-- user
+                |-- AddDocumentType.jsx
                 |-- AddNewMember.jsx
+                |-- AddVendor.jsx
+                |-- AddVendorType.jsx
                 |-- UsersMembersScreen.jsx
                 |-- UsersVendorsScreen.jsx
         |-- EditProjectScreen.jsx
