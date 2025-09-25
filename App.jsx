@@ -51,7 +51,7 @@ import MaterialConsumptionScreen from './src/screens/dashboard/sub-header/report
 
 // Work Order
 import AdvancePaymentScreen from './src/screens/dashboard/sub-header/work-order/AdvancePaymentScreen';
-import WorkOrderBillPaymentScreen from './src/screens/dashboard/sub-header/work-order/BillPaymentScreenn'; // Note: Renamed to avoid confusion
+import WorkOrderBillPaymentScreen from './src/screens/dashboard/sub-header/work-order/WOBillPaymentScreenn'; // Note: Renamed to avoid confusion
 import BillScreen from './src/screens/dashboard/sub-header/work-order/BillScreen';
 import WorkOrderScreen from './src/screens/dashboard/sub-header/work-order/WorkOrderScreen';
 
@@ -137,7 +137,8 @@ export default function App() {
 
         {/* Work Order */}
         <Stack.Screen name="AdvancePayment" component={AdvancePaymentScreen} />
-        <Stack.Screen name="WorkOrderBillPayment" component={WorkOrderBillPaymentScreen} />
+        <Stack.Screen name="WorkOrderBillPayment" component={WorkOrderBillPaymentScreen} /> 
+        {/* //first it was same aas BillPayementScreen but this is diffrent than that screen map this screen  */}
         <Stack.Screen name="Bill" component={BillScreen} />
         <Stack.Screen name="WorkOrder" component={WorkOrderScreen} />
       </Stack.Navigator>

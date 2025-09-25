@@ -607,7 +607,7 @@ const BillPaymentScreen = () => {
   }
 
   return (
-    <MainLayout title="Bill Payment List">
+    <MainLayout title="Payements Bill Payment List">
       <View style={{ flex: 1, backgroundColor: '#f8fafc' }}>
         {/* Header - Matching GRNListScreen */}
         <LinearGradient 

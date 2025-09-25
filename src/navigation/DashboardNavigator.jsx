@@ -15,7 +15,7 @@ import React from 'react';
   import WorkOrderScreen from '../screens/dashboard/sub-header/work-order/WorkOrderScreen';
   import AdvancePaymentScreen from '../screens/dashboard/sub-header/work-order/AdvancePaymentScreen';
   import BillScreen from '../screens/dashboard/sub-header/project-resources/BillOfQuantityScreen';
-  import WorkOrderBillPaymentScreen from '../screens/dashboard/sub-header/work-order/BillPaymentScreenn';
+  import WorkOrderBillPaymentScreen from '../screens/dashboard/sub-header/work-order/WOBillPaymentScreenn';
   import RFIScreen from '../screens/dashboard/sub-header/approvals/RFIScreen';
   import SnaggingReportScreen from '../screens/dashboard/sub-header/approvals/SnaggingReportScreen';
   import InspectionScreen from '../screens/dashboard/sub-header/approvals/InspectionScreen';
