@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   View, 
   Text, 
@@ -9,14 +9,13 @@ import {
   Modal, 
   Animated, 
   TouchableWithoutFeedback, 
-  Keyboard,
   Dimensions
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native'; // Import useNavigation
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import MainLayout from '../../components/MainLayout';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { LinearGradient } from 'expo-linear-gradient';
-
+import { useNavigation } from '@react-navigation/native';
 const screenWidth = Dimensions.get('window').width;
 
 const colors = {
@@ -41,62 +40,160 @@ export default function UsersMembersScreen() {
   const [slideAnim] = useState(new Animated.Value(300));
   const [newDepartment, setNewDepartment] = useState('');
   const [editingDepartment, setEditingDepartment] = useState(null);
-  const [departments, setDepartments] = useState([
-    { id: 1, name: 'Architectural', status: 'Active' },
-    { id: 2, name: 'Engineering', status: 'Active' },
-    { id: 3, name: 'Construction', status: 'Inactive' },
-    { id: 4, name: 'Design', status: 'Active' },
-    { id: 5, name: 'Planning', status: 'Inactive' },
-    { id: 6, name: 'Management', status: 'Active' },
-  ]);
+  const [departments, setDepartments] = useState([]);
+  const [departmentsLoading, setDepartmentsLoading] = useState(true);
+  const [members, setMembers] = useState([]);
+  const [token, setToken] = useState('');
+  const [orgId, setOrgId] = useState('');
+  const [loading, setLoading] = useState(true);
 
-  const members = [
-    {
-      name: 'Alan David',
-      email: 'vlyipa4378@acedby.com',
-      role: 'Project Admin',
-      lastLogin: '21 Aug 2025 11:35 AM',
-      project: 'Granite Horizon',
-      status: 'Active',
-      image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=387&q=80'
-    },
-    {
-      name: 'Mukesh Sinha',
-      email: 'vikashoffice38@gmail.com',
-      role: 'Consultant',
-      lastLogin: '29 Jul 2025 12:32 PM',
-      project: 'Granite Horizon',
-      status: 'Active',
-      image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=387&q=80'
-    },
-    {
-      name: 'moteen',
-      email: 'mo3@gmail.com',
-      role: 'Consultant',
-      lastLogin: 'Not logged in yet',
-      project: 'Granite Horizon',
-      status: 'Active',
-      image: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=580&q=80'
-    },
-    {
-      name: 'Sonalika',
-      email: 'bicisov382@pricegh.com',
-      role: 'Approver',
-      lastLogin: '20 Aug 2025 5:51 PM',
-      project: 'Granite Horizon',
-      status: 'Active',
-      image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=870&q=80'
-    },
-    {
-      name: 'Martin',
-      email: 'vayariv781@betzenn.com',
-      role: 'Approver',
-      lastLogin: '20 Aug 2025 5:51 PM',
-      project: 'Granite Horizon',
-      status: 'Active',
-      image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwa90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=870&q=80'
+  // Check login status and fetch token
+  const checkLoginStatus = async () => {
+    try {
+      const userData = await AsyncStorage.getItem("userData");
+      if (userData) {
+        const parsedData = JSON.parse(userData);
+        console.log("User Data:", parsedData);
+        setToken(parsedData.jwtToken);
+        setOrgId(parsedData.memberFormBean.organizationId);
+      }
+    } catch (err) {
+      console.error("Error checking login status:", err);
     }
-  ];
+  };
+
+  // Fetch departments from API
+  const fetchDepartments = async () => {
+    if (!token || !orgId) return;
+    try {
+      setDepartmentsLoading(true);
+      const response = await fetch('https://api-v2-skystruct.prudenttec.com/department', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'X-Menu-Id': '8OMNBJc0dAp',
+        },
+      });
+      const data = await response.json();
+      console.log('Fetched departments:', data);
+      if (data.departmentFormBeans) {
+        setDepartments(data.departmentFormBeans.map(d => ({
+          id: d.autoId || d.id,
+          name: d.departmentName,
+          status: d.status
+        })));
+      } else {
+        console.error('Failed to fetch departments:', data);
+      }
+    } catch (error) {
+      console.error('Error fetching departments:', error);
+    } finally {
+      setDepartmentsLoading(false);
+    }
+  };
+
+  // Save department (add or edit)
+  const saveDepartment = async () => {
+    if (!newDepartment.trim() || !token || !orgId) return;
+    try {
+      const body = {
+        departmentFormBean: {
+          departmentName: newDepartment,
+          orgId: orgId,
+          status: editingDepartment ? editingDepartment.status : 'Active',
+          ...(editingDepartment && { autoId: editingDepartment.id })
+        }
+      };
+      const response = await fetch('https://api-v2-skystruct.prudenttec.com/department', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'X-Menu-Id': '8OMNBJc0dAp',
+        },
+        body: JSON.stringify(body),
+      });
+      const data = await response.json();
+      console.log('Saved department:', data);
+      if (data.status) {
+        fetchDepartments();
+        setNewDepartment('');
+        setEditingDepartment(null);
+      } else {
+        console.error('Failed to save department:', data);
+      }
+    } catch (error) {
+      console.error('Error saving department:', error);
+    }
+  };
+
+  // Delete department
+  const deleteDepartment = async (departmentId) => {
+    if (!token || !departmentId) return;
+    try {
+      const response = await fetch(`https://api-v2-skystruct.prudenttec.com/department/${departmentId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'X-Menu-Id': '8OMNBJc0dAp',
+        },
+      });
+      if (response.ok) {
+        fetchDepartments();
+      } else {
+        console.error('Failed to delete department');
+      }
+    } catch (error) {
+      console.error('Error deleting department:', error);
+    }
+  };
+
+  // Fetch members from API
+  const fetchMembers = async () => {
+    if (!token) return;
+    console.log('Fetching members with token:', token);
+    try {
+      setLoading(true);
+      const response = await fetch('https://api-v2-skystruct.prudenttec.com/member/get-all-member-list-by-org', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'X-Menu-Id': '8OMNBJc0dAp',
+        },
+        body: JSON.stringify({
+          "comment":""
+        }),
+      });
+      
+      const data = await response.json();
+      console.log('Fetched members:', data);
+      if (data.memberFormBeans) {
+        setMembers(data.memberFormBeans);
+      } else {
+        console.error('Failed to fetch members:', data);
+      }
+    } catch (error) {
+      console.error('Error fetching members:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  console.log("Org ID:", orgId);  
+  // Run on component mount
+  useEffect(() => {
+    checkLoginStatus();
+  }, []);
+
+  // Fetch data when token and orgId are available
+  useEffect(() => {
+    if (token && orgId) {
+      fetchMembers();
+      fetchDepartments();
+    }
+  }, [token, orgId]);
 
   const openModal = () => {
     setModalVisible(true);
@@ -118,26 +215,7 @@ export default function UsersMembersScreen() {
   };
 
   const handleSubmit = () => {
-    if (newDepartment.trim()) {
-      if (editingDepartment) {
-        // Update existing department
-        setDepartments(prev => 
-          prev.map(dept => 
-            dept.id === editingDepartment.id 
-              ? { ...dept, name: newDepartment } 
-              : dept
-          )
-        );
-        setEditingDepartment(null);
-      } else {
-        // Add new department
-        setDepartments(prev => [
-          ...prev,
-          { id: Date.now(), name: newDepartment, status: 'Active' }
-        ]);
-      }
-      setNewDepartment('');
-    }
+    saveDepartment();
   };
 
   const handleEdit = (department) => {
@@ -146,7 +224,7 @@ export default function UsersMembersScreen() {
   };
 
   const handleDelete = (department) => {
-    setDepartments(prev => prev.filter(dept => dept.id !== department.id));
+    deleteDepartment(department.id);
   };
 
   const toggleStatus = (department) => {
@@ -169,7 +247,7 @@ export default function UsersMembersScreen() {
   };
 
   const getStatusColor = (status) => {
-    return status === 'Active' ? colors.success : colors.danger;
+    return status === 'A' ? colors.success : colors.danger;
   };
 
   return (
@@ -213,7 +291,7 @@ export default function UsersMembersScreen() {
                   borderWidth: 1,
                   borderColor: colors.border
                 }}
-                onPress={() => console.log('Refresh')}
+                onPress={fetchMembers}
               >
                 <Icon name="refresh" size={20} color={colors.info} />
               </TouchableOpacity>
@@ -294,76 +372,123 @@ export default function UsersMembersScreen() {
           contentContainerStyle={{ padding: 16 }}
           showsVerticalScrollIndicator={false}
         >
-          {members.map((member, index) => (
-            <View key={index} style={{ 
-              backgroundColor: colors.surface, 
-              borderRadius: 16, 
-              padding: 16, 
-              marginBottom: 16,
-              elevation: 3,
-              borderWidth: 1,
-              borderColor: colors.border
-            }}>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <Image 
-                    source={{ uri: member.image }} 
-                    style={{ width: 48, height: 44, borderRadius: 24, marginRight: 16 }} 
-                  />
-                  <View>
-                    <Text style={{ fontSize: 16, fontWeight: '600', color: colors.text }}>{member.name}</Text>
-                    <Text style={{ fontSize: 12, color: colors.textMuted, marginTop: 4 }}>{member.email}</Text>
-                  </View>
-                </View>
-                
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <View style={{ 
-                    borderRadius: 8, 
-                    height: 12, 
-                    width: 12, 
-                    backgroundColor: getStatusColor(member.status), 
-                    marginRight: 8 
-                  }} />
-                  <Text style={{ fontSize: 12, color: colors.textMuted, marginRight: 16 }}>{member.status}</Text>
-                  <TouchableOpacity>
-                    <Icon name="pencil-outline" size={20} color={colors.textMuted} />
-                  </TouchableOpacity>
-                </View>
-              </View>
-              
-              <View style={{ borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 16 }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
-                  <View style={{ 
-                    height: 32, 
-                    width: 4, 
-                    backgroundColor: getRoleColor(member.role), 
-                    borderRadius: 2, 
-                    marginRight: 12 
-                  }} />
-                  <View>
-                    <Text style={{ fontSize: 12, color: colors.textMuted }}>Role</Text>
-                    <Text style={{ fontSize: 14, fontWeight: '600', color: colors.text }}>{member.role}</Text>
-                  </View>
-                </View>
-                
-                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12, marginLeft: 16 }}>
-                  <Icon name="clock-outline" size={16} color={colors.textMuted} style={{ marginRight: 12 }} />
-                  <View>
-                    <Text style={{ fontSize: 12, color: colors.textMuted }}>Last Login</Text>
-                    <Text style={{ fontSize: 14, fontWeight: '600', color: colors.text }}>{member.lastLogin}</Text>
-                  </View>
-                </View>
-                
-                <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 16 }}>
-                  <Icon name="folder-outline" size={16} color={colors.textMuted} style={{ marginRight: 12 }} />
-                  <View>
-                    <Text style={{ fontSize: 12, color: colors.textMuted }}>Project</Text>
-                    <Text style={{ fontSize: 14, fontWeight: '600', color: colors.text }}>{member.project}</Text>
-                  </View>
-                </View>
-              </View>
+          {loading ? (
+            <View style={{ padding: 24, alignItems: 'center', justifyContent: 'center' }}>
+              <Text style={{ color: colors.textMuted }}>Loading...</Text>
             </View>
-          ))}
+          ) : members.length === 0 ? (
+            <View style={{ padding: 24, alignItems: 'center', justifyContent: 'center' }}>
+              <Icon name="account-group" size={40} color={colors.textMuted} />
+              <Text style={{ color: colors.textMuted, marginTop: 12 }}>No members found</Text>
+            </View>
+          ) : (
+            members.map((member, index) => (
+              <View key={index} style={{ 
+                backgroundColor: colors.surface, 
+                borderRadius: 16, 
+                padding: 16, 
+                marginBottom: 16,
+                elevation: 3,
+                borderWidth: 1,
+                borderColor: colors.border
+              }}>
+                <View style={{ 
+                  flexDirection: 'row', 
+                  justifyContent: 'space-between', 
+                  alignItems: 'center', 
+                  marginBottom: 16,
+                  flexWrap: 'wrap'
+                }}>
+                  <View style={{ 
+                    flexDirection: 'row', 
+                    alignItems: 'center', 
+                    flex: 1,
+                    minWidth: 0
+                  }}>
+                    <Image 
+                      source={{ uri: member.profileUrl || 'https://skystruct.blob.core.windows.net/file-skytruct/Setup/user-img.jpg' }} 
+                      style={{ width: 48, height: 44, borderRadius: 24, marginRight: 16 }} 
+                    />
+                    <View style={{ flex: 1, minWidth: 0 }}>
+                      <Text 
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
+                        style={{ fontSize: 16, fontWeight: '600', color: colors.text }}
+                      >
+                        {member.name}
+                      </Text>
+                      <Text 
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
+                        style={{ fontSize: 12, color: colors.textMuted, marginTop: 4 }}
+                      >
+                        {member.emailId}
+                      </Text>
+                    </View>
+                  </View>
+                  
+                  <View style={{ 
+                    flexDirection: 'row', 
+                    alignItems: 'center',
+                    marginLeft: 16,
+                    marginTop: 8
+                  }}>
+                    <View style={{ 
+                      borderRadius: 8, 
+                      height: 12, 
+                      width: 12, 
+                      backgroundColor: getStatusColor(member.status), 
+                      marginRight: 8 
+                    }} />
+                    <Text style={{ 
+                      fontSize: 12, 
+                      color: colors.textMuted, 
+                      marginRight: 8
+                    }}>
+                      {member.status === 'A' ? 'Active' : 'Inactive'}
+                    </Text>
+                    <TouchableOpacity>
+                      <Icon name="pencil-outline" size={20} color={colors.textMuted} />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+                
+                <View style={{ borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 16 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
+                    <View style={{ 
+                      height: 32, 
+                      width: 4, 
+                      backgroundColor: getRoleColor(member.role), 
+                      borderRadius: 2, 
+                      marginRight: 12 
+                    }} />
+                    <View>
+                      <Text style={{ fontSize: 12, color: colors.textMuted }}>Role</Text>
+                      <Text style={{ fontSize: 14, fontWeight: '600', color: colors.text }}>{member.role}</Text>
+                    </View>
+                  </View>
+                  
+                  <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12, marginLeft: 16 }}>
+                    <Icon name="clock-outline" size={16} color={colors.textMuted} style={{ marginRight: 12 }} />
+                    <View>
+                      <Text style={{ fontSize: 12, color: colors.textMuted }}>Last Login</Text>
+                      <Text style={{ fontSize: 14, fontWeight: '600', color: colors.text }}>
+                        {member.lastLoginDate || 'Not logged in yet'}
+                      </Text>
+                    </View>
+                  </View>
+                  
+                  <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 16 }}>
+                    <Icon name="folder-outline" size={16} color={colors.textMuted} style={{ marginRight: 12 }} />
+                    <View>
+                      <Text style={{ fontSize: 12, color: colors.textMuted }}>Project</Text>
+                      <Text style={{ fontSize: 14, fontWeight: '600', color: colors.text }}>{member.proName}</Text>
+                    </View>
+                  </View>
+                </View>
+              </View>
+            ))
+          )}
         </ScrollView>
 
         {/* Sidebar Modal for Department Management */}
@@ -451,11 +576,14 @@ export default function UsersMembersScreen() {
                         </TouchableOpacity>
                       </View>
 
-                      {/* Department List */}
                       <View style={{ marginTop: 32 }}>
                         <Text style={{ fontSize: 18, fontWeight: '600', color: colors.text, marginBottom: 16 }}>Department List</Text>
                         
-                        {departments.map((department) => (
+                        {departmentsLoading ? (
+                          <View style={{ padding: 24, alignItems: 'center', justifyContent: 'center' }}>
+                            <Text style={{ color: colors.textMuted }}>Loading departments...</Text>
+                          </View>
+                        ) : departments.map((department) => (
                           <View key={department.id} style={{ 
                             flexDirection: 'row', 
                             alignItems: 'center', 
@@ -488,7 +616,7 @@ export default function UsersMembersScreen() {
                           </View>
                         ))}
                         
-                        {departments.length === 0 && (
+                        {!departmentsLoading && departments.length === 0 && (
                           <View style={{ padding: 24, alignItems: 'center', justifyContent: 'center' }}>
                             <Icon name="office-building" size={40} color={colors.textMuted} />
                             <Text style={{ color: colors.textMuted, marginTop: 12 }}>No departments added yet</Text>

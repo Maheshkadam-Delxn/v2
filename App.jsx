@@ -51,7 +51,7 @@ import MaterialConsumptionScreen from './src/screens/dashboard/sub-header/report
 
 // Work Order
 import AdvancePaymentScreen from './src/screens/dashboard/sub-header/work-order/AdvancePaymentScreen';
-import WorkOrderBillPaymentScreen from './src/screens/dashboard/sub-header/work-order/BillPaymentScreenn'; // Note: Renamed to avoid confusion
+import WorkOrderBillPaymentScreen from './src/screens/dashboard/sub-header/work-order/WOBillPaymentScreenn'; // Note: Renamed to avoid confusion
 import BillScreen from './src/screens/dashboard/sub-header/work-order/BillScreen';
 import WorkOrderScreen from './src/screens/dashboard/sub-header/work-order/WorkOrderScreen';
 
@@ -62,6 +62,12 @@ import EditProjectScreen from './src/screens/EditProjectScreen';
 import AddNewMember from './src/screens/dashboard/user/AddNewMember';
 import AddBoq from './src/screens/dashboard/sub-header/project-resources/Boq/AddBoq';
 import PhaseModalBoq from './src/screens/dashboard/sub-header/project-resources/Boq/PhaseModalBoq';
+import AddDrawings from './src/screens/dashboard/sub-header/project-resources/Drawing/AddDrawings';
+import DrawingAddNewPhase from './src/screens/dashboard/sub-header/project-resources/Drawing/DrawingAddNewPhase';
+import AddVendor from './src/screens/dashboard/user/AddVendor';
+import AddVendorType from './src/screens/dashboard/user/AddVendorType';
+import AddDocumentType from './src/screens/dashboard/user/AddDocumentType';
+import AddBoqItem from './src/screens/dashboard/sub-header/project-resources/Boq/AddBoqItem';
 
 const Stack = createNativeStackNavigator();
 
@@ -93,6 +99,12 @@ export default function App() {
         <Stack.Screen name="UsersMembers" component={UsersMembersScreen} />
         <Stack.Screen name="AddMembers" component={AddNewMember}/>
         <Stack.Screen name="UsersVendors" component={UsersVendorsScreen} />
+
+        <Stack.Screen name="AddVendor" component={AddVendor} />
+        <Stack.Screen name="AddVendortype" component={AddVendorType} />
+        <Stack.Screen name="AddDocumentType" component={AddDocumentType} />
+
+
         <Stack.Screen name="SettingsPermission" component={SettingsPermissionScreen} />
         <Stack.Screen name="SettingsEvents" component={SettingsEventsScreen} />
         <Stack.Screen name="SettingsReminder" component={SettingsReminderScreen} />
@@ -102,11 +114,16 @@ export default function App() {
         {/* Project Resources */}
         <Stack.Screen name="BillOfQuantity" component={BillOfQuantityScreen} />
         <Stack.Screen name="AddBoq" component={AddBoq}/>
+        <Stack.Screen name="AddBoqItem" component={AddBoqItem}/>
         <Stack.Screen name="AddPhaseBoq" component={PhaseModalBoq}/>
 
 
         <Stack.Screen name="Document" component={DocumentScreen} />
         <Stack.Screen name="Drawing" component={DrawingScreen} />
+        <Stack.Screen name="AddDrawing" component={AddDrawings} />
+        <Stack.Screen name="AddDrawingPhase" component={DrawingAddNewPhase} />
+
+
 
         {/* Project Planning */}
         <Stack.Screen name="Activity" component={ActivityScreen} />
@@ -137,7 +154,8 @@ export default function App() {
 
         {/* Work Order */}
         <Stack.Screen name="AdvancePayment" component={AdvancePaymentScreen} />
-        <Stack.Screen name="WorkOrderBillPayment" component={WorkOrderBillPaymentScreen} />
+        <Stack.Screen name="WorkOrderBillPayment" component={WorkOrderBillPaymentScreen} /> 
+        {/* //first it was same aas BillPayementScreen but this is diffrent than that screen map this screen  */}
         <Stack.Screen name="Bill" component={BillScreen} />
         <Stack.Screen name="WorkOrder" component={WorkOrderScreen} />
       </Stack.Navigator>

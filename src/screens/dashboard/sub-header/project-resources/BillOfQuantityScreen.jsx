@@ -481,32 +481,98 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// BOQ Item Component
-const BoqItem = ({ title, phaseId, type, total, paid, approved }) => {
+// BOQ Item Component with Dropdown
+const BoqItem = ({ item, navigation }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  
+  // Sample sub-items for dropdown
+  const subItems = [
+    { id: 1, itemNo: '102', quantity: '500.00 (Ton)', total: '117500.00', unitCost: '235.00' },
+    { id: 2, itemNo: '103', quantity: '50.00 (Nos)', total: '18250.00', unitCost: '365.00' }
+  ];
+
   return (
-    <View className="bg-white p-4 mb-3 rounded-lg border border-gray-200">
-      <View className="flex-row justify-between items-start mb-2">
-        <Text className="text-lg font-semibold text-gray-800">{title}</Text>
-        <View className={`px-2 py-1 rounded-full ${approved ? 'bg-green-100' : 'bg-yellow-100'}`}>
-          <Text className={`text-xs font-medium ${approved ? 'text-green-800' : 'text-yellow-800'}`}>
-            {approved ? 'Approved' : 'Pending'}
-          </Text>
+    <View className="bg-white mb-3 rounded-lg border border-gray-200 overflow-hidden">
+      {/* Main BOQ Header */}
+      <TouchableOpacity 
+        className="p-4"
+        onPress={() => setIsExpanded(!isExpanded)}
+      >
+        <View className="flex-row justify-between items-start mb-2">
+          <View className="flex-1">
+            <Text className="text-lg font-semibold text-gray-800">{item.title}</Text>
+          </View>
+          <View className="flex-row items-center">
+            <View className={`px-2 py-1 rounded-full mr-2 ${item.approved ? 'bg-green-100' : 'bg-yellow-100'}`}>
+              <Text className={`text-xs font-medium ${item.approved ? 'text-green-800' : 'text-yellow-800'}`}>
+                {item.approved ? 'Approved' : 'Pending'}
+              </Text>
+            </View>
+            <Feather 
+              name={isExpanded ? 'chevron-up' : 'chevron-down'} 
+              size={20} 
+              color="#6b7280" 
+            />
+          </View>
         </View>
-      </View>
-      
-      <View className="flex-row mb-2">
-        <View className="bg-blue-100 px-2 py-1 rounded-full mr-2">
-          <Text className="text-xs text-blue-800">{phaseId}</Text>
+        
+        <View className="flex-row mb-2">
+          <View className="bg-blue-100 px-2 py-1 rounded-full mr-2">
+            <Text className="text-xs text-blue-800">{item.category}</Text>
+          </View>
+          <View className="bg-purple-100 px-2 py-1 rounded-full">
+            <Text className="text-xs text-purple-800">{item.type}</Text>
+          </View>
         </View>
-        <View className="bg-purple-100 px-2 py-1 rounded-full">
-          <Text className="text-xs text-purple-800">{type}</Text>
+        
+        <View className="flex-row justify-between">
+          <Text className="text-gray-600">Total/Paid:</Text>
+          <Text className="font-medium text-gray-800">{item.total}/{item.paid}</Text>
         </View>
-      </View>
-      
-      <View className="flex-row justify-between">
-        <Text className="text-gray-600">Total/Paid:</Text>
-        <Text className="font-medium text-gray-800">{total}/{paid}</Text>
-      </View>
+      </TouchableOpacity>
+
+      {/* Dropdown Content */}
+      {isExpanded && (
+        <View className="border-t border-gray-200 bg-gray-50">
+          {/* Header Row */}
+          <View className="flex-row items-center justify-between p-3 border-b border-gray-200 bg-white">
+            <Text className="text-sm font-medium text-gray-700">Item List</Text>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('AddBoqItem', { boqId: item.id })}
+              className="w-8 h-8 rounded-full bg-blue-500 justify-center items-center"
+            >
+              <Feather name="plus" size={16} color="#ffffff" />
+            </TouchableOpacity>
+          </View>
+
+          {/* Sub Items */}
+          {subItems.map((subItem) => (
+            <View key={subItem.id} className="p-3 border-b border-gray-100 bg-white">
+              <View className="flex-row justify-between items-center mb-2">
+                <Text className="font-medium text-gray-800">Item No: {subItem.itemNo}</Text>
+                <Text className="text-sm text-gray-600">Unit Cost: {subItem.unitCost}</Text>
+              </View>
+              <View className="flex-row justify-between">
+                <Text className="text-sm text-gray-600">Quantity: {subItem.quantity}</Text>
+                <Text className="text-sm font-medium text-gray-800">Total: {subItem.total}</Text>
+              </View>
+            </View>
+          ))}
+
+          {/* Empty State */}
+          {subItems.length === 0 && (
+            <View className="p-4 items-center">
+              <Text className="text-gray-500 text-sm">No items added yet</Text>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('AddBoqItem', { boqId: item.id })}
+                className="mt-2 px-4 py-2 bg-blue-500 rounded-lg"
+              >
+                <Text className="text-white text-sm font-medium">Add First Item</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
+      )}
     </View>
   );
 };
@@ -573,6 +639,13 @@ export default function BillOfQuantity() {
     .filter(item => item.title.toLowerCase().includes(searchText.toLowerCase()));
 
   const tabs = ['All', 'General', 'Structural', 'Other', 'External'];
+
+  React.useEffect(() => {
+    Animated.spring(scaleAnim, {
+      toValue: 1,
+      useNativeDriver: true,
+    }).start();
+  }, []);
 
   return (
     <View className="flex-1 bg-gray-50">
@@ -686,13 +759,9 @@ export default function BillOfQuantity() {
         <ScrollView className="flex-1 px-6 bg-gray-50">
           {filteredData.map(item => (
             <BoqItem
-              key={item.autoId}
-              title={item.title}
-              phaseId={item.phaseId}
-              type={item.boqType}
-              total={item.totalCost}
-              paid={item.totalPayment}
-              approved={item.aprOrNot === 'A'}
+              key={item.id}
+              item={item}
+              navigation={navigation}
             />
           ))}
         </ScrollView>
