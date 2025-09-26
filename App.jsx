@@ -67,6 +67,7 @@ import DrawingAddNewPhase from './src/screens/dashboard/sub-header/project-resou
 import AddVendor from './src/screens/dashboard/user/AddVendor';
 import AddVendorType from './src/screens/dashboard/user/AddVendorType';
 import AddDocumentType from './src/screens/dashboard/user/AddDocumentType';
+import AddBoqItem from './src/screens/dashboard/sub-header/project-resources/Boq/AddBoqItem';
 
 const Stack = createNativeStackNavigator();
 
@@ -113,6 +114,7 @@ export default function App() {
         {/* Project Resources */}
         <Stack.Screen name="BillOfQuantity" component={BillOfQuantityScreen} />
         <Stack.Screen name="AddBoq" component={AddBoq}/>
+        <Stack.Screen name="AddBoqItem" component={AddBoqItem}/>
         <Stack.Screen name="AddPhaseBoq" component={PhaseModalBoq}/>
 
 
