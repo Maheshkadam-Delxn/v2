@@ -764,6 +764,7 @@ const fetchProjectData = async () => {
         jwtToken: data.jwtToken,
       };
       await AsyncStorage.setItem('userData', JSON.stringify(updatedUserData));
+      console.log(data.jwtToken);
       console.log("🔄 JWT Token updated in storage");
     }
     setOptions(data.rolePermissionFormBeans)
