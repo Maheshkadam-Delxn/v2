@@ -53,6 +53,9 @@
                 |-- ProfileScreen.jsx
             |-- sub-header
                 |-- approvals
+                    |-- inspection
+                        |-- AddInspection.jsx
+                        |-- AddInspectionChecklist.jsx
                     |-- InspectionScreen.jsx
                     |-- RFIScreen.jsx
                     |-- SnaggingReportScreen.jsx
