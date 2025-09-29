@@ -18,102 +18,142 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 import MainLayout from '../../../../components/MainLayout';
 import { Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const AddBoqItem = () => {
   const route = useRoute();
   const navigation = useNavigation();
-  const { boqId, boqName: initialBoqName } = route.params || {};
-
-  // Initialize formData with total field
+  const { boqId: initialBoqId, boqName: initialBoqName } = route.params || {};
+  // Initialize formData with totalCost field
   const [formData, setFormData] = useState({
-    boqName: initialBoqName || '',
+    boqId: initialBoqId || '',
     itemNo: '',
     quantity: '',
     unitCost: '',
-    amount: '',
+    totalCost: '0.00',
     unit: '',
     phase: '',
     contractorLabourRate: '',
     description: '',
     remark: '',
-    total: '0.00', // Added total field
   });
-
+  const [displayData, setDisplayData] = useState({
+    boqId: initialBoqName || '',
+    unit: '',
+  });
   const [errors, setErrors] = useState({});
   const [dropdownVisible, setDropdownVisible] = useState(null);
   const [loading, setLoading] = useState(false);
   const [boqOptions, setBoqOptions] = useState([]);
+  const [unitOptions, setUnitOptions] = useState([]);
   const [loadingBoqData, setLoadingBoqData] = useState(false);
+  const [loadingUnitData, setLoadingUnitData] = useState(false);
   const fadeAnim = React.useRef(new Animated.Value(0)).current;
-
-  // Define unitOptions
-  const unitOptions = [
-    'Ton',
-    'Nos',
-    'Kg',
-    'Meter',
-    'Square Meter',
-    'Cubic Meter',
-    'Liter',
-    'Feet',
-    'Inch',
-    'Piece',
-    'Box',
-    'Bundle',
-  ];
-
-  const phaseOptions = [
-    'Phase 1 - Foundation',
-    'Phase 2 - Structure',
-    'Phase 3 - Roofing',
-    'Phase 4 - Finishing',
-    'Phase 5 - External Works',
-  ];
-
-  // Fetch BOQ data from API
+  useEffect(() => {
+    fetchBoqData();
+    fetchUnitData();
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  }, []);
   const fetchBoqData = async () => {
     setLoadingBoqData(true);
+    const userData = await AsyncStorage.getItem('userData');
+    if (!userData) {
+      console.log('❌ No user data found in storage');
+      setLoadingBoqData(false);
+      return;
+    }
+    const parsedData = JSON.parse(userData);
     try {
-      // Replace with your actual API endpoint
-      const response = await fetch('https://your-api-endpoint/boq/list'); // Update with real endpoint
+      const response = await fetch('https://api-v2-skystruct.prudenttec.com/boq/boq-list', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${parsedData.jwtToken}`,
+          'X-Menu-Id': '19Ab9n5HF73',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          "category": "GUbvuPLB50r"
+        }),
+      });
       const data = await response.json();
-
-      if (data.success) {
-        setBoqOptions(data.boqList || []);
-      } else {
-        throw new Error('API returned unsuccessful response');
+      console.log("data input : - ", data.boqFormBeans);
+     
+      // Map the boqFormBeans to include a 'name' field for consistency in dropdown rendering
+      const mappedBoqOptions = (data.boqFormBeans || []).map(item => ({
+        ...item,
+        name: item.title // Use 'title' as the display name for BOQ
+      }));
+     
+      console.log("InitialBoqId",initialBoqId);
+     
+      let boqToSet = mappedBoqOptions;
+      if (initialBoqId) {
+        boqToSet = mappedBoqOptions.filter((f) => f.autoId === initialBoqId);
       }
+     
+      console.log("BOQID :- ",boqToSet);
+      console.log(mappedBoqOptions);
+     
+      setBoqOptions(boqToSet);
     } catch (error) {
-      console.error('Failed to fetch BOQ data:', error);
-      // Fallback to sample data
-      setBoqOptions([
-        { id: 1, name: 'General BOQ' },
-        { id: 2, name: 'Structural BOQ' },
-        { id: 3, name: 'External BOQ' },
-        { id: 4, name: 'Other BOQ' },
-        { id: 5, name: 'Variable BOQ' },
-      ]);
-      Alert.alert('Warning', 'Unable to load BOQ data from server. Using offline data.');
+      console.error('Error fetching BOQ data:', error);
     } finally {
       setLoadingBoqData(false);
     }
   };
-
-  useEffect(() => {
-    fetchBoqData(); // Fetch BOQ data on mount
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 500,
-      useNativeDriver: true,
-    }).start();
-  }, []);
-
-  const handleInputChange = (field, value) => {
+  const fetchUnitData = async () => {
+    setLoadingUnitData(true);
+    const userData = await AsyncStorage.getItem('userData');
+    if (!userData) {
+      console.log('❌ No user data found in storage');
+      setLoadingUnitData(false);
+      return;
+    }
+    const parsedData = JSON.parse(userData);
+    try {
+      const response = await fetch('https://api-v2-skystruct.prudenttec.com/unit/get-list', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${parsedData.jwtToken}`,
+          'X-Menu-Id': '19Ab9n5HF73',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({type:"Material"})
+      });
+      const data = await response.json();
+      console.log("unit data : - ", data.unitFormBeans);
+     
+      // Assuming the units are in data.unitFormBeans; fallback to empty array
+      const unitList = data.unitFormBeans || [];
+      // Map to include 'name'
+      const mappedUnitOptions = unitList.map(item => ({
+        ...item,
+        name: item.unit
+      }));
+     
+      console.log("hellooooooooo",mappedUnitOptions);
+     
+      setUnitOptions(mappedUnitOptions);
+    } catch (error) {
+      console.error('Error fetching unit data:', error);
+    } finally {
+      setLoadingUnitData(false);
+    }
+  };
+  const handleInputChange = (field, value, id = null) => {
     setFormData((prev) => ({
       ...prev,
-      [field]: value,
+      [field]: id || value,
     }));
-
+    if (id) {
+      setDisplayData((prev) => ({
+        ...prev,
+        [field]: value,
+      }));
+    }
     // Clear error when user starts typing
     if (errors[field]) {
       setErrors((prev) => ({
@@ -121,30 +161,24 @@ const AddBoqItem = () => {
         [field]: null,
       }));
     }
-
     // Auto-calculate total when quantity or unit cost changes
     if (field === 'quantity' || field === 'unitCost') {
-      const quantity = field === 'quantity' ? parseFloat(value) || 0 : parseFloat(formData.quantity) || 0;
-      const unitCost = field === 'unitCost' ? parseFloat(value) || 0 : parseFloat(formData.unitCost) || 0;
+      const quantity = field === 'quantity' ? parseFloat(id || value) || 0 : parseFloat(formData.quantity) || 0;
+      const unitCost = field === 'unitCost' ? parseFloat(id || value) || 0 : parseFloat(formData.unitCost) || 0;
       const total = quantity * unitCost;
-
       setFormData((prev) => ({
         ...prev,
-        total: isNaN(total) ? '0.00' : total.toFixed(2),
+        totalCost: isNaN(total) ? '0.00' : total.toFixed(2),
       }));
     }
   };
-
   const validateForm = () => {
     const newErrors = {};
-
-    if (!formData.boqName.trim()) newErrors.boqName = 'BOQ Name is required';
+    if (!formData.boqId.trim()) newErrors.boqId = 'BOQ Name is required';
     if (!formData.itemNo.trim()) newErrors.itemNo = 'Item Number is required';
     if (!formData.quantity.trim()) newErrors.quantity = 'Quantity is required';
     if (!formData.unitCost.trim()) newErrors.unitCost = 'Unit Cost is required';
-    if (!formData.amount.trim()) newErrors.amount = 'Amount is required';
     if (!formData.unit.trim()) newErrors.unit = 'Unit is required';
-
     // Validate numeric fields
     if (formData.quantity && isNaN(parseFloat(formData.quantity))) {
       newErrors.quantity = 'Quantity must be a valid number';
@@ -152,35 +186,59 @@ const AddBoqItem = () => {
     if (formData.unitCost && isNaN(parseFloat(formData.unitCost))) {
       newErrors.unitCost = 'Unit Cost must be a valid number';
     }
-    if (formData.amount && isNaN(parseFloat(formData.amount))) {
-      newErrors.amount = 'Amount must be a valid number';
-    }
     if (formData.contractorLabourRate && isNaN(parseFloat(formData.contractorLabourRate))) {
       newErrors.contractorLabourRate = 'Labour Rate must be a valid number';
     }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
   const handleSubmit = async () => {
     if (!validateForm()) {
       Alert.alert('Validation Error', 'Please correct the highlighted fields');
       return;
     }
-
     setLoading(true);
-
+    const userData = await AsyncStorage.getItem('userData');
+    if (!userData) {
+      console.log('❌ No user data found in storage');
+      setLoading(false);
+      return;
+    }
+    const parsedData = JSON.parse(userData);
     try {
+      // Construct payload matching the provided structure
+      const payload = {
+        boqItemFormBean: {
+          itemNumber: formData.itemNo,
+          quantity: formData.quantity,
+          unitCost: formData.unitCost,
+          totalCost: formData.totalCost,
+          itemName: formData.description,
+          unit: formData.unit,
+          category: formData.phase,
+          contractorCost: formData.contractorLabourRate,
+          remark: formData.remark,
+          boqId: formData.boqId,
+        },
+      };
+      console.log("payload : -", payload);
+     
       // Replace with actual API call
-      await fetch('https://your-api-endpoint/boq/add', {
+      const response = await fetch('https://api-v2-skystruct.prudenttec.com/boq/item', {
         method: 'POST',
         headers: {
+          Authorization: `Bearer ${parsedData.jwtToken}`,
+          'X-Menu-Id': '19Ab9n5HF73',
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
-
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      console.log("Data : - ",data);
+     
       Alert.alert(
         'Success',
         'BOQ Item has been added successfully!',
@@ -189,17 +247,20 @@ const AddBoqItem = () => {
             text: 'Add Another',
             onPress: () => {
               setFormData({
-                boqName: formData.boqName,
+                boqId: formData.boqId,
                 itemNo: '',
                 quantity: '',
                 unitCost: '',
-                amount: '',
+                totalCost: '0.00',
                 unit: '',
                 phase: formData.phase,
                 contractorLabourRate: formData.contractorLabourRate,
                 description: '',
                 remark: '',
-                total: '0.00',
+              });
+              setDisplayData({
+                boqId: displayData.boqId,
+                unit: '',
               });
             },
           },
@@ -217,7 +278,6 @@ const AddBoqItem = () => {
       setLoading(false);
     }
   };
-
   const renderDropdown = (options, field, placeholder) => (
     <Modal
       visible={dropdownVisible === field}
@@ -235,45 +295,53 @@ const AddBoqItem = () => {
         <View className="bg-white rounded-lg max-h-80 shadow-lg">
           <View className="p-4 border-b border-gray-200 flex-row items-center justify-between">
             <Text className="text-lg font-semibold text-gray-800">{placeholder}</Text>
-            {field === 'boqName' && loadingBoqData && (
+            {(field === 'boqId' && loadingBoqData) || (field === 'unit' && loadingUnitData) ? (
               <ActivityIndicator size="small" color="#3b82f6" />
-            )}
+            ) : null}
           </View>
-
-          {field === 'boqName' && loadingBoqData ? (
+          {((field === 'boqId' && loadingBoqData) || (field === 'unit' && loadingUnitData)) ? (
             <View className="p-8 items-center">
               <ActivityIndicator size="large" color="#3b82f6" />
-              <Text className="text-gray-500 mt-2">Loading BOQ data...</Text>
+              <Text className="text-gray-500 mt-2">Loading data...</Text>
             </View>
           ) : (
             <FlatList
               data={options}
               keyExtractor={(item, index) =>
-                field === 'boqName' ? (item.id?.toString() || index.toString()) : index.toString()
+                (field === 'boqId' || field === 'unit' || field === 'phase') ? (item.id?.toString() || item.autoId || index.toString()) : index.toString()
               }
               renderItem={({ item }) => (
                 <TouchableOpacity
                   className="p-4 border-b border-gray-100"
                   onPress={() => {
-                    const value = field === 'boqName' ? (item.name || item) : item;
-                    handleInputChange(field, value);
+                    const displayValue = field === 'boqId' ? item.name || item.title : (field === 'unit' ? (item.name || item.unit) : item);
+                    const idValue = item.id || item.autoId;
+                    handleInputChange(field, displayValue, idValue);
                     setDropdownVisible(null);
                   }}
                   accessible={true}
-                  accessibilityLabel={field === 'boqName' ? item.name || item : item}
+                  accessibilityLabel={field === 'boqId' ? item.name || item.title : (field === 'unit' ? item.name || item.unit : item)}
                 >
                   <Text className="text-base text-gray-700">
-                    {field === 'boqName' ? (item.name || item) : item}
+                    {field === 'boqId' ? (item.name || item.title) : (field === 'unit' ? (item.name || item.unit) : item)}
                   </Text>
                 </TouchableOpacity>
               )}
               ListEmptyComponent={
                 <View className="p-4 items-center">
                   <Text className="text-gray-500">No options available</Text>
-                  {field === 'boqName' && (
+                  {field === 'boqId' && (
                     <TouchableOpacity
                       className="mt-2 px-4 py-2 bg-blue-500 rounded-lg"
                       onPress={fetchBoqData}
+                    >
+                      <Text className="text-white text-sm">Retry</Text>
+                    </TouchableOpacity>
+                  )}
+                  {field === 'unit' && (
+                    <TouchableOpacity
+                      className="mt-2 px-4 py-2 bg-blue-500 rounded-lg"
+                      onPress={fetchUnitData}
                     >
                       <Text className="text-white text-sm">Retry</Text>
                     </TouchableOpacity>
@@ -286,7 +354,6 @@ const AddBoqItem = () => {
       </TouchableOpacity>
     </Modal>
   );
-
   const renderInputField = (
     label,
     field,
@@ -297,16 +364,16 @@ const AddBoqItem = () => {
     multiline = false,
   ) => {
     const hasError = errors[field];
-
+    const isDropdown = !!options;
+    const inputValue = isDropdown ? (displayData[field] || '') : formData[field];
     return (
       <View className="mb-4">
         <Text className="text-sm font-medium text-gray-700 mb-2">
           {label}{' '}
-          {['boqName', 'itemNo', 'quantity', 'unitCost', 'amount', 'unit'].includes(field) && (
+          {['boqId', 'itemNo', 'quantity', 'unitCost', 'unit'].includes(field) && (
             <Text className="text-red-500">*</Text>
           )}
         </Text>
-
         <TouchableOpacity
           disabled={!options || !editable}
           onPress={() => options && setDropdownVisible(field)}
@@ -322,7 +389,7 @@ const AddBoqItem = () => {
             }`}
             placeholder={placeholder}
             placeholderTextColor="#9ca3af"
-            value={formData[field]}
+            value={inputValue}
             onChangeText={(value) => handleInputChange(field, value)}
             keyboardType={keyboardType}
             editable={editable && !options}
@@ -331,19 +398,16 @@ const AddBoqItem = () => {
             accessibilityLabel={`${label} input`}
           />
           {options && <Feather name="chevron-down" size={20} color="#6b7280" />}
-          {!options && field === 'boqName' && <Feather name="user" size={20} color="#6b7280" />}
+          {!options && field === 'boqId' && <Feather name="user" size={20} color="#6b7280" />}
           {!options && field === 'itemNo' && <Feather name="hash" size={20} color="#6b7280" />}
           {!options && ['quantity', 'unitCost', 'contractorLabourRate'].includes(field) && (
             <Feather name="hash" size={20} color="#6b7280" />
           )}
-          {!options && field === 'amount' && <Feather name="dollar-sign" size={20} color="#6b7280" />}
         </TouchableOpacity>
-
         {hasError && <Text className="text-red-500 text-xs mt-1 ml-1">{hasError}</Text>}
       </View>
     );
   };
-
   return (
     <View className="flex-1 bg-gray-50">
       <StatusBar style="auto" />
@@ -365,18 +429,16 @@ const AddBoqItem = () => {
                 <Text className="text-white text-lg font-semibold">Item Information</Text>
                 <Text className="text-blue-100 text-sm">Fill in the details below</Text>
               </LinearGradient>
-
               <View className="p-6">
                 {/* Row 1: BOQ Name & Item No */}
                 <View className="flex-row space-x-4 mb-4">
                   <View className="flex-1">
-                    {renderInputField('BOQ Name', 'boqName', 'Select BOQ Name', boqOptions)}
+                    {renderInputField('BOQ Name', 'boqId', 'Select BOQ Name', boqOptions)}
                   </View>
                   <View className="flex-1">
                     {renderInputField('Item No', 'itemNo', 'Enter Item No')}
                   </View>
                 </View>
-
                 {/* Row 2: Quantity & Unit */}
                 <View className="flex-row space-x-4 mb-4">
                   <View className="flex-1">
@@ -386,42 +448,29 @@ const AddBoqItem = () => {
                     {renderInputField('Unit', 'unit', 'Select Unit', unitOptions)}
                   </View>
                 </View>
-
-                {/* Row 3: Unit Cost & Amount */}
-                <View className="flex-row space-x-4 mb-4">
-                  <View className="flex-1">
-                    {renderInputField('Unit Cost', 'unitCost', 'Enter Unit Cost', null, 'numeric')}
-                  </View>
-                  <View className="flex-1">
-                    {renderInputField('Amount', 'amount', 'Enter Amount', null, 'numeric')}
-                  </View>
-                </View>
-
+                {/* Unit Cost (single since amount removed) */}
+                {renderInputField('Unit Cost', 'unitCost', 'Enter Unit Cost', null, 'numeric')}
                 {/* Row 4: Phase & Labour Rate */}
                 <View className="flex-row space-x-4 mb-4">
                   <View className="flex-1">
-                    {renderInputField('Phase', 'phase', 'Select Phase', phaseOptions)}
+                    {renderInputField('Phase', 'phase', 'Enter Phase...', null, 'default')}
                   </View>
                   <View className="flex-1">
                     {renderInputField('Labour Rate', 'contractorLabourRate', 'Enter Rate', null, 'numeric')}
                   </View>
                 </View>
-
                 {/* Description */}
                 {renderInputField('Description', 'description', 'Enter description...', null, 'default', true, true)}
-
                 {/* Remark */}
                 {renderInputField('Remark', 'remark', 'Enter remark...', null, 'default', true, true)}
-
                 {/* Total Display */}
                 <View className="mb-4">
                   <Text className="text-sm font-medium text-gray-700 mb-2">Calculated Total</Text>
                   <View className="flex-row items-center border border-gray-300 rounded-lg px-3 py-3 bg-gray-50">
-                    <Text className="flex-1 text-base text-gray-600">{formData.total}</Text>
+                    <Text className="flex-1 text-base text-gray-600">{formData.totalCost}</Text>
                     <Feather name="dollar-sign" size={20} color="#6b7280" />
                   </View>
                 </View>
-
                 {/* Action Buttons */}
                 <View className="flex-row space-x-4 mt-6">
                   <TouchableOpacity
@@ -432,7 +481,6 @@ const AddBoqItem = () => {
                   >
                     <Text className="text-gray-700 font-medium text-base">Cancel</Text>
                   </TouchableOpacity>
-
                   <TouchableOpacity
                     onPress={handleSubmit}
                     disabled={loading}
@@ -455,7 +503,6 @@ const AddBoqItem = () => {
                 </View>
               </View>
             </Animated.View>
-
             {/* Quick Tips Card */}
             <View className="bg-blue-50 border border-blue-200 rounded-2xl p-4 mt-4">
               <View className="flex-row items-center mb-2">
@@ -464,21 +511,17 @@ const AddBoqItem = () => {
               </View>
               <Text className="text-blue-700 text-sm leading-5">
                 • BOQ Name is fetched from server automatically{'\n'}
-                • Amount field is separate from calculation-based totals{'\n'}
                 • All fields marked with * are required{'\n'}
                 • Use clear, descriptive item numbers for easy tracking
               </Text>
             </View>
           </ScrollView>
         </KeyboardAvoidingView>
-
         {/* Dropdown Modals */}
-        {renderDropdown(boqOptions, 'boqName', 'Select BOQ Name')}
+        {renderDropdown(boqOptions, 'boqId', 'Select BOQ Name')}
         {renderDropdown(unitOptions, 'unit', 'Select Unit')}
-        {renderDropdown(phaseOptions, 'phase', 'Select Phase')}
       </MainLayout>
     </View>
   );
 };
-
 export default AddBoqItem;

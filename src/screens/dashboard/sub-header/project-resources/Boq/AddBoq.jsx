@@ -426,7 +426,7 @@ const AddBoq = () => {
   const [boqTypes, setBoqTypes] = useState([]);
   const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [users, setUsers] = useState([])
+  const [users, setUsers] = useState([]);
 
   const fetchDropdownData = async () => {
     setIsLoading(true);
@@ -440,15 +440,18 @@ const AddBoq = () => {
       }
 
       const parsedData = JSON.parse(userData);
-      const response = await fetch('https://api-v2-skystruct.prudenttec.com/commonControl/get-dropdown', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${parsedData.jwtToken}`,
-          'X-Menu-Id': '19Ab9n5HF73',
-        },
-        body: JSON.stringify({ type: 'BOQ_TYPE,CHANGE_TYPE,CATEGORY' }),
-      });
+      const response = await fetch(
+        'https://api-v2-skystruct.prudenttec.com/commonControl/get-dropdown',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${parsedData.jwtToken}`,
+            'X-Menu-Id': '19Ab9n5HF73',
+          },
+          body: JSON.stringify({ type: 'BOQ_TYPE,CHANGE_TYPE,CATEGORY' }),
+        }
+      );
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -458,9 +461,9 @@ const AddBoq = () => {
       console.log('API Response:', data);
 
       // console.log(data?.dropdownMap?.BOQ_TYPE);
-      
+
       // Extract BOQ types and categories from the response
-      const types = data?.dropdownMap?.BOQ_TYPE?.map(item => item) || [];
+      const types = data?.dropdownMap?.BOQ_TYPE?.map((item) => item) || [];
       setBoqTypes(types);
       // console.log('BOQ Types:', types);
     } catch (error) {
@@ -530,7 +533,7 @@ const AddBoq = () => {
             'X-Menu-Id': 'DRlBbUjgXSb',
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ id:"4" }),
+          body: JSON.stringify({ id: '4' }),
         }
       );
       if (!response.ok) {
@@ -554,11 +557,10 @@ const AddBoq = () => {
     fetchPersonData();
   }, []);
 
-
   // console.log("Users : ",users);
   // console.log("Category : ",categories);
   // console.log("BOQ TYPE : ",boqTypes);
-  
+
   // Animate on mount
   useEffect(() => {
     Animated.spring(scaleAnim, {
@@ -570,25 +572,25 @@ const AddBoq = () => {
   }, []);
 
   const toggleDropdown = (dropdown) => {
-    setDropdownStates(prev => ({ ...prev, [dropdown]: !prev[dropdown] }));
+    setDropdownStates((prev) => ({ ...prev, [dropdown]: !prev[dropdown] }));
   };
 
   const selectOption = (field, value) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [field]: field === 'category' ? value.phaseName : value,
     }));
-    setDropdownStates(prev => ({ ...prev, [field]: false }));
+    setDropdownStates((prev) => ({ ...prev, [field]: false }));
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: false }));
+      setErrors((prev) => ({ ...prev, [field]: false }));
     }
   };
 
   const toggleUserSelection = (user) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      selectedUsers: prev.selectedUsers.find(u => u.autoId === user.autoId)
-        ? prev.selectedUsers.filter(u => u.autoId !== user.autoId)
+      selectedUsers: prev.selectedUsers.find((u) => u.autoId === user.autoId)
+        ? prev.selectedUsers.filter((u) => u.autoId !== user.autoId)
         : [...prev.selectedUsers, user],
     }));
   };
@@ -599,33 +601,35 @@ const AddBoq = () => {
       boqName: !formData.boqName.trim(),
     };
     setErrors(newErrors);
-    return !Object.values(newErrors).some(error => error);
+    return !Object.values(newErrors).some((error) => error);
   };
 
   const handleSubmit = async () => {
     if (validateForm()) {
       try {
-        const selectedCategory = categories.find(cat => cat.phaseName === formData.category);
-        const selectedBOQType = boqTypes.find(boq => boq.dropdownValue === formData.boqType);
+        const selectedCategory = categories.find((cat) => cat.phaseName === formData.category);
+        const selectedBOQType = boqTypes.find((boq) => boq.dropdownValue === formData.boqType);
+        const paidToArray = formData.selectedUsers.map((user) => user.autoId);
+        const paidToString = paidToArray.join(',');
         const payload = {
           boqFormBean: {
             phaseId: selectedCategory ? selectedCategory.id : formData.category,
             title: formData.boqName,
             boqType: selectedBOQType.autoId,
-            paidTo: formData.selectedUsers.map(user => user.autoId),
+            paidTo: paidToString,
             description: formData.description,
-          }
+          },
         };
 
-        console.log("payload From Submit : -",payload);
-        
+        console.log('payload From Submit : -', payload);
+
         const userData = await AsyncStorage.getItem('userData');
         const parsedData = JSON.parse(userData);
         const response = await fetch('https://api-v2-skystruct.prudenttec.com/boq', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${parsedData.jwtToken}`,
+            Authorization: `Bearer ${parsedData.jwtToken}`,
             'X-Menu-Id': '19Ab9n5HF73',
           },
           body: JSON.stringify(payload),
@@ -666,11 +670,10 @@ const AddBoq = () => {
           colors={['#f0f7ff', '#e6f0ff']}
           start={{ x: 0, y: 0 }}
           end={{ x: 0, y: 1 }}
-          className="py-4"
-        >
+          className="py-4">
           <View className="px-6">
             <Text className="text-lg font-semibold text-blue-800">Create New BOQ</Text>
-            <Text className="text-sm text-blue-600 mt-1">
+            <Text className="mt-1 text-sm text-blue-600">
               Fill in the details below to create a new Bill of Quantity
             </Text>
           </View>
@@ -678,30 +681,32 @@ const AddBoq = () => {
         <ScrollView className="flex-1 bg-gray-50">
           <Animated.View
             className="p-6"
-            style={{ opacity: scaleAnim, transform: [{ scale: scaleAnim }] }}
-          >
-            <View className="flex-row mb-6" style={{ gap: 12 }}>
+            style={{ opacity: scaleAnim, transform: [{ scale: scaleAnim }] }}>
+            <View className="mb-6 flex-row" style={{ gap: 12 }}>
               <View className="flex-1">
-                <Text className="text-sm font-medium text-gray-700 mb-2">Category</Text>
+                <Text className="mb-2 text-sm font-medium text-gray-700">Category</Text>
                 <TouchableOpacity
-                  className={`border rounded-2xl px-4 py-3 bg-white flex-row items-center justify-between ${
+                  className={`flex-row items-center justify-between rounded-2xl border bg-white px-4 py-3 ${
                     errors.category ? 'border-red-300' : 'border-gray-200'
                   }`}
                   style={{ height: 44 }}
                   onPress={() => toggleDropdown('category')}
-                  disabled={categories.length === 0 || isLoading}
-                >
+                  disabled={categories.length === 0 || isLoading}>
                   <Text
                     className={`text-base font-medium ${
                       formData.category ? 'text-gray-800' : 'text-gray-400'
-                    }`}
-                  >
-                    {formData.category || (isLoading ? 'Loading...' : categories.length === 0 ? 'No categories available' : 'Select a category')}
+                    }`}>
+                    {formData.category ||
+                      (isLoading
+                        ? 'Loading...'
+                        : categories.length === 0
+                          ? 'No categories available'
+                          : 'Select a category')}
                   </Text>
                   <Feather name="grid" size={18} color="#6b7280" />
                 </TouchableOpacity>
                 {dropdownStates.category && categories.length > 0 && (
-                  <View className="absolute top-20 left-0 right-0 bg-white border border-gray-200 rounded-2xl shadow-lg z-50 max-h-48">
+                  <View className="absolute left-0 right-0 top-20 z-50 max-h-48 rounded-2xl border border-gray-200 bg-white shadow-lg">
                     <ScrollView>
                       {categories.map((category, index) => (
                         <TouchableOpacity
@@ -709,33 +714,35 @@ const AddBoq = () => {
                           className={`px-4 py-3 ${
                             index !== categories.length - 1 ? 'border-b border-gray-100' : ''
                           }`}
-                          onPress={() => selectOption('category', category)}
-                        >
-                          <Text className="text-base font-medium text-gray-800">{category.phaseName}</Text>
+                          onPress={() => selectOption('category', category)}>
+                          <Text className="text-base font-medium text-gray-800">
+                            {category.phaseName}
+                          </Text>
                         </TouchableOpacity>
                       ))}
                     </ScrollView>
                   </View>
                 )}
                 {errors.category && (
-                  <Text className="text-red-500 text-xs mt-1 font-medium">Category is required.</Text>
+                  <Text className="mt-1 text-xs font-medium text-red-500">
+                    Category is required.
+                  </Text>
                 )}
               </View>
               <View className="flex-1">
-                <Text className="text-sm font-medium text-gray-700 mb-2">BOQ Name</Text>
+                <Text className="mb-2 text-sm font-medium text-gray-700">BOQ Name</Text>
                 <View
-                  className={`flex-1 border rounded-2xl px-4 bg-white flex-row items-center ${
+                  className={`flex-1 flex-row items-center rounded-2xl border bg-white px-4 ${
                     errors.boqName ? 'border-red-300' : 'border-gray-200'
                   }`}
-                  style={{ height: 44 }}
-                >
+                  style={{ height: 44 }}>
                   <TextInput
                     className="flex-1 text-base font-medium text-gray-800"
                     value={formData.boqName}
                     onChangeText={(text) => {
-                      setFormData(prev => ({ ...prev, boqName: text }));
+                      setFormData((prev) => ({ ...prev, boqName: text }));
                       if (errors.boqName && text.trim()) {
-                        setErrors(prev => ({ ...prev, boqName: false }));
+                        setErrors((prev) => ({ ...prev, boqName: false }));
                       }
                     }}
                     placeholder="BOQ Name"
@@ -744,30 +751,35 @@ const AddBoq = () => {
                   <Feather name="user" size={18} color="#6b7280" />
                 </View>
                 {errors.boqName && (
-                  <Text className="text-red-500 text-xs mt-1 font-medium">BOQ Name is required.</Text>
+                  <Text className="mt-1 text-xs font-medium text-red-500">
+                    BOQ Name is required.
+                  </Text>
                 )}
               </View>
             </View>
-            <View className="flex-row mb-6" style={{ gap: 12 }}>
+            <View className="mb-6 flex-row" style={{ gap: 12 }}>
               <View className="flex-1">
-                <Text className="text-sm font-medium text-blue-600 mb-2">BOQ Type</Text>
+                <Text className="mb-2 text-sm font-medium text-blue-600">BOQ Type</Text>
                 <TouchableOpacity
-                  className="border border-gray-200 rounded-2xl px-4 py-3 bg-white flex-row items-center justify-between"
+                  className="flex-row items-center justify-between rounded-2xl border border-gray-200 bg-white px-4 py-3"
                   style={{ height: 44 }}
                   onPress={() => toggleDropdown('boqType')}
-                  disabled={boqTypes.length === 0 || isLoading}
-                >
+                  disabled={boqTypes.length === 0 || isLoading}>
                   <Text
                     className={`text-base font-medium ${
                       formData.boqType ? 'text-gray-800' : 'text-gray-400'
-                    }`}
-                  >
-                    {formData.boqType || (isLoading ? 'Loading...' : boqTypes.length === 0 ? 'No types available' : 'Select Type')}
+                    }`}>
+                    {formData.boqType ||
+                      (isLoading
+                        ? 'Loading...'
+                        : boqTypes.length === 0
+                          ? 'No types available'
+                          : 'Select Type')}
                   </Text>
                   <Feather name="user" size={18} color="#6b7280" />
                 </TouchableOpacity>
                 {dropdownStates.boqType && boqTypes.length > 0 && (
-                  <View className="absolute top-20 left-0 right-0 bg-white border border-gray-200 rounded-2xl shadow-lg z-40 max-h-48">
+                  <View className="absolute left-0 right-0 top-20 z-40 max-h-48 rounded-2xl border border-gray-200 bg-white shadow-lg">
                     <ScrollView>
                       {boqTypes.map((type, index) => (
                         <TouchableOpacity
@@ -775,9 +787,10 @@ const AddBoq = () => {
                           className={`px-4 py-3 ${
                             index !== boqTypes.length - 1 ? 'border-b border-gray-100' : ''
                           }`}
-                          onPress={() => selectOption('boqType', type.dropdownValue)}
-                        >
-                          <Text className="text-base font-medium text-gray-800">{type.dropdownValue}</Text>
+                          onPress={() => selectOption('boqType', type.dropdownValue)}>
+                          <Text className="text-base font-medium text-gray-800">
+                            {type.dropdownValue}
+                          </Text>
                         </TouchableOpacity>
                       ))}
                     </ScrollView>
@@ -785,12 +798,11 @@ const AddBoq = () => {
                 )}
               </View>
               <View className="flex-1">
-                <Text className="text-sm font-medium text-blue-600 mb-2">Add users to share</Text>
+                <Text className="mb-2 text-sm font-medium text-blue-600">Add users to share</Text>
                 <TouchableOpacity
-                  className="border border-gray-200 rounded-2xl px-4 py-3 bg-white flex-row items-center justify-between"
+                  className="flex-row items-center justify-between rounded-2xl border border-gray-200 bg-white px-4 py-3"
                   style={{ height: 44 }}
-                  onPress={() => toggleDropdown('users')}
-                >
+                  onPress={() => toggleDropdown('users')}>
                   <Text className="text-base font-medium text-gray-400">
                     {formData.selectedUsers.length > 0
                       ? `${formData.selectedUsers.length} user(s) selected`
@@ -799,24 +811,22 @@ const AddBoq = () => {
                   <Feather name="chevron-down" size={18} color="#6b7280" />
                 </TouchableOpacity>
                 {dropdownStates.users && (
-                  <View className="absolute top-20 left-0 right-0 bg-white border border-gray-200 rounded-2xl shadow-lg z-30 max-h-48">
+                  <View className="absolute left-0 right-0 top-20 z-30 max-h-48 rounded-2xl border border-gray-200 bg-white shadow-lg">
                     <ScrollView>
                       {users?.map((user, index) => (
                         <TouchableOpacity
                           key={user.autoId}
-                          className={`px-4 py-3 flex-row items-center ${
+                          className={`flex-row items-center px-4 py-3 ${
                             index !== users.length - 1 ? 'border-b border-gray-100' : ''
                           }`}
-                          onPress={() => toggleUserSelection(user)}
-                        >
+                          onPress={() => toggleUserSelection(user)}>
                           <View
-                            className={`w-4 h-4 border border-gray-300 rounded mr-3 items-center justify-center ${
-                              formData.selectedUsers.find(u => u.autoId === user.autoId)
-                                ? 'bg-blue-500 border-blue-500'
+                            className={`mr-3 h-4 w-4 items-center justify-center rounded border border-gray-300 ${
+                              formData.selectedUsers.find((u) => u.autoId === user.autoId)
+                                ? 'border-blue-500 bg-blue-500'
                                 : 'bg-white'
-                            }`}
-                          >
-                            {formData.selectedUsers.find(u => u.autoId === user.autoId) && (
+                            }`}>
+                            {formData.selectedUsers.find((u) => u.autoId === user.autoId) && (
                               <Feather name="check" size={10} color="white" />
                             )}
                           </View>
@@ -832,11 +842,11 @@ const AddBoq = () => {
               </View>
             </View>
             <View className="mb-8">
-              <Text className="text-sm font-medium text-gray-700 mb-2">Description</Text>
+              <Text className="mb-2 text-sm font-medium text-gray-700">Description</Text>
               <TextInput
-                className="border border-gray-200 rounded-2xl px-4 py-3 text-base font-medium bg-white text-gray-800"
+                className="rounded-2xl border border-gray-200 bg-white px-4 py-3 text-base font-medium text-gray-800"
                 value={formData.description}
-                onChangeText={(text) => setFormData(prev => ({ ...prev, description: text }))}
+                onChangeText={(text) => setFormData((prev) => ({ ...prev, description: text }))}
                 placeholder="Enter Description"
                 placeholderTextColor="#9ca3af"
                 multiline
@@ -849,9 +859,8 @@ const AddBoq = () => {
               <TouchableOpacity
                 className="rounded-2xl px-8 py-3"
                 style={{ backgroundColor: '#3b82f6' }}
-                onPress={handleSubmit}
-              >
-                <Text className="text-white text-base font-semibold">Submit</Text>
+                onPress={handleSubmit}>
+                <Text className="text-base font-semibold text-white">Submit</Text>
               </TouchableOpacity>
             </View>
           </Animated.View>
@@ -861,4 +870,4 @@ const AddBoq = () => {
   );
 };
 
-export default AddBoq; 
+export default AddBoq;
