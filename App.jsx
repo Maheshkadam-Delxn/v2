@@ -68,6 +68,8 @@ import AddVendor from './src/screens/dashboard/user/AddVendor';
 import AddVendorType from './src/screens/dashboard/user/AddVendorType';
 import AddDocumentType from './src/screens/dashboard/user/AddDocumentType';
 import AddBoqItem from './src/screens/dashboard/sub-header/project-resources/Boq/AddBoqItem';
+import AddInspection from './src/screens/dashboard/sub-header/approvals/inspection/AddInspection';
+import AddInspectionChecklist from './src/screens/dashboard/sub-header/approvals/inspection/AddInspectionChecklist';
 
 const Stack = createNativeStackNavigator();
 
@@ -143,6 +145,11 @@ export default function App() {
 
         {/* Approvals */}
         <Stack.Screen name="Inspection" component={InspectionScreen} />
+        <Stack.Screen name="AddInspection" component={AddInspection} />
+        <Stack.Screen name="AddInspectionChecklist" component={AddInspectionChecklist} />
+
+
+
         <Stack.Screen name="RFI" component={RFIScreen} />
         <Stack.Screen name="SnaggingReport" component={SnaggingReportScreen} />
         <Stack.Screen name="Submittals" component={SubmittalsScreen} />
