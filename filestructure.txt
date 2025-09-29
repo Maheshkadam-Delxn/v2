@@ -73,11 +73,15 @@
                     |-- BillOfQuantityScreen.jsx
                     |-- Boq
                         |-- AddBoq.jsx
+                        |-- AddBoqItem.jsx
                         |-- PhaseModalBoq.jsx
                     |-- DocumentScreen.jsx
                     |-- Drawing
+                        |-- AddDrawingGroup.jsx
                         |-- AddDrawings.jsx
                         |-- DrawingAddNewPhase.jsx
+                        |-- ManageDrawingStatus.jsx
+                        |-- ManageDrawingType.jsx
                     |-- DrawingScreen.jsx
                 |-- reports
                     |-- ActivityTimelinesScreen.jsx

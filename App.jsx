@@ -63,10 +63,14 @@ import AddNewMember from './src/screens/dashboard/user/AddNewMember';
 import AddBoq from './src/screens/dashboard/sub-header/project-resources/Boq/AddBoq';
 import PhaseModalBoq from './src/screens/dashboard/sub-header/project-resources/Boq/PhaseModalBoq';
 import AddDrawings from './src/screens/dashboard/sub-header/project-resources/Drawing/AddDrawings';
+import AddDrawingGroup from './src/screens/dashboard/sub-header/project-resources/Drawing/AddDrawingGroup';
+import ManageDrawingStatus from './src/screens/dashboard/sub-header/project-resources/Drawing/ManageDrawingStatus';
+import ManageDrawingType from './src/screens/dashboard/sub-header/project-resources/Drawing/ManageDrawingType';
 import DrawingAddNewPhase from './src/screens/dashboard/sub-header/project-resources/Drawing/DrawingAddNewPhase';
 import AddVendor from './src/screens/dashboard/user/AddVendor';
 import AddVendorType from './src/screens/dashboard/user/AddVendorType';
 import AddDocumentType from './src/screens/dashboard/user/AddDocumentType';
+import AddBoqItem from './src/screens/dashboard/sub-header/project-resources/Boq/AddBoqItem';
 
 const Stack = createNativeStackNavigator();
 
@@ -113,12 +117,16 @@ export default function App() {
         {/* Project Resources */}
         <Stack.Screen name="BillOfQuantity" component={BillOfQuantityScreen} />
         <Stack.Screen name="AddBoq" component={AddBoq}/>
+        <Stack.Screen name="AddBoqItem" component={AddBoqItem}/>
         <Stack.Screen name="AddPhaseBoq" component={PhaseModalBoq}/>
 
 
         <Stack.Screen name="Document" component={DocumentScreen} />
         <Stack.Screen name="Drawing" component={DrawingScreen} />
         <Stack.Screen name="AddDrawing" component={AddDrawings} />
+        <Stack.Screen name="AddDrawingGroup" component={AddDrawingGroup} />
+        <Stack.Screen name="ManageDrawingStatus" component={ManageDrawingStatus} />
+        <Stack.Screen name="ManageDrawingType" component={ManageDrawingType} />
         <Stack.Screen name="AddDrawingPhase" component={DrawingAddNewPhase} />
 
 

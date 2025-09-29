@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,165 +8,312 @@ import {
   Alert,
   Modal,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { MaterialIcons } from 'react-native-vector-icons';
+import { MaterialIcons } from '@expo/vector-icons';
+import * as DocumentPicker from 'expo-document-picker';
 import MainLayout from '../../../../components/MainLayout';
+
+const BASE_URL = 'https://api-v2-skystruct.prudenttec.com/';
+const MENU_ID = 'DRlBbUjgXSb';
 
 const AddDrawings = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const { projectId } = route.params || { projectId: 1 };
-  
+
   const [formData, setFormData] = useState({
-    drawingGroup: '',
-    title: '',
+    description: '',
+    docVersion: '',
+    drawingGroupId: '',
+    drawingName: '',
     drawingNumber: '',
-    revision: '',
-    category: '',
     drawingStatus: '',
     drawingType: '',
+    phaseId: '',
     remark: '',
-    description: '',
   });
-
+  const [file, setFile] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [modalType, setModalType] = useState('');
+  const [phases, setPhases] = useState([]);
+  const [groups, setGroups] = useState([]);
+  const [statuses, setStatuses] = useState([]);
+  const [types, setTypes] = useState([]);
+  const [jwtToken, setJwtToken] = useState('');
 
-  // Sample data for dropdowns
-  const drawingGroups = ['Architectural', 'Structural', 'MEP', 'Civil', 'Interior'];
-  const categories = ['General', 'Structural', 'Electrical', 'Plumbing', 'HVAC'];
-  const drawingStatuses = ['Draft', 'Under Review', 'Approved', 'Rejected', 'Final'];
-  const drawingTypes = ['Floor Plan', 'Elevation', 'Section', 'Detail', 'Site Plan'];
+  useEffect(() => {
+    const initialize = async () => {
+      await fetchToken();
+    };
+    initialize();
+  }, []);
 
-  const getModalData = () => {
-    switch (modalType) {
-      case 'drawingGroup':
-        return drawingGroups;
-      case 'category':
-        return categories;
-      case 'drawingStatus':
-        return drawingStatuses;
-      case 'drawingType':
-        return drawingTypes;
-      default:
-        return [];
+  useEffect(() => {
+    if (jwtToken) {
+      fetchPhases();
+      fetchDrawingStatusesAndTypes();
+    }
+  }, [jwtToken]);
+
+  const fetchToken = async () => {
+    try {
+      const userData = await AsyncStorage.getItem('userData');
+      if (userData) {
+        const parsedData = JSON.parse(userData);
+        setJwtToken(parsedData.jwtToken);
+      } else {
+        Alert.alert('Error', 'No user data found');
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to fetch token');
+      console.error('fetchToken error:', error);
+    }
+  };
+
+  const updateToken = async (newToken) => {
+    if (newToken) {
+      try {
+        const userData = await AsyncStorage.getItem('userData');
+        if (userData) {
+          const parsedData = JSON.parse(userData);
+          const updatedUserData = { ...parsedData, jwtToken: newToken };
+          await AsyncStorage.setItem('userData', JSON.stringify(updatedUserData));
+          setJwtToken(newToken);
+        }
+      } catch (error) {
+        Alert.alert('Error', 'Failed to update token');
+        console.error('updateToken error:', error);
+      }
+    }
+  };
+
+  const fetchPhases = async () => {
+    if (!jwtToken) return;
+    try {
+      const response = await fetch(`${BASE_URL}phase/phase-list-by-module`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${jwtToken}`,
+          'X-Menu-Id': MENU_ID,
+        },
+        body: JSON.stringify({ module: 'Plan' }),
+      });
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      const data = await response.json();
+      updateToken(data.jwtToken);
+      setPhases(Array.isArray(data.phaseFormBeans) ? data.phaseFormBeans.map(p => ({ id: p.autoId, name: p.phaseName })) : []);
+    } catch (error) {
+      Alert.alert('Error', 'Failed to fetch phases');
+      console.error('fetchPhases error:', error);
+      setPhases([]);
+    }
+  };
+
+  const fetchDrawingStatusesAndTypes = async () => {
+    if (!jwtToken) return;
+    try {
+      const response = await fetch(`${BASE_URL}commonControl/get-dropdown`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${jwtToken}`,
+          'X-Menu-Id': MENU_ID,
+        },
+        body: JSON.stringify({ type: 'DRAWING_STATUS,DRAWING_TYPE' }),
+      });
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      const data = await response.json();
+      updateToken(data.jwtToken);
+      setStatuses(Array.isArray(data.dropdownMap?.DRAWING_STATUS) ? data.dropdownMap.DRAWING_STATUS.map(s => ({ id: s.autoId, name: s.dropdownValue })) : []);
+      setTypes(Array.isArray(data.dropdownMap?.DRAWING_TYPE) ? data.dropdownMap.DRAWING_TYPE.map(t => ({ id: t.autoId, name: t.dropdownValue })) : []);
+    } catch (error) {
+      Alert.alert('Error', 'Failed to fetch drawing statuses and types');
+      console.error('fetchDrawingStatusesAndTypes error:', error);
+      setStatuses([]);
+      setTypes([]);
+    }
+  };
+
+  const fetchGroups = async (phaseId) => {
+    if (!jwtToken || !phaseId) return;
+    try {
+      const response = await fetch(`${BASE_URL}drawing-group/drawing-group-list`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${jwtToken}`,
+          'X-Menu-Id': MENU_ID,
+        },
+        body: JSON.stringify({ category: phaseId }),
+      });
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      const data = await response.json();
+      console.log('fetchGroups data:', data);
+      updateToken(data.jwtToken);
+      setGroups(Array.isArray(data.drawingGroupFormBeans) ? data.drawingGroupFormBeans.map(g => ({ id: g.autoId, name: g.groupName })) : []);
+    } catch (error) {
+      Alert.alert('Error', 'Failed to fetch drawing groups');
+      console.error('fetchGroups error:', error);
+      setGroups([]);
     }
   };
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
+    if (field === 'phaseId' && value) {
+      fetchGroups(value);
+      setFormData(prev => ({ ...prev, drawingGroupId: '' }));
+    }
   };
 
   const openModal = (type) => {
+    if (type === 'drawingGroupId' && !formData.phaseId) {
+      Alert.alert('Error', 'Please select a phase first');
+      return;
+    }
     setModalType(type);
     setModalVisible(true);
   };
 
-  const selectModalValue = (value) => {
-    handleInputChange(modalType, value);
+  const selectModalValue = (item) => {
+    handleInputChange(modalType, item.id);
     setModalVisible(false);
   };
 
-  const handleSubmit = () => {
-    if (!formData.title.trim()) {
-      Alert.alert('Error', 'Please enter a title for the drawing');
+  const getModalData = () => {
+    switch (modalType) {
+      case 'phaseId':
+        return phases;
+      case 'drawingGroupId':
+        return groups;
+      case 'drawingStatus':
+        return statuses;
+      case 'drawingType':
+        return types;
+      default:
+        return [];
+    }
+  };
+
+  const pickFile = async () => {
+    try {
+      const result = await DocumentPicker.getDocumentAsync({ type: '*/*' });
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        setFile(result.assets[0]);
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to pick file');
+      console.error('pickFile error:', error);
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!jwtToken) {
+      Alert.alert('Error', 'Authentication token missing');
+      return;
+    }
+    if (!formData.drawingName.trim()) {
+      Alert.alert('Error', 'Please enter a drawing name');
+      return;
+    }
+    if (!formData.phaseId) {
+      Alert.alert('Error', 'Please select a phase');
+      return;
+    }
+    if (!formData.drawingGroupId) {
+      Alert.alert('Error', 'Please select a drawing group');
+      return;
+    }
+    if (!file) {
+      Alert.alert('Error', 'Please add a file');
       return;
     }
 
-    // Here you would typically save to your backend/database
-    console.log('Saving drawing:', formData);
-    
-    Alert.alert(
-      'Success',
-      'Drawing added successfully!',
-      [
-        {
-          text: 'OK',
-          onPress: () => navigation.goBack(),
+    const fd = new FormData();
+    fd.append('file', {
+      uri: file.uri,
+      name: file.name,
+      type: file.mimeType || 'application/octet-stream',
+    });
+    fd.append('formData', JSON.stringify({
+      description: formData.description,
+      docVersion: formData.docVersion,
+      drawingGroupId: formData.drawingGroupId,
+      drawingName: formData.drawingName,
+      drawingNumber: formData.drawingNumber,
+      drawingStatus: formData.drawingStatus,
+      drawingType: formData.drawingType,
+      phaseId: formData.phaseId,
+      remark: formData.remark,
+    }));
+
+    try {
+      const response = await fetch(`${BASE_URL}drawing`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${jwtToken}`,
+          'X-Menu-Id': MENU_ID,
         },
-      ]
-    );
-  };
-
-  const addFile = () => {
-    Alert.alert('Add File', 'File picker functionality would go here');
-  };
-
-  const getPlaceholderText = (type) => {
-    switch (type) {
-      case 'drawingGroup':
-        return 'Select Drawing Group';
-      case 'category':
-        return 'Select Category';
-      case 'drawingStatus':
-        return 'Select Drawing Status';
-      case 'drawingType':
-        return 'Select Drawing Type';
-      default:
-        return '';
-    }
-  };
-
-  const getFieldIcon = (type) => {
-    switch (type) {
-      case 'drawingGroup':
-        return 'group';
-      case 'title':
-        return 'title';
-      case 'drawingNumber':
-        return 'tag';
-      case 'revision':
-        return 'content-copy';
-      case 'category':
-        return 'category';
-      case 'drawingStatus':
-        return 'flag';
-      case 'drawingType':
-        return 'engineering';
-      default:
-        return 'input';
+        body: fd,
+      });
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      const data = await response.json();
+      console.log('handleSubmit data:', data);
+      updateToken(data.jwtToken);
+      Alert.alert('Success', 'Drawing added successfully!', [
+        { text: 'OK', onPress: () => navigation.goBack() },
+      ]);
+    } catch (error) {
+      Alert.alert('Error', 'Failed to add drawing');
+      console.error('handleSubmit error:', error);
     }
   };
 
   return (
-    <MainLayout title="Drawing">
-      <View className="flex-1" style={{ backgroundColor: '#4A90E2' }}>
-        {/* Header */}
-        {/* <View className="flex-row items-center justify-between px-4 py-4">
-          <Text className="text-white text-xl font-bold">Drawing</Text>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <MaterialIcons name="close" size={24} color="#ffffff" />
-          </TouchableOpacity>
-        </View> */}
+    <MainLayout title="Add Drawing">
+      <View className="flex-1 bg-gray-50">
+        <ScrollView className="flex-1 px-4 pt-4">
+          <View className="mb-4">
+            <Text className="text-blue-500 text-sm font-medium mb-2">Phase</Text>
+            <TouchableOpacity
+              className="bg-white border border-gray-200 rounded-lg px-4 py-3 flex-row items-center justify-between"
+              onPress={() => openModal('phaseId')}
+            >
+              <Text className={formData.phaseId ? 'text-gray-800' : 'text-gray-400'}>
+                {phases.find(p => p.id === formData.phaseId)?.name || 'Select Phase'}
+              </Text>
+              <MaterialIcons name="category" size={20} color="#6B7280" />
+            </TouchableOpacity>
+          </View>
 
-        <ScrollView className="flex-1 bg-gray-50 px-4 pt-4">
-          {/* Drawing Group */}
           <View className="mb-4">
             <Text className="text-blue-500 text-sm font-medium mb-2">Drawing Group</Text>
             <TouchableOpacity
               className="bg-white border border-gray-200 rounded-lg px-4 py-3 flex-row items-center justify-between"
-              onPress={() => openModal('drawingGroup')}
+              onPress={() => openModal('drawingGroupId')}
             >
-              <Text className={`${formData.drawingGroup ? 'text-gray-800' : 'text-gray-400'}`}>
-                {formData.drawingGroup || 'Select Drawing Group'}
+              <Text className={formData.drawingGroupId ? 'text-gray-800' : 'text-gray-400'}>
+                {groups.find(g => g.id === formData.drawingGroupId)?.name || 'Select Drawing Group'}
               </Text>
               <MaterialIcons name="group" size={20} color="#6B7280" />
             </TouchableOpacity>
           </View>
 
-          {/* Title and Drawing Number Row */}
           <View className="flex-row mb-4" style={{ gap: 12 }}>
             <View className="flex-1">
-              <Text className="text-gray-600 text-sm font-medium mb-2">Title</Text>
+              <Text className="text-gray-600 text-sm font-medium mb-2">Drawing Name</Text>
               <View className="bg-white border border-gray-200 rounded-lg px-4 py-3 flex-row items-center">
                 <TextInput
                   className="flex-1 text-gray-800"
-                  placeholder=""
-                  value={formData.title}
-                  onChangeText={(value) => handleInputChange('title', value)}
+                  placeholder="Enter Drawing Name"
+                  placeholderTextColor="#9CA3AF"
+                  value={formData.drawingName}
+                  onChangeText={(value) => handleInputChange('drawingName', value)}
                 />
                 <MaterialIcons name="title" size={20} color="#6B7280" />
               </View>
@@ -177,73 +324,60 @@ const AddDrawings = () => {
               <View className="bg-white border border-gray-200 rounded-lg px-4 py-3 flex-row items-center">
                 <TextInput
                   className="flex-1 text-gray-800"
-                  placeholder="№"
+                  placeholder="Enter Drawing Number"
+                  placeholderTextColor="#9CA3AF"
                   value={formData.drawingNumber}
                   onChangeText={(value) => handleInputChange('drawingNumber', value)}
                 />
+                <MaterialIcons name="tag" size={20} color="#6B7280" />
               </View>
             </View>
           </View>
 
-          {/* Revision Row */}
           <View className="mb-4">
-            <Text className="text-gray-600 text-sm font-medium mb-2">Revision</Text>
+            <Text className="text-gray-600 text-sm font-medium mb-2">Doc Version</Text>
             <View className="bg-white border border-gray-200 rounded-lg px-4 py-3 flex-row items-center">
               <TextInput
                 className="flex-1 text-gray-800"
-                placeholder=""
-                value={formData.revision}
-                onChangeText={(value) => handleInputChange('revision', value)}
+                placeholder="Enter Doc Version"
+                placeholderTextColor="#9CA3AF"
+                value={formData.docVersion}
+                onChangeText={(value) => handleInputChange('docVersion', value)}
               />
               <MaterialIcons name="content-copy" size={20} color="#6B7280" />
             </View>
           </View>
 
-          {/* Category and Drawing Status Row */}
           <View className="flex-row mb-4" style={{ gap: 12 }}>
-            <View className="flex-1">
-              <Text className="text-blue-500 text-sm font-medium mb-2">Category</Text>
-              <TouchableOpacity
-                className="bg-white border border-gray-200 rounded-lg px-4 py-3 flex-row items-center justify-between"
-                onPress={() => openModal('category')}
-              >
-                <Text className={`${formData.category ? 'text-gray-800' : 'text-gray-400'}`}>
-                  {formData.category || 'Select Category'}
-                </Text>
-                <MaterialIcons name="category" size={20} color="#6B7280" />
-              </TouchableOpacity>
-            </View>
-
             <View className="flex-1">
               <Text className="text-blue-500 text-sm font-medium mb-2">Drawing Status</Text>
               <TouchableOpacity
                 className="bg-white border border-gray-200 rounded-lg px-4 py-3 flex-row items-center justify-between"
                 onPress={() => openModal('drawingStatus')}
               >
-                <Text className={`${formData.drawingStatus ? 'text-gray-800' : 'text-gray-400'}`}>
-                  {formData.drawingStatus || 'Select Drawing Status'}
+                <Text className={formData.drawingStatus ? 'text-gray-800' : 'text-gray-400'}>
+                  {statuses.find(s => s.id === formData.drawingStatus)?.name || 'Select Status'}
                 </Text>
                 <MaterialIcons name="flag" size={20} color="#6B7280" />
               </TouchableOpacity>
             </View>
+
+            <View className="flex-1">
+              <Text className="text-blue-500 text-sm font-medium mb-2">Drawing Type</Text>
+              <TouchableOpacity
+                className="bg-white border border-gray-200 rounded-lg px-4 py-3 flex-row items-center justify-between"
+                onPress={() => openModal('drawingType')}
+              >
+                <Text className={formData.drawingType ? 'text-gray-800' : 'text-gray-400'}>
+                  {types.find(t => t.id === formData.drawingType)?.name || 'Select Type'}
+                </Text>
+                <MaterialIcons name="engineering" size={20} color="#6B7280" />
+              </TouchableOpacity>
+            </View>
           </View>
 
-          {/* Drawing Type */}
           <View className="mb-4">
-            <Text className="text-blue-500 text-sm font-medium mb-2">Drawing Type</Text>
-            <TouchableOpacity
-              className="bg-white border border-gray-200 rounded-lg px-4 py-3 flex-row items-center justify-between"
-              onPress={() => openModal('drawingType')}
-            >
-              <Text className={`${formData.drawingType ? 'text-gray-800' : 'text-gray-400'}`}>
-                {formData.drawingType || 'Select Drawing Type'}
-              </Text>
-              <MaterialIcons name="engineering" size={20} color="#6B7280" />
-            </TouchableOpacity>
-          </View>
-
-          {/* Remark */}
-          <View className="mb-4">
+            <Text className="text-gray-600 text-sm font-medium mb-2">Remark</Text>
             <TextInput
               className="bg-white border border-gray-200 rounded-lg px-4 py-3 text-gray-800"
               placeholder="Enter Remark"
@@ -254,13 +388,10 @@ const AddDrawings = () => {
               numberOfLines={4}
               style={{ height: 100, textAlignVertical: 'top' }}
             />
-            <View className="absolute bottom-2 right-2">
-              <MaterialIcons name="edit" size={16} color="#6B7280" />
-            </View>
           </View>
 
-          {/* Description */}
           <View className="mb-4">
+            <Text className="text-gray-600 text-sm font-medium mb-2">Description</Text>
             <TextInput
               className="bg-white border border-gray-200 rounded-lg px-4 py-3 text-gray-800"
               placeholder="Enter Description"
@@ -271,20 +402,14 @@ const AddDrawings = () => {
               numberOfLines={6}
               style={{ height: 120, textAlignVertical: 'top' }}
             />
-            <View className="absolute bottom-2 right-2">
-              <MaterialIcons name="edit" size={16} color="#6B7280" />
-            </View>
           </View>
 
-          {/* Add File */}
-          <TouchableOpacity 
-            className="mb-6"
-            onPress={addFile}
-          >
-            <Text className="text-blue-500 text-base font-medium">Add File</Text>
+          <TouchableOpacity className="mb-6" onPress={pickFile}>
+            <Text className="text-blue-500 text-base font-medium">
+              {file ? file.name : 'Add File'}
+            </Text>
           </TouchableOpacity>
 
-          {/* Submit Button */}
           <View className="items-end mb-8">
             <TouchableOpacity
               className="px-8 py-3 rounded-lg"
@@ -296,7 +421,6 @@ const AddDrawings = () => {
           </View>
         </ScrollView>
 
-        {/* Selection Modal */}
         <Modal
           animationType="slide"
           transparent={true}
@@ -305,22 +429,22 @@ const AddDrawings = () => {
         >
           <View className="flex-1 bg-black/50 justify-center items-center p-4">
             <View className="bg-white rounded-lg w-full max-w-sm p-4">
-              <View className="flex-row items-center justify-between mb-4 pb-2 border-b border-gray-200">
+              <View className="flex-row items-center justify-between mb-4 pb-2 border-b border-gray-100">
                 <Text className="text-lg font-bold text-gray-800">
-                  {modalType.charAt(0).toUpperCase() + modalType.slice(1).replace(/([A-Z])/g, ' $1')}
+                  Select {modalType.replace(/([A-Z])/g, ' $1').trim()}
                 </Text>
                 <TouchableOpacity onPress={() => setModalVisible(false)}>
                   <MaterialIcons name="close" size={24} color="#6B7280" />
                 </TouchableOpacity>
               </View>
               <ScrollView style={{ maxHeight: 300 }}>
-                {getModalData().map((item, index) => (
+                {getModalData().map((item) => (
                   <TouchableOpacity
-                    key={index}
+                    key={item.id}
                     className="py-3 border-b border-gray-100"
                     onPress={() => selectModalValue(item)}
                   >
-                    <Text className="text-gray-800 text-base">{item}</Text>
+                    <Text className="text-gray-800 text-base">{item.name}</Text>
                   </TouchableOpacity>
                 ))}
               </ScrollView>
