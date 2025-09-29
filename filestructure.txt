@@ -53,6 +53,9 @@
                 |-- ProfileScreen.jsx
             |-- sub-header
                 |-- approvals
+                    |-- inspection
+                        |-- AddInspection.jsx
+                        |-- AddInspectionChecklist.jsx
                     |-- InspectionScreen.jsx
                     |-- RFIScreen.jsx
                     |-- SnaggingReportScreen.jsx
@@ -73,11 +76,15 @@
                     |-- BillOfQuantityScreen.jsx
                     |-- Boq
                         |-- AddBoq.jsx
+                        |-- AddBoqItem.jsx
                         |-- PhaseModalBoq.jsx
                     |-- DocumentScreen.jsx
                     |-- Drawing
+                        |-- AddDrawingGroup.jsx
                         |-- AddDrawings.jsx
                         |-- DrawingAddNewPhase.jsx
+                        |-- ManageDrawingStatus.jsx
+                        |-- ManageDrawingType.jsx
                     |-- DrawingScreen.jsx
                 |-- reports
                     |-- ActivityTimelinesScreen.jsx

@@ -63,11 +63,16 @@ import AddNewMember from './src/screens/dashboard/user/AddNewMember';
 import AddBoq from './src/screens/dashboard/sub-header/project-resources/Boq/AddBoq';
 import PhaseModalBoq from './src/screens/dashboard/sub-header/project-resources/Boq/PhaseModalBoq';
 import AddDrawings from './src/screens/dashboard/sub-header/project-resources/Drawing/AddDrawings';
+import AddDrawingGroup from './src/screens/dashboard/sub-header/project-resources/Drawing/AddDrawingGroup';
+import ManageDrawingStatus from './src/screens/dashboard/sub-header/project-resources/Drawing/ManageDrawingStatus';
+import ManageDrawingType from './src/screens/dashboard/sub-header/project-resources/Drawing/ManageDrawingType';
 import DrawingAddNewPhase from './src/screens/dashboard/sub-header/project-resources/Drawing/DrawingAddNewPhase';
 import AddVendor from './src/screens/dashboard/user/AddVendor';
 import AddVendorType from './src/screens/dashboard/user/AddVendorType';
 import AddDocumentType from './src/screens/dashboard/user/AddDocumentType';
 import AddBoqItem from './src/screens/dashboard/sub-header/project-resources/Boq/AddBoqItem';
+import AddInspection from './src/screens/dashboard/sub-header/approvals/inspection/AddInspection';
+import AddInspectionChecklist from './src/screens/dashboard/sub-header/approvals/inspection/AddInspectionChecklist';
 
 const Stack = createNativeStackNavigator();
 
@@ -121,6 +126,9 @@ export default function App() {
         <Stack.Screen name="Document" component={DocumentScreen} />
         <Stack.Screen name="Drawing" component={DrawingScreen} />
         <Stack.Screen name="AddDrawing" component={AddDrawings} />
+        <Stack.Screen name="AddDrawingGroup" component={AddDrawingGroup} />
+        <Stack.Screen name="ManageDrawingStatus" component={ManageDrawingStatus} />
+        <Stack.Screen name="ManageDrawingType" component={ManageDrawingType} />
         <Stack.Screen name="AddDrawingPhase" component={DrawingAddNewPhase} />
 
 
@@ -143,6 +151,11 @@ export default function App() {
 
         {/* Approvals */}
         <Stack.Screen name="Inspection" component={InspectionScreen} />
+        <Stack.Screen name="AddInspection" component={AddInspection} />
+        <Stack.Screen name="AddInspectionChecklist" component={AddInspectionChecklist} />
+
+
+
         <Stack.Screen name="RFI" component={RFIScreen} />
         <Stack.Screen name="SnaggingReport" component={SnaggingReportScreen} />
         <Stack.Screen name="Submittals" component={SubmittalsScreen} />

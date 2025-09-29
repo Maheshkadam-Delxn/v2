@@ -14,14 +14,16 @@ import MainLayout from '../../../../components/MainLayout';
 
 const BASE_URL = 'https://api-v2-skystruct.prudenttec.com/';
 const MENU_ID = 'DRlBbUjgXSb';
+const TYPE = 'DRAWING_TYPE';
 
-const DrawingAddNewPhase = () => {
+const ManageDrawingType = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const { projectId } = route.params || { projectId: 1 };
 
-  const [phases, setPhases] = useState([]);
-  const [newPhaseName, setNewPhaseName] = useState('');
+  const [types, setTypes] = useState([]);
+  const [newTypeName, setNewTypeName] = useState('');
+  const [editingId, setEditingId] = useState(null);
   const [jwtToken, setJwtToken] = useState('');
 
   useEffect(() => {
@@ -33,7 +35,7 @@ const DrawingAddNewPhase = () => {
 
   useEffect(() => {
     if (jwtToken) {
-      fetchPhases();
+      fetchTypes();
     }
   }, [jwtToken]);
 
@@ -69,46 +71,37 @@ const DrawingAddNewPhase = () => {
     }
   };
 
-  const fetchPhases = async () => {
+  const fetchTypes = async () => {
     if (!jwtToken) return;
     try {
-      const response = await fetch(`${BASE_URL}phase/phase-list-by-module`, {
+      const response = await fetch(`${BASE_URL}commonControl/get-dropdown`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${jwtToken}`,
           'X-Menu-Id': MENU_ID,
         },
-        body: JSON.stringify({ module: 'Plan' }),
+        body: JSON.stringify({ type: TYPE }),
       });
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       const data = await response.json();
       updateToken(data.jwtToken);
-      setPhases(Array.isArray(data.phaseFormBeans) ? data.phaseFormBeans.map(p => ({
-        id: p.autoId,
-        name: p.phaseName,
-        sequence: p.sequence,
-        status: p.status,
-      })) : []);
+      setTypes(Array.isArray(data[TYPE]) ? data[TYPE].map(t => ({ id: t.autoId, name: t.name })) : []);
     } catch (error) {
-      Alert.alert('Error', 'Failed to fetch phases');
-      console.error('fetchPhases error:', error);
-      setPhases([]);
+      Alert.alert('Error', 'Failed to fetch drawing types');
+      console.error('fetchTypes error:', error);
+      setTypes([]);
     }
   };
 
-  const handleAddPhase = async () => {
-    if (!jwtToken) {
-      Alert.alert('Error', 'Authentication token missing');
-      return;
-    }
-    if (!newPhaseName.trim()) {
-      Alert.alert('Error', 'Please enter a phase name');
+  const handleAddType = async () => {
+    if (!newTypeName.trim()) {
+      Alert.alert('Error', 'Please enter a type name');
       return;
     }
 
     try {
-      const response = await fetch(`${BASE_URL}phase`, {
+      const response = await fetch(`${BASE_URL}commonControl/add`, { // Assumed endpoint for add
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -116,80 +109,64 @@ const DrawingAddNewPhase = () => {
           'X-Menu-Id': MENU_ID,
         },
         body: JSON.stringify({
-          phaseFormBean: {
-            module: 'Plan',
-            phaseName: newPhaseName.trim(),
-          },
+          type: TYPE,
+          name: newTypeName.trim(),
         }),
       });
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       const data = await response.json();
       updateToken(data.jwtToken);
-      Alert.alert('Success', 'Phase added successfully!');
-      setNewPhaseName('');
-      fetchPhases();
+      Alert.alert('Success', 'Drawing type added successfully!');
+      setNewTypeName('');
+      fetchTypes();
     } catch (error) {
-      Alert.alert('Error', 'Failed to add phase');
-      console.error('handleAddPhase error:', error);
+      Alert.alert('Error', 'Failed to add drawing type');
+      console.error('handleAddType error:', error);
     }
   };
 
-  const handleEditPhase = async (id, currentName) => {
-    if (!jwtToken) {
-      Alert.alert('Error', 'Authentication token missing');
+  const handleEditType = async (id, currentName) => {
+    setEditingId(id);
+    setNewTypeName(currentName);
+  };
+
+  const handleUpdateType = async () => {
+    if (!newTypeName.trim()) {
+      Alert.alert('Error', 'Please enter a type name');
       return;
     }
-    Alert.prompt(
-      'Edit Phase',
-      'Enter new phase name:',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Save',
-          onPress: async (text) => {
-            if (text && text.trim()) {
-              try {
-                const response = await fetch(`${BASE_URL}phase`, {
-                  method: 'PUT',
-                  headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${jwtToken}`,
-                    'X-Menu-Id': MENU_ID,
-                  },
-                  body: JSON.stringify({
-                    phaseFormBean: {
-                      autoId: id,
-                      module: 'Plan',
-                      phaseName: text.trim(),
-                    },
-                  }),
-                });
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                const data = await response.json();
-                updateToken(data.jwtToken);
-                fetchPhases();
-                Alert.alert('Success', 'Phase updated successfully!');
-              } catch (error) {
-                Alert.alert('Error', 'Failed to update phase');
-                console.error('handleEditPhase error:', error);
-              }
-            }
-          },
+
+    try {
+      const response = await fetch(`${BASE_URL}commonControl/update`, { // Assumed endpoint for update
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${jwtToken}`,
+          'X-Menu-Id': MENU_ID,
         },
-      ],
-      'plain-text',
-      currentName
-    );
+        body: JSON.stringify({
+          type: TYPE,
+          autoId: editingId,
+          name: newTypeName.trim(),
+        }),
+      });
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      const data = await response.json();
+      updateToken(data.jwtToken);
+      Alert.alert('Success', 'Drawing type updated successfully!');
+      setNewTypeName('');
+      setEditingId(null);
+      fetchTypes();
+    } catch (error) {
+      Alert.alert('Error', 'Failed to update drawing type');
+      console.error('handleUpdateType error:', error);
+    }
   };
 
-  const handleDeletePhase = async (id) => {
-    if (!jwtToken) {
-      Alert.alert('Error', 'Authentication token missing');
-      return;
-    }
+  const handleDeleteType = async (id) => {
     Alert.alert(
-      'Delete Phase',
-      'Are you sure you want to delete this phase?',
+      'Delete Type',
+      'Are you sure you want to delete this type?',
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -197,26 +174,23 @@ const DrawingAddNewPhase = () => {
           style: 'destructive',
           onPress: async () => {
             try {
-              const response = await fetch(`${BASE_URL}phase/delet-phase`, {
-                method: 'POST',
+              const response = await fetch(`${BASE_URL}commonControl/delete/${id}`, { // Assumed endpoint for delete
+                method: 'DELETE',
                 headers: {
                   'Content-Type': 'application/json',
                   'Authorization': `Bearer ${jwtToken}`,
                   'X-Menu-Id': MENU_ID,
                 },
-                body: JSON.stringify({
-                  id: id,
-                  module: 'Plan',
-                }),
+                body: JSON.stringify({ type: TYPE }),
               });
               if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
               const data = await response.json();
               updateToken(data.jwtToken);
-              fetchPhases();
-              Alert.alert('Success', 'Phase deleted successfully!');
+              fetchTypes();
+              Alert.alert('Success', 'Drawing type deleted successfully!');
             } catch (error) {
-              Alert.alert('Error', 'Failed to delete phase');
-              console.error('handleDeletePhase error:', error);
+              Alert.alert('Error', 'Failed to delete drawing type');
+              console.error('handleDeleteType error:', error);
             }
           },
         },
@@ -225,64 +199,51 @@ const DrawingAddNewPhase = () => {
   };
 
   return (
-    <MainLayout title="Add Phase">
+    <MainLayout title="Manage Drawing Type">
       <View className="flex-1 bg-white">
         <ScrollView className="flex-1 px-4 pt-4">
           <View className="flex-row items-center mb-6">
             <View className="flex-1 mr-3">
               <TextInput
                 className="bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-800"
-                placeholder="Phase Name"
+                placeholder="Type Name"
                 placeholderTextColor="#9CA3AF"
-                value={newPhaseName}
-                onChangeText={setNewPhaseName}
+                value={newTypeName}
+                onChangeText={setNewTypeName}
               />
             </View>
             <TouchableOpacity 
               className="bg-green-100 px-4 py-2 rounded-lg"
-              onPress={handleAddPhase}
+              onPress={editingId ? handleUpdateType : handleAddType}
             >
               <View className="flex-row items-center">
                 <MaterialIcons name="add" size={20} color="#22C55E" />
-                <Text className="text-green-600 font-medium ml-1">Add</Text>
+                <Text className="text-green-600 font-medium ml-1">{editingId ? 'Update' : 'Add'}</Text>
               </View>
             </TouchableOpacity>
           </View>
 
           <Text className="text-gray-800 text-lg font-medium text-center mb-4">
-            Phase List
+            Type List
           </Text>
 
           <View className="space-y-4">
-            {phases.map((phase) => (
+            {types.map((type) => (
               <View 
-                key={phase.id}
+                key={type.id}
                 className="flex-row items-center justify-between py-4 border-b border-gray-200"
               >
-                <View className="flex-1">
-                  <View className="flex-row items-center">
-                    <Text className="text-gray-800 font-medium text-base mr-3">
-                      {phase.name}
-                    </Text>
-                    {phase.status === 'A' && (
-                      <View className="bg-green-100 px-2 py-1 rounded">
-                        <Text className="text-green-600 text-xs font-medium">
-                          Active
-                        </Text>
-                      </View>
-                    )}
-                  </View>
-                </View>
+                <Text className="text-gray-800 font-medium text-base">{type.name}</Text>
                 <View className="flex-row items-center">
                   <TouchableOpacity 
                     className="p-2 mr-2"
-                    onPress={() => handleEditPhase(phase.id, phase.name)}
+                    onPress={() => handleEditType(type.id, type.name)}
                   >
                     <MaterialIcons name="edit" size={20} color="#F59E0B" />
                   </TouchableOpacity>
                   <TouchableOpacity 
                     className="p-2"
-                    onPress={() => handleDeletePhase(phase.id)}
+                    onPress={() => handleDeleteType(type.id)}
                   >
                     <MaterialIcons name="delete" size={20} color="#EF4444" />
                   </TouchableOpacity>
@@ -291,11 +252,11 @@ const DrawingAddNewPhase = () => {
             ))}
           </View>
 
-          {phases.length === 0 && (
+          {types.length === 0 && (
             <View className="items-center py-12">
-              <MaterialIcons name="timeline" size={48} color="#D1D5DB" />
+              <MaterialIcons name="category" size={48} color="#D1D5DB" />
               <Text className="text-gray-500 text-center mt-4">
-                No phases added yet.{'\n'}Add your first phase above.
+                No types added yet.{'\n'}Add your first type above.
               </Text>
             </View>
           )}
@@ -314,4 +275,4 @@ const DrawingAddNewPhase = () => {
   );
 };
 
-export default DrawingAddNewPhase;
+export default ManageDrawingType;
