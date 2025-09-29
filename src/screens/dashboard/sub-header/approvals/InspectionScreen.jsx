@@ -1,37 +1,11 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { 
-  View, 
-  Text, 
-  ScrollView, 
-  TouchableOpacity, 
-  Dimensions, 
-  ActivityIndicator,
-  TextInput,
-  Modal,
-  Image,
-  FlatList,
-  KeyboardAvoidingView,
-  Platform
-} from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Dimensions, TextInput, Modal } from 'react-native';
 import MainLayout from '../../../components/MainLayout';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { LinearGradient } from 'expo-linear-gradient';
-import Animated, { 
-  FadeInDown, 
-  FadeOut, 
-  FadeInUp
-} from 'react-native-reanimated';
+import { useNavigation } from '@react-navigation/native';
 
 const screenWidth = Dimensions.get('window').width;
 const cardWidth = Math.min(screenWidth - 32, 600);
-
-// Updated tabs based on your request
-const tabs = [
-  { key: 'all', label: 'All' },
-  { key: 'excavation', label: 'Excavation' },
-  { key: 'work', label: 'Work' },
-  { key: 'material', label: 'Material' },
-];
 
 // Sample inspection data with types
 const inspectionData = [
@@ -73,18 +47,6 @@ const inspectionData = [
   },
   {
     id: '4',
-    referenceNo: 'GH101-EX-00001',
-    title: 'Foundation Excavation',
-    revision: '1',
-    raisedBy: 'Construction Team',
-    raisedTo: 'Site Inspector',
-    raisedDate: '2025-08-23',
-    description: 'Foundation excavation inspection',
-    status: 'pending',
-    type: 'Excavation Inspection'
-  },
-  {
-    id: '5',
     referenceNo: 'GH101-MT-00001',
     title: 'Concrete Material Check',
     revision: '1',
@@ -100,299 +62,255 @@ const inspectionData = [
 // Status Badge Component
 const StatusBadge = ({ status }) => {
   const statusConfig = {
-    pending: { color: '#f59e0b', bgColor: '#fef3c7', text: 'Pending' },
-    completed: { color: '#10b981', bgColor: '#d1fae5', text: 'Completed' },
-    inProgress: { color: '#3b82f6', bgColor: '#dbeafe', text: 'In Progress' },
-    rejected: { color: '#ef4444', bgColor: '#fee2e2', text: 'Rejected' }
+    pending: { color: 'text-amber-500', bgColor: 'bg-amber-100', text: 'Pending' },
+    completed: { color: 'text-emerald-500', bgColor: 'bg-emerald-100', text: 'Completed' },
+    inProgress: { color: 'text-blue-500', bgColor: 'bg-blue-100', text: 'In Progress' },
+    rejected: { color: 'text-red-500', bgColor: 'bg-red-100', text: 'Rejected' }
   };
 
   const config = statusConfig[status] || statusConfig.pending;
 
   return (
-    <View style={{
-      flexDirection: 'row', 
-      alignItems: 'center',
-      backgroundColor: config.bgColor,
-      paddingHorizontal: 8,
-      paddingVertical: 4,
-      borderRadius: 12,
-      alignSelf: 'flex-start'
-    }}>
-      <View style={{
-        width: 8,
-        height: 8,
-        borderRadius: 4,
-        backgroundColor: config.color,
-        marginRight: 4
-      }} />
-      <Text style={{ 
-        fontSize: 12, 
-        fontWeight: '600', 
-        color: config.color 
-      }}>
+    <View className={`flex-row items-center ${config.bgColor} px-2 py-1 rounded-xl self-start`}>
+      <View className={`w-2 h-2 rounded-full ${config.color.replace('text-', 'bg-')} mr-1`} />
+      <Text className={`text-xs font-semibold ${config.color}`}>
         {config.text}
       </Text>
     </View>
   );
 };
 
-// Inspection Card Component (Restructured to match Work Order cards)
+// Inspection Card Component
 const InspectionCard = ({ item, expanded, onToggle }) => {
   return (
-    <Animated.View entering={FadeInDown.duration(500)}>
-      <View style={{
-        borderRadius: 20,
-        backgroundColor: '#ffffff',
-        marginBottom: 16,
-        overflow: 'hidden',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
-        elevation: 4,
-      }}>
-        {/* Header - Matching Work Order card structure */}
-        <TouchableOpacity onPress={onToggle}>
-          <LinearGradient 
-            colors={['#dbeafe', '#bfdbfe']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={{ padding: 20 }}
-          >
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-              <View style={{ flex: 1 }}>
-                <Text style={{ 
-                  fontSize: 18, 
-                  fontWeight: '700', 
-                  color: '#1e40af',
-                  marginBottom: 4
-                }}>
-                  {item.referenceNo}
-                </Text>
-                <Text style={{ 
-                  fontSize: 13, 
-                  color: '#3b82f6',
-                  marginBottom: 8
-                }}>
-                  {item.title}
-                </Text>
-              </View>
-              <View style={{ alignItems: 'flex-end' }}>
-                <Text style={{ 
-                  fontSize: 12, 
-                  color: '#3b82f6',
-                  marginBottom: 4
-                }}>
-                  Rev: {item.revision}
-                </Text>
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <StatusBadge status={item.status} />
-                </View>
-              </View>
-              <Icon 
-                name={expanded ? 'chevron-up' : 'chevron-down'} 
-                size={24} 
-                color="#1e40af" 
-                style={{ marginLeft: 12 }} 
-              />
+    <View className="rounded-2xl bg-white mb-4 overflow-hidden shadow-lg">
+      <TouchableOpacity onPress={onToggle} activeOpacity={0.7}>
+        <View className="p-5 bg-blue-100">
+          <View className="flex-row justify-between items-center">
+            <View className="flex-1">
+              <Text className="text-lg font-bold text-blue-900 mb-1">
+                {item.referenceNo}
+              </Text>
+              <Text className="text-sm text-blue-600 mb-2">
+                {item.title}
+              </Text>
             </View>
-          </LinearGradient>
-        </TouchableOpacity>
+            <View className="items-end mr-3">
+              <Text className="text-xs text-blue-600 mb-1">
+                Rev: {item.revision}
+              </Text>
+              <StatusBadge status={item.status} />
+            </View>
+            <Icon
+              name={expanded ? 'chevron-up' : 'chevron-down'}
+              size={24}
+              color="#1e40af"
+            />
+          </View>
+        </View>
+      </TouchableOpacity>
 
-        {/* Expanded Content */}
-        {expanded && (
-          <Animated.View entering={FadeInUp} exiting={FadeOut}>
-            <View style={{ padding: 16, backgroundColor: '#f8fafc' }}>
-              {/* Details */}
-              <View style={{ 
-                backgroundColor: '#ffffff', 
-                borderRadius: 12, 
-                padding: 16,
-                marginBottom: 12
-              }}>
-                <Text style={{ 
-                  fontSize: 16, 
-                  fontWeight: '700', 
-                  color: '#1f2937',
-                  marginBottom: 12
-                }}>
-                  Inspection Details
-                </Text>
-                
-                <View style={{ flexDirection: 'row', marginBottom: 8 }}>
-                  <View style={{ flex: 1 }}>
-                    <Text style={{ fontSize: 12, color: '#6b7280' }}>Raised By</Text>
-                    <Text style={{ fontSize: 14, fontWeight: '600', color: '#374151' }}>{item.raisedBy}</Text>
-                  </View>
-                  <View style={{ flex: 1 }}>
-                    <Text style={{ fontSize: 12, color: '#6b7280' }}>Raised To</Text>
-                    <Text style={{ fontSize: 14, fontWeight: '600', color: '#374151' }}>{item.raisedTo}</Text>
-                  </View>
-                </View>
-                
-                <View style={{ flexDirection: 'row', marginBottom: 8 }}>
-                  <View style={{ flex: 1 }}>
-                    <Text style={{ fontSize: 12, color: '#6b7280' }}>Raised Date</Text>
-                    <Text style={{ fontSize: 14, fontWeight: '600', color: '#374151' }}>{item.raisedDate}</Text>
-                  </View>
-                  <View style={{ flex: 1 }}>
-                    <Text style={{ fontSize: 12, color: '#6b7280' }}>Type</Text>
-                    <Text style={{ fontSize: 14, fontWeight: '600', color: '#374151' }}>{item.type}</Text>
-                  </View>
-                </View>
-                
-                <View style={{ marginBottom: 8 }}>
-                  <Text style={{ fontSize: 12, color: '#6b7280' }}>Description</Text>
-                  <Text style={{ fontSize: 14, fontWeight: '600', color: '#374151' }}>{item.description}</Text>
-                </View>
+      {expanded && (
+        <View className="p-4 bg-slate-50">
+          <View className="bg-white rounded-xl p-4 mb-3">
+            <Text className="text-base font-bold text-gray-800 mb-3">
+              Inspection Details
+            </Text>
+            <View className="flex-row mb-2">
+              <View className="flex-1">
+                <Text className="text-xs text-gray-500">Raised By</Text>
+                <Text className="text-sm font-semibold text-gray-700">{item.raisedBy}</Text>
               </View>
-              
-              {/* Action Buttons - Updated with all seven buttons */}
-          <View style={{ 
-  flexDirection: 'row', 
-  justifyContent: 'space-between',
-  backgroundColor: '#ffffff', 
-  borderRadius: 12, 
-  padding: 16
-}}>
-  {/* Edit Button */}
-  <TouchableOpacity 
-    style={{ 
-      alignItems: 'center',
-      padding: 8,
-      flex: 1
-    }}
-    onPress={() => console.log('Edit', item.referenceNo)}
-  >
-    <Icon name="pencil-outline" size={24} color="#10b981" />
-  </TouchableOpacity>
-  
-  {/* Audit Button */}
-  <TouchableOpacity 
-    style={{ 
-      alignItems: 'center',
-      padding: 8,
-      flex: 1
-    }}
-    onPress={() => console.log('Audit', item.referenceNo)}
-  >
-    <Icon name="clipboard-check-outline" size={24} color="#8b5cf6" />
-  </TouchableOpacity>
-  
-  {/* Workflow Button */}
-  <TouchableOpacity 
-    style={{ 
-      alignItems: 'center',
-      padding: 8,
-      flex: 1
-    }}
-    onPress={() => console.log('Workflow', item.referenceNo)}
-  >
-    <Icon name="graph-outline" size={24} color="#f97316" />
-  </TouchableOpacity>
-  
-  {/* Delete Button */}
-  <TouchableOpacity 
-    style={{ 
-      alignItems: 'center',
-      padding: 8,
-      flex: 1
-    }}
-    onPress={() => console.log('Delete', item.referenceNo)}
-  >
-    <Icon name="delete-outline" size={24} color="#ef4444" />
-  </TouchableOpacity>
-  
-  {/* Preview Files Button */}
-  <TouchableOpacity 
-    style={{ 
-      alignItems: 'center',
-      padding: 8,
-      flex: 1
-    }}
-    onPress={() => console.log('Preview Files', item.referenceNo)}
-  >
-    <Icon name="file-document-outline" size={24} color="#3b82f6" />
-  </TouchableOpacity>
-  
-  {/* Email Button */}
-  <TouchableOpacity 
-    style={{ 
-      alignItems: 'center',
-      padding: 8,
-      flex: 1
-    }}
-    onPress={() => console.log('Email', item.referenceNo)}
-  >
-    <Icon name="email-outline" size={24} color="#6366f1" />
-  </TouchableOpacity>
-  
-  {/* Comment Button */}
-  <TouchableOpacity 
-    style={{ 
-      alignItems: 'center',
-      padding: 8,
-      flex: 1
-    }}
-    onPress={() => console.log('Comment', item.referenceNo)}
-  >
-    <Icon name="comment-text-outline" size={24} color="#06b6d4" />
-  </TouchableOpacity>
-</View>
+              <View className="flex-1">
+                <Text className="text-xs text-gray-500">Raised To</Text>
+                <Text className="text-sm font-semibold text-gray-700">{item.raisedTo}</Text>
+              </View>
             </View>
-          </Animated.View>
-        )}
-      </View>
-    </Animated.View>
+            <View className="flex-row mb-2">
+              <View className="flex-1">
+                <Text className="text-xs text-gray-500">Raised Date</Text>
+                <Text className="text-sm font-semibold text-gray-700">{item.raisedDate}</Text>
+              </View>
+              <View className="flex-1">
+                <Text className="text-xs text-gray-500">Type</Text>
+                <Text className="text-sm font-semibold text-gray-700">{item.type}</Text>
+              </View>
+            </View>
+            <View className="mb-2">
+              <Text className="text-xs text-gray-500">Description</Text>
+              <Text className="text-sm font-semibold text-gray-700">{item.description}</Text>
+            </View>
+          </View>
+
+          <View className="flex-row justify-between bg-white rounded-xl p-4">
+            <TouchableOpacity className="items-center p-2 flex-1">
+              <Icon name="pencil-outline" size={24} color="#10b981" />
+            </TouchableOpacity>
+            <TouchableOpacity className="items-center p-2 flex-1">
+              <Icon name="clipboard-check-outline" size={24} color="#8b5cf6" />
+            </TouchableOpacity>
+            <TouchableOpacity className="items-center p-2 flex-1">
+              <Icon name="graph-outline" size={24} color="#f97316" />
+            </TouchableOpacity>
+            <TouchableOpacity className="items-center p-2 flex-1">
+              <Icon name="delete-outline" size={24} color="#ef4444" />
+            </TouchableOpacity>
+            <TouchableOpacity className="items-center p-2 flex-1">
+              <Icon name="file-document-outline" size={24} color="#3b82f6" />
+            </TouchableOpacity>
+            <TouchableOpacity className="items-center p-2 flex-1">
+              <Icon name="email-outline" size={24} color="#6366f1" />
+            </TouchableOpacity>
+            <TouchableOpacity className="items-center p-2 flex-1">
+              <Icon name="comment-text-outline" size={24} color="#06b6d4" />
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
+    </View>
   );
 };
 
 // Empty State Component
 const EmptyState = ({ searchQuery, tabName }) => (
-  <Animated.View 
-    entering={FadeInUp}
-    style={{ 
-      alignItems: 'center', 
-      justifyContent: 'center', 
-      padding: 40,
-      backgroundColor: '#ffffff',
-      borderRadius: 24,
-      margin: 16
-    }}
-  >
+  <View className="items-center justify-center p-10 bg-white rounded-3xl m-4">
     <Icon name="clipboard-list-outline" size={64} color="#d1d5db" />
-    <Text style={{ 
-      fontSize: 18, 
-      fontWeight: '600', 
-      color: '#6b7280',
-      marginTop: 16
-    }}>
+    <Text className="text-lg font-semibold text-gray-500 mt-4">
       No inspections found
     </Text>
-    <Text style={{ 
-      fontSize: 14, 
-      color: '#9ca3af',
-      marginTop: 8,
-      textAlign: 'center'
-    }}>
-      {searchQuery ? 
-        'Try adjusting your search terms' : 
-        `No ${tabName.toLowerCase()} available`
-      }
+    <Text className="text-sm text-gray-400 mt-2 text-center">
+      {searchQuery ? 'Try adjusting your search terms' : `No ${tabName.toLowerCase()} available`}
     </Text>
-  </Animated.View>
+  </View>
 );
+
+// Add Inspection Type Modal Component
+const AddInspectionTypeModal = ({ visible, onClose, onAddType }) => {
+  const [typeName, setTypeName] = useState('');
+  const [status, setStatus] = useState('active');
+
+  const handleSubmit = () => {
+    if (typeName.trim()) {
+      onAddType(typeName.trim(), status);
+      setTypeName('');
+      setStatus('active');
+      onClose();
+    }
+  };
+
+  return (
+    <Modal
+      visible={visible}
+      transparent={true}
+      animationType="slide"
+      onRequestClose={onClose}
+    >
+      <View className="flex-1 bg-black/50 justify-center items-center">
+        <View className="bg-white rounded-2xl w-11/12 max-w-lg shadow-2xl">
+          {/* Header */}
+          <View className="bg-blue-500 rounded-t-2xl p-5 flex-row justify-between items-center">
+            <Text className="text-xl font-bold text-white">
+              New Inspection Type
+            </Text>
+            <TouchableOpacity onPress={onClose}>
+              <Icon name="close" size={24} color="#ffffff" />
+            </TouchableOpacity>
+          </View>
+
+          {/* Content */}
+          <View className="p-5">
+            <View className="mb-5">
+              <Text className="text-sm font-semibold text-gray-700 mb-2">
+                Inspection Type Name
+              </Text>
+              <TextInput
+                value={typeName}
+                onChangeText={setTypeName}
+                placeholder="Enter inspection type name"
+                className="bg-gray-100 rounded-xl p-3 text-base text-gray-700 border border-gray-200"
+                placeholderTextColor="#9ca3af"
+              />
+            </View>
+
+            <View className="mb-6">
+              <Text className="text-sm font-semibold text-gray-700 mb-2">
+                Status
+              </Text>
+              <View className="flex-row gap-3">
+                <TouchableOpacity
+                  onPress={() => setStatus('active')}
+                  className={`flex-1 rounded-xl p-3 items-center border-2 ${
+                    status === 'active' 
+                      ? 'bg-emerald-100 border-emerald-500' 
+                      : 'bg-gray-100 border-gray-200'
+                  }`}
+                >
+                  <Text className={`text-sm font-semibold ${
+                    status === 'active' ? 'text-emerald-500' : 'text-gray-500'
+                  }`}>
+                    Active
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => setStatus('deactive')}
+                  className={`flex-1 rounded-xl p-3 items-center border-2 ${
+                    status === 'deactive' 
+                      ? 'bg-red-100 border-red-500' 
+                      : 'bg-gray-100 border-gray-200'
+                  }`}
+                >
+                  <Text className={`text-sm font-semibold ${
+                    status === 'deactive' ? 'text-red-500' : 'text-gray-500'
+                  }`}>
+                    Deactive
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            {/* Buttons */}
+            <View className="flex-row gap-3">
+              <TouchableOpacity
+                onPress={onClose}
+                className="flex-1 bg-gray-100 rounded-xl p-4 items-center"
+              >
+                <Text className="text-base font-semibold text-gray-500">
+                  Cancel
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={handleSubmit}
+                className="flex-1 bg-blue-500 rounded-xl p-4 items-center"
+              >
+                <Text className="text-base font-semibold text-white">
+                  Add Type
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
+};
 
 // Main Work Inspection Screen Component
 const WorkInspectionScreen = () => {
+  const navigation = useNavigation();
   const [activeTab, setActiveTab] = useState('all');
-  const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedItems, setExpandedItems] = useState({});
+  const [modalVisible, setModalVisible] = useState(false);
+  
+  // Dynamic tabs state
+  const [tabs, setTabs] = useState([
+    { key: 'all', label: 'All' },
+    { key: 'work', label: 'Work' },
+    { key: 'material', label: 'Material' },
+  ]);
 
   const handleRefresh = useCallback(() => {
-    setIsLoading(true);
-    setTimeout(() => setIsLoading(false), 1500);
+    // Refresh logic
   }, []);
 
   const toggleItem = useCallback((id) => {
@@ -402,27 +320,28 @@ const WorkInspectionScreen = () => {
     }));
   }, []);
 
+  const handleAddInspectionType = useCallback((typeName, status) => {
+    const newTab = {
+      key: typeName.toLowerCase().replace(/\s+/g, '_'),
+      label: typeName
+    };
+    setTabs(prev => [...prev, newTab]);
+  }, []);
+
   const filteredInspections = useMemo(() => {
     let result = [...inspectionData];
-    
-    // Apply tab filter
+
     if (activeTab !== 'all') {
       result = result.filter(item => {
-        if (activeTab === 'excavation') {
-          return item.type === 'Excavation Inspection';
-        } else if (activeTab === 'work') {
-          return item.type === 'Work Inspection';
-        } else if (activeTab === 'material') {
-          return item.type === 'Material Inspection';
-        }
+        if (activeTab === 'work') return item.type === 'Work Inspection';
+        else if (activeTab === 'material') return item.type === 'Material Inspection';
         return true;
       });
     }
-    
-    // Apply search filter
+
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      result = result.filter(item => 
+      result = result.filter(item =>
         item.title.toLowerCase().includes(query) ||
         item.referenceNo.toLowerCase().includes(query) ||
         item.raisedBy.toLowerCase().includes(query) ||
@@ -430,172 +349,103 @@ const WorkInspectionScreen = () => {
         item.description.toLowerCase().includes(query)
       );
     }
-    
+
     return result;
   }, [searchQuery, activeTab]);
 
   const renderContent = () => {
-    if (isLoading) {
+    if (filteredInspections.length > 0) {
       return (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f8fafc' }}>
-          <View style={{ 
-            backgroundColor: '#ffffff', 
-            padding: 32, 
-            borderRadius: 24,
-            alignItems: 'center',
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.1,
-            shadowRadius: 8,
-            elevation: 4
-          }}>
-            <ActivityIndicator size="large" color="#3b82f6" />
-            <Text style={{ 
-              marginTop: 16, 
-              fontSize: 16, 
-              fontWeight: '600', 
-              color: '#374151' 
-            }}>
-              Loading inspections...
-            </Text>
-          </View>
-        </View>
-      );
-    }
-
-    return (
-      <ScrollView 
-        contentContainerStyle={{ padding: 16 }}
-        showsVerticalScrollIndicator={false}
-      >
-        {filteredInspections.length > 0 ? (
-          filteredInspections.map((item) => (
+        <ScrollView className="p-4">
+          {filteredInspections.map((item) => (
             <InspectionCard
               key={item.id}
               item={item}
               expanded={expandedItems[item.id]}
               onToggle={() => toggleItem(item.id)}
             />
-          ))
-        ) : (
-          <EmptyState 
-            searchQuery={searchQuery} 
-            tabName={tabs.find(tab => tab.key === activeTab)?.label || 'inspections'} 
-          />
-        )}
-      </ScrollView>
-    );
+          ))}
+        </ScrollView>
+      );
+    }
+    return <EmptyState searchQuery={searchQuery} tabName={tabs.find(tab => tab.key === activeTab)?.label || 'inspections'} />;
   };
 
   return (
     <MainLayout title="Work Inspection">
-      <View style={{ flex: 1, backgroundColor: '#f8fafc' }}>
-
+      <View className="flex-1 bg-slate-50">
         {/* Header */}
-        <View style={{ backgroundColor: '#dbeafe', padding: 16 }}>
-          <View style={{ 
-            flexDirection: 'row', 
-            justifyContent: 'space-between', 
-            alignItems: 'center',
-            marginBottom: 12
-          }}>
+        <View className="bg-blue-100 p-4">
+          <View className="flex-row justify-between items-center mb-3">
             <View>
-              <Text style={{ 
-                fontSize: 20, 
-                fontWeight: '700', 
-                color: '#1e40af' 
-              }}>
-                Work Inspection
-              </Text>
-              <Text style={{ 
-                fontSize: 12, 
-                color: '#3b82f6',
-                marginTop: 2
-              }}>
+              <Text className="text-xl font-bold text-blue-900">Work Inspection</Text>
+              <Text className="text-xs text-blue-600 mt-0.5">
                 {filteredInspections.length} inspections
               </Text>
             </View>
-            <View style={{ flexDirection: 'row', gap: 8 }}>
+            <View className="flex-row gap-2">
               <TouchableOpacity
-                style={{ 
-                  padding: 10, 
-                  backgroundColor: 'rgba(255, 255, 255, 0.8)', 
-                  borderRadius: 12 
-                }}
+                className="p-2.5 bg-white/80 rounded-xl"
                 onPress={handleRefresh}
               >
                 <Icon name="refresh" size={18} color="#1e40af" />
               </TouchableOpacity>
               <TouchableOpacity
-                style={{ 
-                  padding: 10, 
-                  backgroundColor: 'rgba(255, 255, 255, 0.8)', 
-                  borderRadius: 12 
-                }}
-                onPress={() => console.log('Add new inspection')}
+                className="p-2.5 bg-white/80 rounded-xl"
+                onPress={() => setModalVisible(true)}
               >
-                <Icon name="plus" size={18} color="#1e40af" />
+                <Icon name="plus-box" size={18} color="#1e40af" />
+              </TouchableOpacity>
+              <TouchableOpacity
+                className="p-2.5 bg-white/80 rounded-xl"
+                onPress={() => navigation.navigate('AddInspectionChecklist')}
+              >
+                <Icon name="clipboard-plus-outline" size={18} color="#1e40af" />
               </TouchableOpacity>
             </View>
           </View>
 
-          {/* Search Bar */}
-          <View style={{
-            backgroundColor: 'rgba(255, 255, 255, 0.8)',
-            borderRadius: 12,
-            paddingHorizontal: 12,
-            flexDirection: 'row',
-            alignItems: 'center'
-          }}>
-            <Icon name="magnify" size={20} color="#6b7280" />
-            <TextInput
-              placeholder="Search inspections..."
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-              style={{
-                flex: 1,
-                padding: 12,
-                fontSize: 16,
-                color: '#374151'
-              }}
-              placeholderTextColor="#9ca3af"
-            />
-            {searchQuery.length > 0 && (
-              <TouchableOpacity onPress={() => setSearchQuery('')}>
-                <Icon name="close-circle-outline" size={20} color="#9ca3af" />
-              </TouchableOpacity>
-            )}
+          {/* Search Bar with Add Inspection Button */}
+          <View className="flex-row gap-2 items-center">
+            <View className="flex-1 bg-white/80 rounded-xl px-3 flex-row items-center">
+              <Icon name="magnify" size={20} color="#6b7280" />
+              <TextInput
+                placeholder="Search inspections..."
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                className="flex-1 p-3 text-base text-gray-700"
+                placeholderTextColor="#9ca3af"
+              />
+            </View>
+            <TouchableOpacity
+              className="bg-blue-500 rounded-xl p-3 flex-row items-center gap-1.5"
+              onPress={() => navigation.navigate('AddInspection')}
+            >
+              <Icon name="plus" size={20} color="#ffffff" />
+              <Text className="text-sm font-semibold text-white">
+                Add
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
 
         {/* Tabs */}
-        <View style={{ 
-          flexDirection: 'row', 
-          justifyContent: 'space-between', 
-          borderBottomWidth: 1, 
-          borderBottomColor: '#e5e7eb', 
-          backgroundColor: '#ffffff',
-          paddingHorizontal: 16
-        }}>
+        <View className="flex-row justify-between border-b border-gray-200 bg-white px-4">
           {tabs.map(tab => (
             <TouchableOpacity
               key={tab.key}
-              style={{ 
-                paddingVertical: 12,
-                paddingHorizontal: 8,
+              className="py-3 px-2 flex-1 items-center"
+              style={{
                 borderBottomWidth: activeTab === tab.key ? 2 : 0,
-                borderBottomColor: activeTab === tab.key ? '#3b82f6' : 'transparent',
-                flex: 1,
-                alignItems: 'center'
+                borderBottomColor: activeTab === tab.key ? '#3b82f6' : 'transparent'
               }}
               onPress={() => setActiveTab(tab.key)}
             >
-              <Text style={{ 
-                fontSize: 14, 
-                fontWeight: activeTab === tab.key ? '600' : '400',
-                color: activeTab === tab.key ? '#3b82f6' : '#6b7280',
-                textAlign: 'center'
-              }}>
+              <Text className={`text-sm text-center ${
+                activeTab === tab.key 
+                  ? 'font-semibold text-blue-600' 
+                  : 'font-normal text-gray-500'
+              }`}>
                 {tab.label}
               </Text>
             </TouchableOpacity>
@@ -604,6 +454,13 @@ const WorkInspectionScreen = () => {
 
         {/* Content */}
         {renderContent()}
+
+        {/* Add Inspection Type Modal */}
+        <AddInspectionTypeModal
+          visible={modalVisible}
+          onClose={() => setModalVisible(false)}
+          onAddType={handleAddInspectionType}
+        />
       </View>
     </MainLayout>
   );
