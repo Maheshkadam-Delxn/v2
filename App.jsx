@@ -74,6 +74,8 @@ import AddBoqItem from './src/screens/dashboard/sub-header/project-resources/Boq
 import AddInspection from './src/screens/dashboard/sub-header/approvals/inspection/AddInspection';
 import AddInspectionChecklist from './src/screens/dashboard/sub-header/approvals/inspection/AddInspectionChecklist';
 import EditBoq from './src/screens/dashboard/sub-header/project-resources/Boq/EditBoq';
+import EmailBoq from './src/screens/dashboard/sub-header/project-resources/Boq/EmailBoq';
+import AuditTrail from './src/screens/dashboard/sub-header/project-resources/Boq/AuditTrial';
 
 const Stack = createNativeStackNavigator();
 
@@ -123,6 +125,8 @@ export default function App() {
         <Stack.Screen name="AddBoqItem" component={AddBoqItem}/>
         <Stack.Screen name="AddPhaseBoq" component={PhaseModalBoq}/>
         <Stack.Screen name="EditBoq" component={EditBoq}/>
+        <Stack.Screen name="EmailBoq" component={EmailBoq}/>
+        <Stack.Screen name="AuditTrail" component={AuditTrail}/>
 
 
         <Stack.Screen name="Document" component={DocumentScreen} />

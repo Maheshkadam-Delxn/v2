@@ -431,7 +431,7 @@ const AddBoqItem = () => {
               </LinearGradient>
               <View className="p-6">
                 {/* Row 1: BOQ Name & Item No */}
-                <View className="flex-row space-x-4 mb-4">
+                <View className="flex-row space-x-4 gap-2 mb-4">
                   <View className="flex-1">
                     {renderInputField('BOQ Name', 'boqId', 'Select BOQ Name', boqOptions)}
                   </View>
@@ -440,7 +440,7 @@ const AddBoqItem = () => {
                   </View>
                 </View>
                 {/* Row 2: Quantity & Unit */}
-                <View className="flex-row space-x-4 mb-4">
+                <View className="flex-row space-x-4 gap-2 mb-4">
                   <View className="flex-1">
                     {renderInputField('Quantity', 'quantity', 'Enter Quantity', null, 'numeric')}
                   </View>
@@ -451,7 +451,7 @@ const AddBoqItem = () => {
                 {/* Unit Cost (single since amount removed) */}
                 {renderInputField('Unit Cost', 'unitCost', 'Enter Unit Cost', null, 'numeric')}
                 {/* Row 4: Phase & Labour Rate */}
-                <View className="flex-row space-x-4 mb-4">
+                <View className="flex-row space-x-4 gap-2 mb-4">
                   <View className="flex-1">
                     {renderInputField('Phase', 'phase', 'Enter Phase...', null, 'default')}
                   </View>
@@ -472,7 +472,7 @@ const AddBoqItem = () => {
                   </View>
                 </View>
                 {/* Action Buttons */}
-                <View className="flex-row space-x-4 mt-6">
+                <View className="flex-row gap-4 mt-6">
                   <TouchableOpacity
                     onPress={() => navigation.goBack()}
                     className="flex-1 border border-gray-300 rounded-lg py-3 items-center"
