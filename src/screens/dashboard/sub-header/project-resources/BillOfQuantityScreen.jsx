@@ -699,7 +699,8 @@ const BoqItem = ({ item, navigation }) => {
                   icon: 'users',
                   color: '#0284c7',
                   label: 'Workflow',
-                  action: () => console.log('Workflow'),
+                  // action: () => console.log('Workflow'),
+                   action: () => navigation.navigate('ApprovalsWorkflows', { boqId: item.autoId }),
                 },
                 ...(status === 'rejected'
                   ? [

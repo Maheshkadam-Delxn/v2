@@ -76,6 +76,7 @@ import AddInspectionChecklist from './src/screens/dashboard/sub-header/approvals
 import EditBoq from './src/screens/dashboard/sub-header/project-resources/Boq/EditBoq';
 import EmailBoq from './src/screens/dashboard/sub-header/project-resources/Boq/EmailBoq';
 import AuditTrail from './src/screens/dashboard/sub-header/project-resources/Boq/AuditTrial';
+import ApprovalsWorkflows from './src/screens/dashboard/sub-header/project-resources/Boq/ApprovalsWorkflows';
 
 const Stack = createNativeStackNavigator();
 
@@ -127,6 +128,7 @@ export default function App() {
         <Stack.Screen name="EditBoq" component={EditBoq}/>
         <Stack.Screen name="EmailBoq" component={EmailBoq}/>
         <Stack.Screen name="AuditTrail" component={AuditTrail}/>
+        <Stack.Screen name="ApprovalsWorkflows" component={ApprovalsWorkflows}/>
 
 
         <Stack.Screen name="Document" component={DocumentScreen} />
