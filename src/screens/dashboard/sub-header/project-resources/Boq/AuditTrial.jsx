@@ -13,6 +13,7 @@ import {
   Animated,
   ActivityIndicator,
   Image,
+  Dimensions,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useNavigation } from '@react-navigation/native';
@@ -21,6 +22,8 @@ import { Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as DocumentPicker from 'expo-document-picker';
+
+const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 const AuditTrail = () => {
   const navigation = useNavigation();
@@ -223,30 +226,33 @@ const AuditTrail = () => {
       onRequestClose={() => setShowUserDropdown(false)}
     >
       <TouchableOpacity
-        className="flex-1 bg-black/60 justify-center px-6"
+        className="flex-1 bg-black/60 justify-center px-4"
         activeOpacity={1}
         onPress={() => setShowUserDropdown(false)}
       >
-        <View className="bg-white rounded-2xl max-h-96 shadow-2xl overflow-hidden">
+        <View 
+          className="bg-white rounded-xl max-h-80 overflow-hidden"
+          style={{ maxHeight: screenHeight * 0.6 }}
+        >
           <LinearGradient
             colors={['#3b82f6', '#2563eb']}
-            className="px-6 py-5 flex-row items-center justify-between"
+            className="px-4 py-4 flex-row items-center justify-between"
           >
-            <View>
+            <View className="flex-1">
               <Text className="text-white text-lg font-bold">Select User</Text>
-              <Text className="text-blue-100 text-xs mt-0.5">Choose a user to assign</Text>
+              <Text className="text-blue-100 text-xs mt-1">Choose a user to assign</Text>
             </View>
             {loadingUsers ? (
               <ActivityIndicator size="small" color="#ffffff" />
             ) : (
-              <Feather name="users" size={22} color="#ffffff" />
+              <Feather name="users" size={20} color="#ffffff" />
             )}
           </LinearGradient>
 
           {loadingUsers ? (
-            <View className="p-12 items-center">
+            <View className="p-8 items-center">
               <ActivityIndicator size="large" color="#3b82f6" />
-              <Text className="text-gray-500 mt-3 text-sm">Loading users...</Text>
+              <Text className="text-gray-500 mt-2 text-sm">Loading users...</Text>
             </View>
           ) : (
             <FlatList
@@ -254,7 +260,7 @@ const AuditTrail = () => {
               keyExtractor={(item, index) => item.id?.toString() || index.toString()}
               renderItem={({ item }) => (
                 <TouchableOpacity
-                  className="px-6 py-4 border-b border-gray-100 active:bg-blue-50"
+                  className="px-4 py-3 border-b border-gray-100 active:bg-blue-50"
                   onPress={() => {
                     setAssignedUser(item.name || item.username);
                     setSelectedUserId(item.id || item.userId);
@@ -265,28 +271,28 @@ const AuditTrail = () => {
                   }}
                 >
                   <View className="flex-row items-center">
-                    <View className="bg-blue-100 rounded-full w-10 h-10 items-center justify-center mr-3">
-                      <Text className="text-blue-600 font-bold text-base">
+                    <View className="bg-blue-100 rounded-full w-8 h-8 items-center justify-center mr-3">
+                      <Text className="text-blue-600 font-bold text-sm">
                         {(item.name || item.username)?.charAt(0).toUpperCase()}
                       </Text>
                     </View>
                     <View className="flex-1">
-                      <Text className="text-base text-gray-800 font-medium">
+                      <Text className="text-base text-gray-800 font-medium" numberOfLines={1}>
                         {item.name || item.username}
                       </Text>
                       {item.email && (
-                        <Text className="text-xs text-gray-500">{item.email}</Text>
+                        <Text className="text-xs text-gray-500" numberOfLines={1}>{item.email}</Text>
                       )}
                     </View>
                   </View>
                 </TouchableOpacity>
               )}
               ListEmptyComponent={
-                <View className="p-8 items-center">
-                  <Feather name="users" size={40} color="#d1d5db" />
-                  <Text className="text-gray-500 mt-3 text-sm">No users available</Text>
+                <View className="p-6 items-center">
+                  <Feather name="users" size={32} color="#d1d5db" />
+                  <Text className="text-gray-500 mt-2 text-sm">No users available</Text>
                   <TouchableOpacity
-                    className="mt-4 px-6 py-2.5 bg-blue-500 rounded-full"
+                    className="mt-3 px-4 py-2 bg-blue-500 rounded-lg"
                     onPress={fetchUsers}
                   >
                     <Text className="text-white text-sm font-semibold">Retry</Text>
@@ -316,56 +322,43 @@ const AuditTrail = () => {
             }}
             className="flex-1"
           >
-            {/* Header */}
-            {/* <LinearGradient
-              colors={['#3b82f6', '#2563eb']}
-              className="px-5 py-4 flex-row items-center justify-between"
-            >
-              <View className="flex-row items-center flex-1">
-                <View className="bg-white/20 rounded-full p-2 mr-3">
-                  <Feather name="file-text" size={20} color="#ffffff" />
-                </View>
-                <Text className="text-white text-lg font-bold">Audit Trail</Text>
-              </View>
-              <TouchableOpacity
-                onPress={() => navigation.goBack()}
-                className="bg-white/20 rounded-full p-2"
-              >
-                <Feather name="x" size={20} color="#ffffff" />
-              </TouchableOpacity>
-            </LinearGradient> */}
-
             <ScrollView
               className="flex-1"
               showsVerticalScrollIndicator={false}
               keyboardShouldPersistTaps="handled"
+              contentContainerStyle={{ flexGrow: 1 }}
             >
-              <View className="p-5">
+              {/* <View className="p-4 flex-1"> */}
                 {/* Main Card */}
-                <View className="bg-white rounded-2xl shadow-lg overflow-hidden">
-                  <View className="p-5">
+                <View className="bg-white border border-gray-200 overflow-hidden mb-4">
+                  <LinearGradient colors={['#3b82f6', '#2563eb']} className="px-4 py-4">
+                    <View className="flex-row items-center">
+                      <View className="bg-white/20 rounded-full p-2 mr-3">
+                        <Feather name="file-text" size={18} color="#ffffff" />
+                      </View>
+                      <View className="flex-1">
+                        <Text className="text-white text-lg font-bold">Create Audit Entry</Text>
+                        <Text className="text-blue-100 text-xs">Fill in all required information</Text>
+                      </View>
+                    </View>
+                  </LinearGradient>
+
+                  <View className="p-4">
                     {/* Assign Users Field */}
-                    <View className="mb-5">
-                      <Text className="text-sm font-semibold text-gray-700 mb-2.5">
+                    <View className="mb-4">
+                      <Text className="text-sm font-semibold text-gray-700 mb-2">
                         Assign Users <Text className="text-red-500">*</Text>
                       </Text>
                       <TouchableOpacity
                         onPress={() => setShowUserDropdown(true)}
-                        className={`flex-row items-center rounded-xl px-4 py-3.5 ${
+                        className={`flex-row items-center rounded-lg px-3 py-3 ${
                           errors.assignedUser
                             ? 'border-2 border-red-400 bg-red-50'
-                            : 'border-2 border-gray-200 bg-white'
+                            : 'border border-gray-300 bg-white'
                         }`}
-                        style={{
-                          shadowColor: errors.assignedUser ? '#ef4444' : '#000',
-                          shadowOffset: { width: 0, height: 1 },
-                          shadowOpacity: errors.assignedUser ? 0.15 : 0.05,
-                          shadowRadius: 3,
-                          elevation: errors.assignedUser ? 3 : 1,
-                        }}
                       >
                         <View className="mr-3">
-                          <Feather name="user" size={20} color="#3b82f6" />
+                          <Feather name="user" size={18} color="#3b82f6" />
                         </View>
                         <Text
                           className={`flex-1 text-base ${
@@ -374,12 +367,12 @@ const AuditTrail = () => {
                         >
                           {assignedUser || 'Select user to assign'}
                         </Text>
-                        <Feather name="chevron-down" size={20} color="#6b7280" />
+                        <Feather name="chevron-down" size={18} color="#6b7280" />
                       </TouchableOpacity>
                       {errors.assignedUser && (
-                        <View className="flex-row items-center mt-2 ml-1">
-                          <Feather name="alert-circle" size={14} color="#ef4444" />
-                          <Text className="text-red-500 text-xs ml-1.5 font-medium">
+                        <View className="flex-row items-center mt-1 ml-1">
+                          <Feather name="alert-circle" size={12} color="#ef4444" />
+                          <Text className="text-red-500 text-xs ml-1 font-medium">
                             {errors.assignedUser}
                           </Text>
                         </View>
@@ -387,23 +380,16 @@ const AuditTrail = () => {
                     </View>
 
                     {/* Create New Feed Field */}
-                    <View className="mb-5">
-                      <Text className="text-sm font-semibold text-gray-700 mb-2.5">
+                    <View className="mb-4">
+                      <Text className="text-sm font-semibold text-gray-700 mb-2">
                         Create New Feed <Text className="text-red-500">*</Text>
                       </Text>
                       <View
-                        className={`rounded-xl px-4 py-3.5 ${
+                        className={`rounded-lg px-3 py-3 ${
                           errors.feedText
                             ? 'border-2 border-red-400 bg-red-50'
-                            : 'border-2 border-gray-200 bg-white'
+                            : 'border border-gray-300 bg-white'
                         }`}
-                        style={{
-                          shadowColor: errors.feedText ? '#ef4444' : '#000',
-                          shadowOffset: { width: 0, height: 1 },
-                          shadowOpacity: errors.feedText ? 0.15 : 0.05,
-                          shadowRadius: 3,
-                          elevation: errors.feedText ? 3 : 1,
-                        }}
                       >
                         <TextInput
                           className="text-base text-gray-900 min-h-[100px]"
@@ -418,12 +404,13 @@ const AuditTrail = () => {
                           }}
                           multiline
                           textAlignVertical="top"
+                          style={{ maxHeight: screenHeight * 0.2 }}
                         />
                       </View>
                       {errors.feedText && (
-                        <View className="flex-row items-center mt-2 ml-1">
-                          <Feather name="alert-circle" size={14} color="#ef4444" />
-                          <Text className="text-red-500 text-xs ml-1.5 font-medium">
+                        <View className="flex-row items-center mt-1 ml-1">
+                          <Feather name="alert-circle" size={12} color="#ef4444" />
+                          <Text className="text-red-500 text-xs ml-1 font-medium">
                             {errors.feedText}
                           </Text>
                         </View>
@@ -431,15 +418,15 @@ const AuditTrail = () => {
                     </View>
 
                     {/* Attachment Section */}
-                    <View className="mb-5">
-                      <View className="flex-row items-center justify-between mb-2.5">
+                    <View className="mb-4">
+                      <View className="flex-row items-center justify-between mb-2">
                         <Text className="text-sm font-semibold text-gray-700">Attachment</Text>
                         <TouchableOpacity
                           onPress={handleAttachment}
                           className="flex-row items-center bg-blue-50 px-3 py-2 rounded-lg"
                         >
-                          <Feather name="paperclip" size={16} color="#3b82f6" />
-                          <Text className="text-blue-600 font-medium text-xs ml-1.5">
+                          <Feather name="paperclip" size={14} color="#3b82f6" />
+                          <Text className="text-blue-600 font-medium text-xs ml-1">
                             Add File
                           </Text>
                         </TouchableOpacity>
@@ -450,10 +437,10 @@ const AuditTrail = () => {
                           {attachments.map((attachment, index) => (
                             <View
                               key={index}
-                              className="flex-row items-center bg-gray-50 rounded-xl p-3 border border-gray-200"
+                              className="flex-row items-center bg-gray-50 rounded-lg p-3 border border-gray-200"
                             >
                               <View className="bg-blue-100 rounded-lg p-2 mr-3">
-                                <Feather name="file" size={20} color="#3b82f6" />
+                                <Feather name="file" size={16} color="#3b82f6" />
                               </View>
                               <View className="flex-1">
                                 <Text className="text-sm font-medium text-gray-900" numberOfLines={1}>
@@ -465,62 +452,56 @@ const AuditTrail = () => {
                               </View>
                               <TouchableOpacity
                                 onPress={() => removeAttachment(index)}
-                                className="p-2"
+                                className="p-1"
                               >
-                                <Feather name="x" size={18} color="#ef4444" />
+                                <Feather name="x" size={16} color="#ef4444" />
                               </TouchableOpacity>
                             </View>
                           ))}
                         </View>
                       ) : (
-                        <View className="bg-gray-50 rounded-xl p-6 border-2 border-dashed border-gray-300 items-center">
-                          <Feather name="upload" size={32} color="#9ca3af" />
-                          <Text className="text-gray-500 text-sm mt-2">No attachments added</Text>
+                        <View className="bg-gray-50 rounded-lg p-4 border border-dashed border-gray-300 items-center">
+                          <Feather name="upload" size={24} color="#9ca3af" />
+                          <Text className="text-gray-500 text-xs mt-1 text-center">
+                            No attachments added
+                          </Text>
                         </View>
                       )}
                     </View>
 
                     {/* Action Buttons */}
-                    <View className="flex-row space-x-3 mt-2 gap-4">
+                    <View className={`flex-row gap-3 mt-4 ${screenWidth < 375 ? 'flex-col' : ''}`}>
                       <TouchableOpacity
                         onPress={handleCancel}
-                        className="flex-1 border-2 border-gray-300 rounded-xl py-3.5 items-center justify-center bg-white"
-                        // style={{
-                        //   shadowColor: '#000',
-                        //   shadowOffset: { width: 0, height: 2 },
-                        //   shadowOpacity: 0.1,
-                        //   shadowRadius: 3,
-                        //   elevation: 2,
-                        // }}
+                        className={`border border-gray-300 rounded-lg py-3 items-center justify-center bg-white ${
+                          screenWidth < 375 ? 'flex-1' : 'flex-1'
+                        }`}
                       >
                         <View className="flex-row items-center">
-                          <Feather name="x" size={18} color="#374151" />
-                          <Text className="text-gray-700 font-bold text-base ml-2">Cancel</Text>
+                          <Feather name="x" size={16} color="#374151" />
+                          <Text className="text-gray-700 font-bold text-sm ml-2">Cancel</Text>
                         </View>
                       </TouchableOpacity>
 
                       <TouchableOpacity
                         onPress={handleSave}
                         disabled={loading}
-                        className="flex-1 rounded-xl py-3.5 items-center justify-center"
+                        className={`rounded-lg py-3 items-center justify-center ${
+                          screenWidth < 375 ? 'flex-1' : 'flex-1'
+                        }`}
                         style={{
                           backgroundColor: loading ? '#9ca3af' : '#3b82f6',
-                        //   shadowColor: loading ? '#9ca3af' : '#3b82f6',
-                        //   shadowOffset: { width: 0, height: 4 },
-                        //   shadowOpacity: 0.3,
-                        //   shadowRadius: 5,
-                        //   elevation: 5,
                         }}
                       >
                         {loading ? (
                           <View className="flex-row items-center">
                             <ActivityIndicator size="small" color="#ffffff" />
-                            <Text className="text-white font-bold text-base ml-2">Saving...</Text>
+                            <Text className="text-white font-bold text-sm ml-2">Saving...</Text>
                           </View>
                         ) : (
                           <View className="flex-row items-center">
-                            <Feather name="check" size={18} color="#ffffff" />
-                            <Text className="text-white font-bold text-base ml-2">Save</Text>
+                            <Feather name="check" size={16} color="#ffffff" />
+                            <Text className="text-white font-bold text-sm ml-2">Save</Text>
                           </View>
                         )}
                       </TouchableOpacity>
@@ -529,55 +510,55 @@ const AuditTrail = () => {
                 </View>
 
                 {/* User Info Card */}
-                <View className="bg-white rounded-2xl shadow-md p-4 mt-4">
+                <View className="bg-white rounded-xl border border-gray-200 p-3 mb-4">
                   <View className="flex-row items-center">
-                    <View className="bg-gradient-to-br from-blue-400 to-blue-600 rounded-full w-12 h-12 items-center justify-center mr-3">
-                      <Text className="text-white font-bold text-lg">
+                    <View className="bg-gradient-to-br from-blue-400 to-blue-600 rounded-full w-10 h-10 items-center justify-center mr-3">
+                      <Text className="text-white font-bold text-base">
                         {currentUser.name.charAt(0).toUpperCase()}
                       </Text>
                     </View>
                     <View className="flex-1">
-                      <Text className="text-base font-bold text-gray-900">{currentUser.name}</Text>
+                      <Text className="text-sm font-bold text-gray-900">{currentUser.name}</Text>
                       <Text className="text-xs text-gray-500">
                         {formatTimestamp(currentUser.timestamp)}
                       </Text>
                     </View>
-                    <View className="bg-green-100 rounded-full px-3 py-1">
+                    <View className="bg-green-100 rounded-full px-2 py-1">
                       <Text className="text-green-700 font-semibold text-xs">Active</Text>
                     </View>
                   </View>
                 </View>
 
                 {/* Info Card */}
-                <View className="bg-blue-50 border-2 border-blue-200 rounded-2xl p-5 mt-4 mb-4">
-                  <View className="flex-row items-center mb-3">
-                    <View className="bg-blue-500 rounded-full p-2">
-                      <Feather name="info" size={16} color="#ffffff" />
+                <View className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4">
+                  <View className="flex-row items-center mb-2">
+                    <View className="bg-blue-500 rounded-full p-1.5">
+                      <Feather name="info" size={14} color="#ffffff" />
                     </View>
-                    <Text className="text-blue-900 font-bold text-base ml-3">Quick Tips</Text>
+                    <Text className="text-blue-900 font-bold text-sm ml-2">Quick Tips</Text>
                   </View>
-                  <View className="space-y-2">
-                    <View className="flex-row items-start mb-2">
-                      <Feather name="check-circle" size={16} color="#3b82f6" style={{ marginTop: 2 }} />
-                      <Text className="text-blue-800 text-sm leading-5 ml-2 flex-1">
+                  <View className="space-y-1">
+                    <View className="flex-row items-start">
+                      <Feather name="check-circle" size={12} color="#3b82f6" style={{ marginTop: 2 }} />
+                      <Text className="text-blue-800 text-xs leading-4 ml-2 flex-1">
                         Select a user to assign this audit trail entry
                       </Text>
                     </View>
-                    <View className="flex-row items-start mb-2">
-                      <Feather name="check-circle" size={16} color="#3b82f6" style={{ marginTop: 2 }} />
-                      <Text className="text-blue-800 text-sm leading-5 ml-2 flex-1">
+                    <View className="flex-row items-start">
+                      <Feather name="check-circle" size={12} color="#3b82f6" style={{ marginTop: 2 }} />
+                      <Text className="text-blue-800 text-xs leading-4 ml-2 flex-1">
                         Provide detailed information in the feed
                       </Text>
                     </View>
                     <View className="flex-row items-start">
-                      <Feather name="check-circle" size={16} color="#3b82f6" style={{ marginTop: 2 }} />
-                      <Text className="text-blue-800 text-sm leading-5 ml-2 flex-1">
+                      <Feather name="check-circle" size={12} color="#3b82f6" style={{ marginTop: 2 }} />
+                      <Text className="text-blue-800 text-xs leading-4 ml-2 flex-1">
                         Attach relevant documents for reference
                       </Text>
                     </View>
                   </View>
                 </View>
-              </View>
+              {/* </View> */}
             </ScrollView>
           </Animated.View>
         </KeyboardAvoidingView>
