@@ -793,6 +793,8 @@ export default function HomeScreen() {
     try {
       setLoading(true);
       const userData = await AsyncStorage.getItem('userData');
+      console.log(userData);
+      
 
       if (!userData) {
         console.log('❌ No user data found in storage');
@@ -809,7 +811,7 @@ export default function HomeScreen() {
             'X-Menu-Id': 'DRlBbUjgXSb',
             'Content-Type': 'application/json',
           },
-        }
+        } 
       );
       const responsedropdown = await fetch(
         "https://api-v2-skystruct.prudenttec.com/project/project-dropdown",
