@@ -1,6 +1,7 @@
 // ✅ Working member suggestions for "Responsible Party" and "Reported By"
 // ✅ Added Status dropdown integration
 // ✅ Added Drawing Reference dropdown integration
+// ✅ Fixed update functionality - no longer generates new ID for updates
 
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import {
@@ -1109,30 +1110,9 @@ const FormModal = ({ visible, onClose, onSubmit, selectedItem, members, statusOp
         return;
       }
 
-      // Generate unique ID
-      const idResponse = await fetch(
-        'https://api-v2-skystruct.prudenttec.com/commonControl/get-common-generated-id',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${parsedData.jwtToken}`,
-            'X-Menu-Id': 'ERkvlKwRG7x',
-          },
-          body: JSON.stringify({
-            type: 'SNAG_ID',
-            lableName: 'SNAG',
-          }),
-        }
-      );
-
-      const idData = await idResponse.json();
-      const generatedSnagId = idData.idGeneratedBean.moduleLable;
-
       // Prepare snag data - use IDs for reportedBy, responsibleParty, status, and drawing reference
       const snagData = {
         snaggingReportFormBean: {
-          snagId: generatedSnagId,
           location: formData.location,
           dateOfChecking: formData.dateOfChecking,
           reportedBy: formData.reportedById, // Use ID instead of name
@@ -1143,33 +1123,91 @@ const FormModal = ({ visible, onClose, onSubmit, selectedItem, members, statusOp
         },
       };
 
-      console.log('Submitting snag data:', JSON.stringify(snagData, null, 2));
+      // If editing, include the autoId and use PUT method
+      if (selectedItem) {
+        snagData.snaggingReportFormBean.autoId = selectedItem.autoId;
+        snagData.snaggingReportFormBean.snagId = selectedItem.snagId;
 
-      // Submit snag data
-      const submitResponse = await fetch('https://api-v2-skystruct.prudenttec.com/snagging', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${parsedData.jwtToken}`,
-          'X-Menu-Id': 'ERkvlKwRG7x',
-        },
-        body: JSON.stringify(snagData),
-      });
+        console.log('Updating snag data:', JSON.stringify(snagData, null, 2));
 
-      if (!submitResponse.ok) {
-        throw new Error('Failed to submit snag data');
-      }
+        // Update snag data using PUT method
+        const updateResponse = await fetch('https://api-v2-skystruct.prudenttec.com/snagging', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${parsedData.jwtToken}`,
+            'X-Menu-Id': 'ERkvlKwRG7x',
+          },
+          body: JSON.stringify(snagData),
+        });
 
-      const submitResult = await submitResponse.json();
-
-      if (submitResult.status) {
-        if (onSubmit) {
-          onSubmit(snagData.snaggingReportFormBean, !!selectedItem);
+        if (!updateResponse.ok) {
+          throw new Error('Failed to update snag data');
         }
-        onClose();
-        alert('Snag report submitted successfully!');
+
+        const updateResult = await updateResponse.json();
+
+        if (updateResult.status) {
+          if (onSubmit) {
+            onSubmit(snagData.snaggingReportFormBean, true);
+          }
+          onClose();
+          alert('Snag report updated successfully!');
+        } else {
+          throw new Error(updateResult.message || 'Update failed');
+        }
       } else {
-        throw new Error(submitResult.message || 'Submission failed');
+        // Generate unique ID only for new records
+        const idResponse = await fetch(
+          'https://api-v2-skystruct.prudenttec.com/commonControl/get-common-generated-id',
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${parsedData.jwtToken}`,
+              'X-Menu-Id': 'ERkvlKwRG7x',
+            },
+            body: JSON.stringify({
+              type: 'SNAG_ID',
+              lableName: 'SNAG',
+            }),
+          }
+        );
+
+        const idData = await idResponse.json();
+        const generatedSnagId = idData.idGeneratedBean.moduleLable;
+
+        // Add generated Snag ID for new record
+        snagData.snaggingReportFormBean.snagId = generatedSnagId;
+
+        console.log('Creating new snag data:', JSON.stringify(snagData, null, 2));
+
+        // Submit new snag data using POST method
+        const submitResponse = await fetch('https://api-v2-skystruct.prudenttec.com/snagging', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${parsedData.jwtToken}`,
+            'X-Menu-Id': 'ERkvlKwRG7x',
+          },
+          body: JSON.stringify(snagData),
+        });
+
+        if (!submitResponse.ok) {
+          throw new Error('Failed to submit snag data');
+        }
+
+        const submitResult = await submitResponse.json();
+
+        if (submitResult.status) {
+          if (onSubmit) {
+            onSubmit(snagData.snaggingReportFormBean, false);
+          }
+          onClose();
+          alert('Snag report submitted successfully!');
+        } else {
+          throw new Error(submitResult.message || 'Submission failed');
+        }
       }
     } catch (error) {
       console.error('Submission error:', error);
